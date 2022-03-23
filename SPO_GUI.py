@@ -74,6 +74,23 @@ def select_end_folder_date():
     global path_to_end_folder_date
     path_to_end_folder_date = filedialog.askdirectory()
 
+def select_file_data_groupby():
+    """
+    Функция для выбора файла с данными
+    :return:
+    """
+    global name_file_data_groupby
+    # Получаем путь к файлу
+    name_file_data_groupby = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+def select_end_folder_groupby():
+    """
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
+    """
+    global path_to_end_folder_groupby
+    path_to_end_folder_groupby = filedialog.askdirectory()
+
 def generate_docs_other():
     """
     Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных ЦОПП Бурятия)
@@ -340,7 +357,105 @@ def calculate_date():
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Общая таблица успешно создана!')
+        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+
+def groupby_category():
+    """
+    Функция для подсчета выбранной колонки по категориям
+    :return:
+    """
+    try:
+        name_column = groupby_entry_name_column.get()
+        print(f'Обрабатываемая колонка {name_column}')
+        # Считываем файл
+        df = pd.read_excel(name_file_data_groupby)
+        print(f'Колонки в таблице {df.columns}')
+        # Добавляем столбец для облегчения подсчета по категориям
+        df['Итого'] = 1
+        # Создаем шрифт которым будем выделять названия таблиц
+        font_name_table = Font(name='Arial Black', size=15, italic=True)
+        # Создаем файл excel
+        wb = openpyxl.Workbook()
+        wb.create_sheet(title='Подсчет по категориям', index=0)
+
+
+        # Проводим группировку
+        group_df = df.groupby([name_column]).agg({'Итого':'sum'})
+        for r in dataframe_to_rows(group_df, index=True, header=True):
+            wb['Подсчет по категориям'].append(r)
+        wb['Подсчет по категориям'].column_dimensions['A'].width = 30
+
+
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        # Сохраняем итоговый файл
+        wb.save(f'{path_to_end_folder_groupby}/Подсчет по категориям {current_time}.xlsx')
+
+
+    except NameError:
+        messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+    except KeyError:
+        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+    else:
+        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+
+def groupby_stat():
+    """
+    Функция для подсчета выбранной колонки по количественным показателям(сумма,среднее,медиана,мин,макс)
+    :return:
+    """
+    try:
+        name_column = groupby_entry_name_column.get()
+        print(f'Обрабатываемая колонка {name_column}')
+        # Считываем файл
+        df = pd.read_excel(name_file_data_groupby)
+        print(f'Колонки в таблице {df.columns}')
+        # Добавляем столбец для облегчения подсчета по категориям
+        df['Итого'] = 1
+        # Создаем шрифт которым будем выделять названия таблиц
+        font_name_table = Font(name='Arial Black', size=15, italic=True)
+        # Создаем файл excel
+        wb = openpyxl.Workbook()
+        wb.create_sheet(title='Подсчет статистик', index=0)
+
+        group_df = df[name_column].describe().to_frame()
+
+        if group_df.shape[0] == 8:
+            # подсчитаем сумму
+            all_sum = df[name_column].sum()
+            dct_row = {name_column:all_sum}
+            row = pd.DataFrame(data=dct_row,index=['Сумма'])
+            #Добавим в датафрейм
+            group_df = pd.concat([group_df,row],axis=0)
+            # group_df = group_df.append({name_column:all_sum},ignore_index=True)
+            # Обновим названия индексов
+            group_df.index = ['Количество значений','Среднее','Стандартное отклонение','Минимальное значение','25%(Первый квартиль)','Медиана','75%(Третий квартиль)','Максимальное значение','Сумма']
+
+
+
+        elif group_df.shape[0] == 4:
+            group_df.index = ['Количество значений','Количество уникальных значений','Самое частое значение','Количество повторений самого частого значения',]
+        else:
+            messagebox.showerror('ЦОПП Бурятия','Возникла проблема при обработке. Проверьте значения в колонке')
+        for r in dataframe_to_rows(group_df, index=True, header=True):
+            wb['Подсчет статистик'].append(r)
+        wb['Подсчет статистик'].column_dimensions['A'].width = 30
+
+
+
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        # Сохраняем итоговый файл
+        wb.save(f'{path_to_end_folder_groupby}/Подсчет статистик {current_time}.xlsx')
+
+
+    except NameError:
+        messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+    except KeyError:
+        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+    else:
+        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+
 
 
 if __name__=='__main__':
@@ -363,7 +478,9 @@ if __name__=='__main__':
     # Добавляем виджеты на вкладку Создание документов
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_create_doc,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону')
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                      '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -413,7 +530,9 @@ if __name__=='__main__':
     # Добавляем виджеты на вкладку Обработка дат рождения
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_calculate_date,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста')
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -436,15 +555,72 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
-    label_name_column = Label(tab_calculate_date,text='3)Введите название колонки с датами рождения\nкоторые нужно обработать ')
+    label_name_column = Label(tab_calculate_date,text='3)Введите название колонки с датами рождения,\nкоторые нужно обработать ')
     label_name_column.grid(column=0,row=3,padx=10, pady=10)
     # поле ввода
-    column_entry = Entry(tab_calculate_date,textvariable=entry_name_column)
-    column_entry.grid(column=0,row=4,padx=5, pady=5)
+    column_entry = Entry(tab_calculate_date,textvariable=entry_name_column,width=30)
+    column_entry.grid(column=0,row=4,padx=5, pady=5,ipadx=30,ipady=15)
 
     btn_calculate_date = Button(tab_calculate_date,text='4)Обработать',font=('Arial Bold', 20),
                                        command=calculate_date)
     btn_calculate_date.grid(column=0,row=5,padx=10, pady=10)
+
+
+    # Создаем вкладку для подсчета данных по категориям
+    tab_groupby_data = ttk.Frame(tab_control)
+    tab_control.add(tab_groupby_data, text='Подсчет данных по категориям')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Подсчет данных  по категориям
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_groupby_data,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных по выбранной категории'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                      '\nДанные обрабатываются только с первого листа файла Excel!!!')
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_to_img = resource_path('logo.png')
+    img_groupby = PhotoImage(file=path_to_img)
+    Label(tab_groupby_data,
+          image=img_groupby
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_groupby = LabelFrame(tab_groupby_data, text='Подготовка')
+    frame_data_for_groupby.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать файл с данными
+    btn_data_groupby = Button(frame_data_for_groupby, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+                          command=select_file_data_groupby
+                          )
+    btn_data_groupby.grid(column=0, row=3, padx=10, pady=10)
+
+    btn_choose_end_folder_groupby = Button(frame_data_for_groupby, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+                                       command=select_end_folder_groupby
+                                       )
+    btn_choose_end_folder_groupby.grid(column=0, row=4, padx=10, pady=10)
+
+    # Определяем текстовую переменную
+    groupby_entry_name_column = StringVar()
+    # Описание поля
+    groupby_label_name_column = Label(frame_data_for_groupby,text='3)Введите название, колонки которую нужно обработать')
+    groupby_label_name_column.grid(column=0,row=5,padx=10, pady=10)
+    # поле ввода
+    groupby_column_entry = Entry(frame_data_for_groupby,textvariable=groupby_entry_name_column,width=30)
+    groupby_column_entry.grid(column=0,row=6,padx=5, pady=5,ipadx=30,ipady=15)
+
+    # Создаем кнопки подсчета
+
+    btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество', font=('Arial Bold', 20),
+                          command=groupby_category)
+    btn_groupby_category.grid(column=0, row=7, padx=10, pady=10)
+
+    btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать сумму,среднее,\nмедиану,min,max', font=('Arial Bold', 20),
+                          command=groupby_stat)
+    btn_groupby_stat.grid(column=0, row=8, padx=10, pady=10)
+
+
 
 
 
