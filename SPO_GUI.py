@@ -97,31 +97,27 @@ def generate_docs_other():
     :return:
     """
     try:
+        name_column = entry_name_column_data.get()
+        name_type_file = entry_type_file.get()
+
+
         # Считываем данные
         df = pd.read_excel(name_file_data_doc)
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
-        # Создаем счетчик для названий файлов в случае если нет колонки ФИО
-        count = 0
-
 
         # Создаем в цикле документы
         for row in data:
             doc = DocxTemplate(name_file_template_doc)
             context = row
-            count += 1
-            # Превращаем строку в список кортежей, где первый элемент кортежа это ключ а второй данные
-            if 'ФИО' in row:
-                doc.render(context)
+            doc.render(context)
+            #Сохраняенм файл
+            doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
 
-                doc.save(f'{path_to_end_folder_doc}/{row["ФИО"]}.docx')
-            else:
-                doc.render(context)
-
-                doc.save(f'{path_to_end_folder_doc}/{count}.docx')
-        messagebox.showinfo('ЦОПП Бурятия','Создание документов завершено!')
     except NameError as e:
         messagebox.showinfo('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+    else:
+        messagebox.showinfo('ЦОПП Бурятия', 'Создание документов завершено!')
 
 
 def set_rus_locale():
@@ -511,17 +507,38 @@ if __name__=='__main__':
     #
     # Создаем кнопку для выбора папки куда будут генерироваться файлы
 
-    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='3) Выберите конечную папку', font=('Arial Bold', 20),
+    # Определяем текстовую переменную
+    entry_name_column_data = StringVar()
+    # Описание поля
+    label_name_column_data = Label(frame_data_for_doc,text='3)Введите название колонки по которой будут создаваться имена файлов')
+    label_name_column_data.grid(column=0,row=5,padx=10, pady=10)
+    # поле ввода
+    data_column_entry = Entry(frame_data_for_doc,textvariable=entry_name_column_data,width=30)
+    data_column_entry.grid(column=0,row=6,padx=5, pady=5,ipadx=30,ipady=15)
+
+    # Поле для ввода названия генериуемых документов
+    # Определяем текстовую переменную
+    entry_type_file = StringVar()
+    # Описание поля
+    label_name_column_type_file = Label(frame_data_for_doc,text='4)Введите название создаваемых документов')
+    label_name_column_type_file.grid(column=0,row=7,padx=10, pady=10)
+    # поле ввода
+    type_file_column_entry = Entry(frame_data_for_doc,textvariable=entry_type_file,width=30)
+    type_file_column_entry.grid(column=0,row=8,padx=5, pady=5,ipadx=30,ipady=15)
+
+
+
+    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='4) Выберите конечную папку', font=('Arial Bold', 20),
                                        command=select_end_folder_doc
                                        )
-    btn_choose_end_folder_doc.grid(column=0, row=5, padx=10, pady=10)
+    btn_choose_end_folder_doc.grid(column=0, row=9, padx=10, pady=10)
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
     btn_create_files_other = Button(tab_create_doc, text='Создать документы',
                                     font=('Arial Bold', 20),
                                     command=generate_docs_other
                                     )
-    btn_create_files_other.grid(column=0, row=6, padx=10, pady=10)
+    btn_create_files_other.grid(column=0, row=10, padx=10, pady=10)
 
 
 
