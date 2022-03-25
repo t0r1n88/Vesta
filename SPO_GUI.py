@@ -510,7 +510,7 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     entry_name_column_data = StringVar()
     # Описание поля
-    label_name_column_data = Label(frame_data_for_doc,text='3)Введите название колонки по которой будут создаваться имена файлов')
+    label_name_column_data = Label(frame_data_for_doc,text='3) Введите название колонки в таблице\n по которой будут создаваться имена файлов')
     label_name_column_data.grid(column=0,row=5,padx=10, pady=10)
     # поле ввода
     data_column_entry = Entry(frame_data_for_doc,textvariable=entry_name_column_data,width=30)
@@ -520,7 +520,7 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     entry_type_file = StringVar()
     # Описание поля
-    label_name_column_type_file = Label(frame_data_for_doc,text='4)Введите название создаваемых документов')
+    label_name_column_type_file = Label(frame_data_for_doc,text='4) Введите название создаваемых документов')
     label_name_column_type_file.grid(column=0,row=7,padx=10, pady=10)
     # поле ввода
     type_file_column_entry = Entry(frame_data_for_doc,textvariable=entry_type_file,width=30)
@@ -528,7 +528,7 @@ if __name__=='__main__':
 
 
 
-    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='4) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='5) Выберите конечную папку', font=('Arial Bold', 20),
                                        command=select_end_folder_doc
                                        )
     btn_choose_end_folder_doc.grid(column=0, row=9, padx=10, pady=10)
@@ -575,26 +575,26 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
-    label_name_column = Label(tab_calculate_date,text='3)Введите название колонки с датами рождения,\nкоторые нужно обработать ')
+    label_name_column = Label(tab_calculate_date,text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
     label_name_column.grid(column=0,row=3,padx=10, pady=10)
     # поле ввода
     column_entry = Entry(tab_calculate_date,textvariable=entry_name_column,width=30)
     column_entry.grid(column=0,row=4,padx=5, pady=5,ipadx=30,ipady=15)
 
-    btn_calculate_date = Button(tab_calculate_date,text='4)Обработать',font=('Arial Bold', 20),
+    btn_calculate_date = Button(tab_calculate_date,text='4) Обработать',font=('Arial Bold', 20),
                                        command=calculate_date)
     btn_calculate_date.grid(column=0,row=5,padx=10, pady=10)
 
 
     # Создаем вкладку для подсчета данных по категориям
     tab_groupby_data = ttk.Frame(tab_control)
-    tab_control.add(tab_groupby_data, text='Подсчет данных по категориям')
+    tab_control.add(tab_groupby_data, text='Подсчет данных')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Подсчет данных  по категориям
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_groupby_data,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных по выбранной категории'
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
                       '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
@@ -624,7 +624,7 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     groupby_entry_name_column = StringVar()
     # Описание поля
-    groupby_label_name_column = Label(frame_data_for_groupby,text='3)Введите название, колонки которую нужно обработать')
+    groupby_label_name_column = Label(frame_data_for_groupby,text='3) Введите название колонки, которую нужно обработать')
     groupby_label_name_column.grid(column=0,row=5,padx=10, pady=10)
     # поле ввода
     groupby_column_entry = Entry(frame_data_for_groupby,textvariable=groupby_entry_name_column,width=30)
@@ -632,11 +632,11 @@ if __name__=='__main__':
 
     # Создаем кнопки подсчета
 
-    btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество', font=('Arial Bold', 20),
+    btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество\n по категориям', font=('Arial Bold', 20),
                           command=groupby_category)
     btn_groupby_category.grid(column=0, row=7, padx=10, pady=10)
 
-    btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать сумму,среднее,\nмедиану,min,max', font=('Arial Bold', 20),
+    btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать базовую статистику\nпо колонке', font=('Arial Bold', 20),
                           command=groupby_stat)
     btn_groupby_stat.grid(column=0, row=8, padx=10, pady=10)
 
