@@ -276,6 +276,9 @@ def calculate_date():
         ## Приводим к строковому виду, иначе не запишется на лист
         df['Росстат Категория'] = df['Росстат Категория'].astype(str)
 
+        # Заполняем пустые строки
+        df.fillna('Не заполнено!!!',inplace=True)
+
         # заполняем сводные таблицы
         # Сводная по возрастам
 
@@ -351,7 +354,7 @@ def calculate_date():
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_date}/Таблица по датам рождения от {current_time}.xlsx')
+        wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
@@ -389,7 +392,7 @@ def groupby_category():
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_groupby}/Подсчет по категориям {current_time}.xlsx')
+        wb.save(f'{path_to_end_folder_groupby}/Подсчет по категориям для колонки{name_column} {current_time}.xlsx')
 
 
     except NameError:
@@ -446,7 +449,7 @@ def groupby_stat():
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_groupby}/Подсчет статистик {current_time}.xlsx')
+        wb.save(f'{path_to_end_folder_groupby}/Подсчет статистик по колонке{name_column} {current_time}.xlsx')
 
 
     except NameError:
