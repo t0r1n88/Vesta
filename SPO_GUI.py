@@ -103,6 +103,12 @@ def generate_docs_other():
 
         # Считываем данные
         df = pd.read_excel(name_file_data_doc)
+
+        # Обрабатываем колонки с датами, чтобы они отображались корректно
+        for column in df.columns:
+            if df[column].dtype == 'datetime64[ns]':
+                df[column] = df[column].apply(convert_date)
+
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
 
@@ -110,6 +116,7 @@ def generate_docs_other():
         for row in data:
             doc = DocxTemplate(name_file_template_doc)
             context = row
+            print(context)
             doc.render(context)
             #Сохраняенм файл
             doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
