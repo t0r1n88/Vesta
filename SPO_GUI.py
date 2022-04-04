@@ -200,7 +200,8 @@ def calculate_date():
         # Считываем файл
         df = pd.read_excel(name_file_data_date)
         # Конвертируем его в формат даты
-        df[name_column] = pd.to_datetime(df[name_column], dayfirst=True)
+
+        df[name_column] = pd.to_datetime(df[name_column], dayfirst=True,errors='coerce')
         # Создаем шрифт которым будем выделять названия таблиц
         font_name_table = Font(name='Arial Black', size=15, italic=True)
 
