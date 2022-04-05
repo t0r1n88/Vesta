@@ -1,4 +1,3 @@
-
 import pandas as pd
 import os
 from docxtpl import DocxTemplate
@@ -21,6 +20,7 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 import sys
 import locale
 
+
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -31,6 +31,7 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
+
 def select_file_template_doc():
     """
     Функция для выбора файла шаблона
@@ -39,6 +40,7 @@ def select_file_template_doc():
     global name_file_template_doc
     name_file_template_doc = filedialog.askopenfilename(
         filetypes=(('Word files', '*.docx'), ('all files', '*.*')))
+
 
 def select_file_data_doc():
     """
@@ -49,6 +51,7 @@ def select_file_data_doc():
     # Получаем путь к файлу
     name_file_data_doc = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
+
 def select_end_folder_doc():
     """
     Функция для выбора папки куда будут генерироваться файлы
@@ -56,6 +59,7 @@ def select_end_folder_doc():
     """
     global path_to_end_folder_doc
     path_to_end_folder_doc = filedialog.askdirectory()
+
 
 def select_file_data_date():
     """
@@ -66,6 +70,7 @@ def select_file_data_date():
     # Получаем путь к файлу
     name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
+
 def select_end_folder_date():
     """
     Функция для выбора папки куда будет генерироваться итоговый файл
@@ -73,6 +78,7 @@ def select_end_folder_date():
     """
     global path_to_end_folder_date
     path_to_end_folder_date = filedialog.askdirectory()
+
 
 def select_file_data_groupby():
     """
@@ -83,6 +89,7 @@ def select_file_data_groupby():
     # Получаем путь к файлу
     name_file_data_groupby = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
+
 def select_end_folder_groupby():
     """
     Функция для выбора папки куда будет генерироваться итоговый файл
@@ -90,6 +97,7 @@ def select_end_folder_groupby():
     """
     global path_to_end_folder_groupby
     path_to_end_folder_groupby = filedialog.askdirectory()
+
 
 def generate_docs_other():
     """
@@ -99,7 +107,6 @@ def generate_docs_other():
     try:
         name_column = entry_name_column_data.get()
         name_type_file = entry_type_file.get()
-
 
         # Считываем данные
         df = pd.read_excel(name_file_data_doc)
@@ -118,7 +125,7 @@ def generate_docs_other():
             context = row
             print(context)
             doc.render(context)
-            #Сохраняенм файл
+            # Сохраняенм файл
             doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
 
     except NameError as e:
@@ -165,6 +172,7 @@ def convert_date(cell):
         messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
         quit()
 
+
 def extract_number_month(cell):
     """
     Функция для извлечения номера месяца
@@ -186,6 +194,7 @@ def extract_year(cell):
     """
     return cell.year
 
+
 def calculate_date():
     """
     Функция для разбиения по категориям, подсчета текущего возраста и выделения месяца,года
@@ -200,15 +209,19 @@ def calculate_date():
         # Считываем файл
         df = pd.read_excel(name_file_data_date)
         # Конвертируем его в формат даты
-
-        df[name_column] = pd.to_datetime(df[name_column], dayfirst=True,errors='coerce')
+        # В случае ошибок заменяем значение NaN
+        df[name_column] = pd.to_datetime(df[name_column], dayfirst=True, errors='coerce')
         # Создаем шрифт которым будем выделять названия таблиц
         font_name_table = Font(name='Arial Black', size=15, italic=True)
 
         # Создаем файл excel
         wb = openpyxl.Workbook()
         # Создаем листы
-        wb.create_sheet(title='Итоговая таблица', index=0)
+        # Переименовываем лист чтобы в итоговом файле не было пустого листа
+        ren_sheet = wb['Sheet']
+        ren_sheet.title = 'Итоговая таблица'
+
+        # wb.create_sheet(title='Итоговая таблица', index=0)
         wb.create_sheet(title='Свод по возрастам', index=1)
         wb.create_sheet(title='Свод по месяцам', index=2)
         wb.create_sheet(title='Свод по годам', index=3)
@@ -260,9 +273,11 @@ def calculate_date():
 
         # Присваиваем категорию по 1-СПО
         df['СПО-1 Категория'] = pd.cut(df['Текущий возраст'],
-                                       [0, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 34, 39,
+                                       [0, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 34,
+                                        39,
                                         101],
-                                       labels=['моложе 13 лет', '13 лет', '14 лет', '15 лет', '16 лет', '17 лет', '18 лет',
+                                       labels=['моложе 13 лет', '13 лет', '14 лет', '15 лет', '16 лет', '17 лет',
+                                               '18 лет',
                                                '19 лет', '20 лет'
                                            , '21 год', '22 года', '23 года', '24 года', '25 лет', '26 лет', '27 лет',
                                                '28 лет',
@@ -281,7 +296,7 @@ def calculate_date():
         df['Росстат Категория'] = df['Росстат Категория'].astype(str)
 
         # Заполняем пустые строки
-        df.fillna('Не заполнено!!!',inplace=True)
+        df.fillna('Не заполнено!!!', inplace=True)
 
         # заполняем сводные таблицы
         # Сводная по возрастам
@@ -342,7 +357,8 @@ def calculate_date():
 
         # Сортируем индекс
         df_svod_by_Ros.index = pd.CategoricalIndex(df_svod_by_Ros.index,
-                                                   categories=['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34',
+                                                   categories=['0-4', '5-9', '10-14', '15-19', '20-24', '25-29',
+                                                               '30-34',
                                                                '35-39', '40-44', '45-49', '50-54', '55-59', '60-64',
                                                                '65-69',
                                                                '70 лет и старше', 'nan'],
@@ -366,13 +382,15 @@ def calculate_date():
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
+
 def groupby_category():
     """
     Функция для подсчета выбранной колонки по категориям
     :return:
     """
+    name_column = groupby_entry_name_column.get()
     try:
-        name_column = groupby_entry_name_column.get()
+
         print(f'Обрабатываемая колонка {name_column}')
         # Считываем файл
         df = pd.read_excel(name_file_data_groupby)
@@ -383,15 +401,15 @@ def groupby_category():
         font_name_table = Font(name='Arial Black', size=15, italic=True)
         # Создаем файл excel
         wb = openpyxl.Workbook()
-        wb.create_sheet(title='Подсчет по категориям', index=0)
-
+        # Переименовываем лист
+        ren_sheet = wb['Sheet']
+        ren_sheet.title = 'Подсчет по категориям'
 
         # Проводим группировку
-        group_df = df.groupby([name_column]).agg({'Итого':'sum'})
+        group_df = df.groupby([name_column]).agg({'Итого': 'sum'})
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет по категориям'].append(r)
         wb['Подсчет по категориям'].column_dimensions['A'].width = 30
-
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
@@ -403,16 +421,21 @@ def groupby_category():
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+    except TypeError:
+        messagebox.showerror('ЦОПП Бурятия',
+                             f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+
 
 def groupby_stat():
     """
     Функция для подсчета выбранной колонки по количественным показателям(сумма,среднее,медиана,мин,макс)
     :return:
     """
+    name_column = groupby_entry_name_column.get()
     try:
-        name_column = groupby_entry_name_column.get()
+
         print(f'Обрабатываемая колонка {name_column}')
         # Считываем файл
         df = pd.read_excel(name_file_data_groupby)
@@ -423,32 +446,35 @@ def groupby_stat():
         font_name_table = Font(name='Arial Black', size=15, italic=True)
         # Создаем файл excel
         wb = openpyxl.Workbook()
-        wb.create_sheet(title='Подсчет статистик', index=0)
+        wb = openpyxl.Workbook()
+        ren_sheet = wb['Sheet']
+        ren_sheet.title = 'Подсчет статистик'
 
         group_df = df[name_column].describe().to_frame()
 
         if group_df.shape[0] == 8:
             # подсчитаем сумму
             all_sum = df[name_column].sum()
-            dct_row = {name_column:all_sum}
-            row = pd.DataFrame(data=dct_row,index=['Сумма'])
-            #Добавим в датафрейм
-            group_df = pd.concat([group_df,row],axis=0)
+            dct_row = {name_column: all_sum}
+            row = pd.DataFrame(data=dct_row, index=['Сумма'])
+            # Добавим в датафрейм
+            group_df = pd.concat([group_df, row], axis=0)
             # group_df = group_df.append({name_column:all_sum},ignore_index=True)
             # Обновим названия индексов
-            group_df.index = ['Количество значений','Среднее','Стандартное отклонение','Минимальное значение','25%(Первый квартиль)','Медиана','75%(Третий квартиль)','Максимальное значение','Сумма']
+            group_df.index = ['Количество значений', 'Среднее', 'Стандартное отклонение', 'Минимальное значение',
+                              '25%(Первый квартиль)', 'Медиана', '75%(Третий квартиль)', 'Максимальное значение',
+                              'Сумма']
 
 
 
         elif group_df.shape[0] == 4:
-            group_df.index = ['Количество значений','Количество уникальных значений','Самое частое значение','Количество повторений самого частого значения',]
+            group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
+                              'Количество повторений самого частого значения', ]
         else:
-            messagebox.showerror('ЦОПП Бурятия','Возникла проблема при обработке. Проверьте значения в колонке')
+            messagebox.showerror('ЦОПП Бурятия', 'Возникла проблема при обработке. Проверьте значения в колонке')
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет статистик'].append(r)
         wb['Подсчет статистик'].column_dimensions['A'].width = 30
-
-
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
@@ -460,17 +486,18 @@ def groupby_stat():
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+    except TypeError:
+        messagebox.showerror('ЦОПП Бурятия',
+                             f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
 
-
-if __name__=='__main__':
+if __name__ == '__main__':
     window = Tk()
     window.title('ЦОПП Бурятия')
     window.geometry('700x860')
     window.resizable(False, False)
-
 
     # Создаем объект вкладок
 
@@ -481,13 +508,12 @@ if __name__=='__main__':
     tab_control.add(tab_create_doc, text='Создание документов')
     tab_control.pack(expand=1, fill='both')
 
-
     # Добавляем виджеты на вкладку Создание документов
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_create_doc,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
-                      '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -518,23 +544,22 @@ if __name__=='__main__':
     # Определяем текстовую переменную
     entry_name_column_data = StringVar()
     # Описание поля
-    label_name_column_data = Label(frame_data_for_doc,text='3) Введите название колонки в таблице\n по которой будут создаваться имена файлов')
-    label_name_column_data.grid(column=0,row=5,padx=10, pady=10)
+    label_name_column_data = Label(frame_data_for_doc,
+                                   text='3) Введите название колонки в таблице\n по которой будут создаваться имена файлов')
+    label_name_column_data.grid(column=0, row=5, padx=10, pady=10)
     # поле ввода
-    data_column_entry = Entry(frame_data_for_doc,textvariable=entry_name_column_data,width=30)
-    data_column_entry.grid(column=0,row=6,padx=5, pady=5,ipadx=30,ipady=15)
+    data_column_entry = Entry(frame_data_for_doc, textvariable=entry_name_column_data, width=30)
+    data_column_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=30, ipady=15)
 
     # Поле для ввода названия генериуемых документов
     # Определяем текстовую переменную
     entry_type_file = StringVar()
     # Описание поля
-    label_name_column_type_file = Label(frame_data_for_doc,text='4) Введите название создаваемых документов')
-    label_name_column_type_file.grid(column=0,row=7,padx=10, pady=10)
+    label_name_column_type_file = Label(frame_data_for_doc, text='4) Введите название создаваемых документов')
+    label_name_column_type_file.grid(column=0, row=7, padx=10, pady=10)
     # поле ввода
-    type_file_column_entry = Entry(frame_data_for_doc,textvariable=entry_type_file,width=30)
-    type_file_column_entry.grid(column=0,row=8,padx=5, pady=5,ipadx=30,ipady=15)
-
-
+    type_file_column_entry = Entry(frame_data_for_doc, textvariable=entry_type_file, width=30)
+    type_file_column_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=30, ipady=15)
 
     btn_choose_end_folder_doc = Button(frame_data_for_doc, text='5) Выберите конечную папку', font=('Arial Bold', 20),
                                        command=select_end_folder_doc
@@ -548,12 +573,9 @@ if __name__=='__main__':
                                     )
     btn_create_files_other.grid(column=0, row=10, padx=10, pady=10)
 
-
-
     tab_calculate_date = ttk.Frame(tab_control)
     tab_control.add(tab_calculate_date, text='Обработка дат рождения')
     tab_control.pack(expand=1, fill='both')
-
 
     # Добавляем виджеты на вкладку Обработка дат рождения
     # Создаем метку для описания назначения программы
@@ -572,27 +594,27 @@ if __name__=='__main__':
 
     # Создаем кнопку Выбрать файл с данными
     btn_data_date = Button(tab_calculate_date, text='1) Выберите файл с данными', font=('Arial Bold', 20),
-                          command=select_file_data_date)
+                           command=select_file_data_date)
     btn_data_date.grid(column=0, row=1, padx=10, pady=10)
 
     btn_choose_end_folder_date = Button(tab_calculate_date, text='2) Выберите конечную папку', font=('Arial Bold', 20),
-                                       command=select_end_folder_date
-                                       )
+                                        command=select_end_folder_date
+                                        )
     btn_choose_end_folder_date.grid(column=0, row=2, padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
-    label_name_column = Label(tab_calculate_date,text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
-    label_name_column.grid(column=0,row=3,padx=10, pady=10)
+    label_name_column = Label(tab_calculate_date,
+                              text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
+    label_name_column.grid(column=0, row=3, padx=10, pady=10)
     # поле ввода
-    column_entry = Entry(tab_calculate_date,textvariable=entry_name_column,width=30)
-    column_entry.grid(column=0,row=4,padx=5, pady=5,ipadx=30,ipady=15)
+    column_entry = Entry(tab_calculate_date, textvariable=entry_name_column, width=30)
+    column_entry.grid(column=0, row=4, padx=5, pady=5, ipadx=30, ipady=15)
 
-    btn_calculate_date = Button(tab_calculate_date,text='4) Обработать',font=('Arial Bold', 20),
-                                       command=calculate_date)
-    btn_calculate_date.grid(column=0,row=5,padx=10, pady=10)
-
+    btn_calculate_date = Button(tab_calculate_date, text='4) Обработать', font=('Arial Bold', 20),
+                                command=calculate_date)
+    btn_calculate_date.grid(column=0, row=5, padx=10, pady=10)
 
     # Создаем вкладку для подсчета данных по категориям
     tab_groupby_data = ttk.Frame(tab_control)
@@ -604,7 +626,7 @@ if __name__=='__main__':
     lbl_hello = Label(tab_groupby_data,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
-                      '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -620,41 +642,36 @@ if __name__=='__main__':
 
     # Создаем кнопку Выбрать файл с данными
     btn_data_groupby = Button(frame_data_for_groupby, text='1) Выберите файл с данными', font=('Arial Bold', 20),
-                          command=select_file_data_groupby
-                          )
+                              command=select_file_data_groupby
+                              )
     btn_data_groupby.grid(column=0, row=3, padx=10, pady=10)
 
-    btn_choose_end_folder_groupby = Button(frame_data_for_groupby, text='2) Выберите конечную папку', font=('Arial Bold', 20),
-                                       command=select_end_folder_groupby
-                                       )
+    btn_choose_end_folder_groupby = Button(frame_data_for_groupby, text='2) Выберите конечную папку',
+                                           font=('Arial Bold', 20),
+                                           command=select_end_folder_groupby
+                                           )
     btn_choose_end_folder_groupby.grid(column=0, row=4, padx=10, pady=10)
 
     # Определяем текстовую переменную
     groupby_entry_name_column = StringVar()
     # Описание поля
-    groupby_label_name_column = Label(frame_data_for_groupby,text='3) Введите название колонки, которую нужно обработать')
-    groupby_label_name_column.grid(column=0,row=5,padx=10, pady=10)
+    groupby_label_name_column = Label(frame_data_for_groupby,
+                                      text='3) Введите название колонки, которую нужно обработать')
+    groupby_label_name_column.grid(column=0, row=5, padx=10, pady=10)
     # поле ввода
-    groupby_column_entry = Entry(frame_data_for_groupby,textvariable=groupby_entry_name_column,width=30)
-    groupby_column_entry.grid(column=0,row=6,padx=5, pady=5,ipadx=30,ipady=15)
+    groupby_column_entry = Entry(frame_data_for_groupby, textvariable=groupby_entry_name_column, width=30)
+    groupby_column_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=30, ipady=15)
 
     # Создаем кнопки подсчета
 
-    btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество\n по категориям', font=('Arial Bold', 20),
-                          command=groupby_category)
+    btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество\n по категориям',
+                                  font=('Arial Bold', 20),
+                                  command=groupby_category)
     btn_groupby_category.grid(column=0, row=7, padx=10, pady=10)
 
-    btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать базовую статистику\nпо колонке', font=('Arial Bold', 20),
-                          command=groupby_stat)
+    btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать базовую статистику\nпо колонке',
+                              font=('Arial Bold', 20),
+                              command=groupby_stat)
     btn_groupby_stat.grid(column=0, row=8, padx=10, pady=10)
 
-
-
-
-
     window.mainloop()
-
-
-
-
-
