@@ -109,12 +109,13 @@ def generate_docs_other():
         name_type_file = entry_type_file.get()
 
         # Считываем данные
-        df = pd.read_excel(name_file_data_doc)
+        # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
+        df = pd.read_excel(name_file_data_doc,dtype=str)
 
         # Обрабатываем колонки с датами, чтобы они отображались корректно
-        for column in df.columns:
-            if df[column].dtype == 'datetime64[ns]':
-                df[column] = df[column].apply(convert_date)
+        # for column in df.columns:
+        #     if df[column].dtype == 'datetime64[ns]':
+        #         df[column] = df[column].apply(convert_date)
 
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
