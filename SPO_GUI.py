@@ -71,6 +71,36 @@ def select_file_data_date():
     name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
 
+def select_first_comparison():
+    """
+    Функция для выбора  первого файла с данными которые нужно сравнить
+    :return: Путь к файлу с данными
+    """
+    global name_first_file_comparison
+    # Получаем путь к файлу
+    name_first_file_comparison = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_second_comparison():
+    """
+    Функция для выбора  второго файла с данными которые нужно сравнить
+    :return: Путь к файлу с данными
+    """
+    global name_second_file_comparison
+    # Получаем путь к файлу
+    name_second_file_comparison = filedialog.askopenfilename(
+        filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_end_folder_comparison():
+    """
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
+    """
+    global path_to_end_folder_comparison
+    path_to_end_folder_comparison = filedialog.askdirectory()
+
+
 def select_end_folder_date():
     """
     Функция для выбора папки куда будет генерироваться итоговый файл
@@ -110,7 +140,7 @@ def generate_docs_other():
 
         # Считываем данные
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
-        df = pd.read_excel(name_file_data_doc,dtype=str)
+        df = pd.read_excel(name_file_data_doc, dtype=str)
 
         # Обрабатываем колонки с датами, чтобы они отображались корректно
         # for column in df.columns:
@@ -494,6 +524,46 @@ def groupby_stat():
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
 
+def processing_comparison():
+    """
+    Функция для сравнения 2 колонок
+    :return:
+    """
+    try:
+        # Получаем значения текстовых полей
+        first_column = entry_first_name_column.get()
+        second_column = entry_second_name_column.get()
+
+        # загружаем файлы
+        df_frist = pd.read_excel(name_first_file_comparison, dtype=str)
+        df_second = pd.read_excel(name_second_file_comparison, dtype=str)
+        # Создаем переменную для типа создаваемого документа
+        status_rb_type_doc = group_rb_type_doc.get()
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        # Сохраняем итоговый файл
+
+        # В зависимости от значения проводим merge
+        if status_rb_type_doc == 0:
+            itog_df = pd.merge(df_frist, df_second, how='inner', left_on=first_column, right_on=second_column)
+            # Сохраняем результат
+            itog_df.to_excel(f' Совпадающие значения результат обработки от {current_time}.xlsx', index=False)
+        elif status_rb_type_doc == 1:
+            itog_df = pd.merge(df_frist, df_second, how='left', left_on=first_column, right_on=second_column)
+            # Сохраняем результат
+            itog_df.to_excel(f'Результат обработки от {current_time}.xlsx', index=False)
+        elif status_rb_type_doc == 2:
+            itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
+            # Сохраняем результат
+            itog_df.to_excel(f'Результат обработки от {current_time}.xlsx', index=False)
+    except NameError:
+        messagebox.showerror('ЦОПП Бурятия', f'Выберите файлы с данными и папку куда будет генерироваться файл')
+    except KeyError:
+        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+    else:
+        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+
+
 if __name__ == '__main__':
     window = Tk()
     window.title('ЦОПП Бурятия')
@@ -675,4 +745,88 @@ if __name__ == '__main__':
                               command=groupby_stat)
     btn_groupby_stat.grid(column=0, row=8, padx=10, pady=10)
 
-    window.mainloop()
+    # Создаем вкладку для сравнения 2 столбцов
+
+    tab_comparison = ttk.Frame(tab_control)
+    tab_control.add(tab_comparison, text='Сравнение 2 колонок')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Создание документов
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_comparison,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                           'Получение совпадающих значений из 2 колонок'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_com = resource_path('logo.png')
+    img_comparison = PhotoImage(file=path_com)
+    Label(tab_comparison,
+          image=img
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_comparison = LabelFrame(tab_comparison, text='Подготовка')
+    frame_data_for_comparison.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать  первый файл с данными
+    btn_data_first_comparison = Button(frame_data_for_comparison, text='1) Выберите первый файл с данными',
+                                       font=('Arial Bold', 10),
+                                       command=select_first_comparison
+                                       )
+    btn_data_first_comparison.grid(column=0, row=3, padx=10, pady=10)
+
+    # Определяем текстовую переменную
+    entry_first_name_column = StringVar()
+    # Описание поля
+    label_first_name_column = Label(frame_data_for_comparison,
+                                    text='2) Введите название колонки в первом файле,\nкоторую нужно сравнить')
+    label_first_name_column.grid(column=0, row=4, padx=10, pady=10)
+    # поле ввода
+    column_first_entry = Entry(frame_data_for_comparison, textvariable=entry_first_name_column, width=30)
+    column_first_entry.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Создаем кнопку Выбрать  второй файл с данными
+    btn_data_second_comparison = Button(frame_data_for_comparison, text='3) Выберите второй файл с данными',
+                                        font=('Arial Bold', 10),
+                                        command=select_second_comparison
+                                        )
+    btn_data_second_comparison.grid(column=0, row=6, padx=10, pady=10)
+
+    # Определяем текстовую переменную
+    entry_second_name_column = StringVar()
+    # Описание поля
+    label_second_name_column = Label(frame_data_for_comparison,
+                                     text='4) Введите название колонки во втором файле,\nкоторую нужно сравнить')
+    label_second_name_column.grid(column=0, row=7, padx=10, pady=10)
+    # поле ввода
+    column_second_entry = Entry(frame_data_for_comparison, textvariable=entry_second_name_column, width=30)
+    column_second_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Создаем кнопку выбора папки куда будет генерироваьться файл
+    btn_select_end_comparison = Button(frame_data_for_comparison, text='5) Выберите конечную папку',
+                                       font=('Arial Bold', 10),
+                                       command=select_end_folder_comparison
+                                       )
+    btn_select_end_comparison.grid(column=0, row=9, padx=10, pady=10)
+
+    # Создаем переменную хранящую тип документа, в зависимости от значения будет использоваться та или иная функция
+    group_rb_type_doc = IntVar()
+    # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
+    frame_rb_type_doc = LabelFrame(tab_comparison, text='6) Выберите тип сравнения')
+    frame_rb_type_doc.grid(column=0, row=10, padx=10)
+    #
+    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок (пересечение)', variable=group_rb_type_doc,
+                value=0).pack()
+    Radiobutton(frame_rb_type_doc, text='Left Join', variable=group_rb_type_doc, value=1).pack()
+    Radiobutton(frame_rb_type_doc, text='Right Join', variable=group_rb_type_doc, value=2).pack()
+
+    # Создаем кнопку Обработать данные
+    btn_data_do_comparison = Button(tab_comparison, text='7) Обработать данные', font=('Arial Bold', 20),
+                                    command=processing_comparison
+                                    )
+    btn_data_do_comparison.grid(column=0, row=11, padx=10, pady=10)
+
+window.mainloop()
