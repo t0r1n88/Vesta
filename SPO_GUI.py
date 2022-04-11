@@ -17,6 +17,7 @@ from openpyxl.chart import BarChart, Reference, PieChart, PieChart3D, Series
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
+pd.options.mode.chained_assignment = None
 import sys
 import locale
 
@@ -547,15 +548,54 @@ def processing_comparison():
         if status_rb_type_doc == 0:
             itog_df = pd.merge(df_frist, df_second, how='inner', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f' Совпадающие значения результат обработки от {current_time}.xlsx', index=False)
+            itog_df.to_excel(f'{path_to_end_folder_comparison}/Совпадающие значения  от {current_time}.xlsx', index=False)
         elif status_rb_type_doc == 1:
             itog_df = pd.merge(df_frist, df_second, how='left', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f'Результат обработки от {current_time}.xlsx', index=False)
+            itog_df.to_excel(f'{path_to_end_folder_comparison}/Left Результат обработки от {current_time}.xlsx', index=False)
+            #В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
         elif status_rb_type_doc == 2:
             itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
+            #В результат объединения попадают совпадающие по ключу записи обеих таблиц и все данные из правой таблицы, для которых не нашлось пары в левой.
             # Сохраняем результат
-            itog_df.to_excel(f'Результат обработки от {current_time}.xlsx', index=False)
+            itog_df.to_excel(f'{path_to_end_folder_comparison}/Right Результат обработки от {current_time}.xlsx', index=False)
+        elif status_rb_type_doc == 3:
+            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column)
+            # Сохраняем результат
+            itog_df.to_excel(f'{path_to_end_folder_comparison}/Outer Результат обработки от {current_time}.xlsx', index=False)
+            #В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
+        elif status_rb_type_doc == 4:
+            # Создаем документ
+            wb = openpyxl.Workbook()
+            # создаем листы
+            ren_sheet = wb['Sheet']
+            ren_sheet.title = 'Первая таблица'
+            wb.create_sheet(title='Вторая таблица',index=1)
+            wb.create_sheet(title='Общие данные',index=2)
+            # Создаем датафрейм
+            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,indicator=True)
+
+            # Записываем каждый датафрейм в соответсвующий лист
+            left_df = itog_df[itog_df['_merge'] == 'left_only']
+            left_df.drop(['_merge'],axis=1,inplace=True)
+            for r in dataframe_to_rows(left_df, index=False, header=True):
+                wb['Первая таблица'].append(r)
+
+            right_df = itog_df[itog_df['_merge'] == 'right_only']
+            right_df.drop(['_merge'], axis=1,inplace=True)
+            for r in dataframe_to_rows(right_df, index=False, header=True):
+                wb['Вторая таблица'].append(r)
+
+            both_df = itog_df[itog_df['_merge'] == 'both']
+            both_df.drop(['_merge'],axis=1, inplace=True)
+            for r in dataframe_to_rows(both_df, index=False, header=True):
+                wb['Общие данные'].append(r)
+
+            # Сохраняем
+            t = time.localtime()
+            current_time = time.strftime('%H_%M_%S', t)
+            # Сохраняем итоговый файл
+            wb.save(f'{path_to_end_folder_comparison}/Уникальные данные от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файлы с данными и папку куда будет генерироваться файл')
     except KeyError:
@@ -822,6 +862,8 @@ if __name__ == '__main__':
                 value=0).pack()
     Radiobutton(frame_rb_type_doc, text='Left Join', variable=group_rb_type_doc, value=1).pack()
     Radiobutton(frame_rb_type_doc, text='Right Join', variable=group_rb_type_doc, value=2).pack()
+    Radiobutton(frame_rb_type_doc, text='Объединить таблицы', variable=group_rb_type_doc, value=3).pack()
+    Radiobutton(frame_rb_type_doc, text='Outer Minus Join ', variable=group_rb_type_doc, value=4).pack()
 
     # Создаем кнопку Обработать данные
     btn_data_do_comparison = Button(tab_comparison, text='7) Обработать данные', font=('Arial Bold', 20),
