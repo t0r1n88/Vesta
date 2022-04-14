@@ -1,5 +1,7 @@
 import pandas as pd
 import os
+
+from dateutil.parser import ParserError
 from docxtpl import DocxTemplate
 from tkinter import *
 from tkinter import filedialog
@@ -143,11 +145,27 @@ def generate_docs_other():
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
         df = pd.read_excel(name_file_data_doc, dtype=str)
 
-        # Обрабатываем колонки с датами, чтобы они отображались корректно
+        # получаем первую строку датафрейма
+        first_row = df.iloc[0, :]
+        lst_first_row = list(first_row)
+        lst_date_columns = []
+        # Перебираем
+        for idx, value in enumerate(lst_first_row):
+            result = check_date_columns(idx, value)
+            if result:
+                lst_date_columns.append(result)
+            else:
+                continue
+        # Конвертируем в пригодный строковый формат
+        for i in lst_date_columns:
+            df.iloc[:, i] = pd.to_datetime(df.iloc[:, i],errors='coerce',infer_datetime_format=True,dayfirst=True)
+            df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
+
         # for column in df.columns:
         #     if df[column].dtype == 'datetime64[ns]':
         #         df[column] = df[column].apply(convert_date)
-
+        # for column in df.columns:
+        #     df[column] = pd.to_datetime(df[name_column], dayfirst=True, errors='coerce')
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
 
@@ -155,7 +173,7 @@ def generate_docs_other():
         for row in data:
             doc = DocxTemplate(name_file_template_doc)
             context = row
-            print(context)
+            # print(context)
             doc.render(context)
             # Сохраняенм файл
             doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
@@ -164,6 +182,28 @@ def generate_docs_other():
         messagebox.showinfo('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Создание документов завершено!')
+
+
+def check_date_columns(i, value):
+    """
+    Функция для проверки типа колонки. Необходимо найти колонки с датой
+    :param i:
+    :param value:
+    :return:
+    """
+    #  Да да это просто
+    if '00:00:00' in str(value):
+        try:
+            itog = pd.to_datetime(str(value),infer_datetime_format=True)
+
+        except ParserError:
+            pass
+        except ValueError:
+            pass
+        except TypeError:
+            pass
+        else:
+            return i
 
 
 def set_rus_locale():
@@ -199,11 +239,27 @@ def convert_date(cell):
     try:
         string_date = datetime.datetime.strftime(cell, '%d.%m.%Y')
         return string_date
+
     except TypeError:
         print(cell)
         messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
         quit()
 
+def create_doc_convert_date(cell):
+    """
+    Функция для конвертации даты при создании документов
+    :param cell:
+    :return:
+    """
+    try:
+        string_date = datetime.datetime.strftime(cell, '%d.%m.%Y')
+        return string_date
+    except ValueError:
+        return ''
+    except TypeError:
+        print(cell)
+        messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
+        quit()
 
 def extract_number_month(cell):
     """
@@ -548,46 +604,54 @@ def processing_comparison():
         if status_rb_type_doc == 0:
             itog_df = pd.merge(df_frist, df_second, how='inner', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx', index=False)
+            itog_df.to_excel(
+                f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx',
+                index=False)
         elif status_rb_type_doc == 1:
             itog_df = pd.merge(df_frist, df_second, how='left', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx', index=False)
-            #В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
+            itog_df.to_excel(
+                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx',
+                index=False)
+            # В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
         elif status_rb_type_doc == 2:
             itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
-            #В результат объединения попадают совпадающие по ключу записи обеих таблиц и все данные из правой таблицы, для которых не нашлось пары в левой.
+            # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все данные из правой таблицы, для которых не нашлось пары в левой.
             # Сохраняем результат
-            itog_df.to_excel(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от от {current_time}.xlsx', index=False)
+            itog_df.to_excel(
+                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от от {current_time}.xlsx',
+                index=False)
         elif status_rb_type_doc == 3:
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f'{path_to_end_folder_comparison}/Объединённые таблицы от {current_time}.xlsx', index=False)
-            #В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
+            itog_df.to_excel(f'{path_to_end_folder_comparison}/Объединённые таблицы от {current_time}.xlsx',
+                             index=False)
+            # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
         elif status_rb_type_doc == 4:
             # Создаем документ
             wb = openpyxl.Workbook()
             # создаем листы
             ren_sheet = wb['Sheet']
             ren_sheet.title = 'Первая таблица'
-            wb.create_sheet(title='Вторая таблица',index=1)
-            wb.create_sheet(title='Совпадающие данные',index=2)
+            wb.create_sheet(title='Вторая таблица', index=1)
+            wb.create_sheet(title='Совпадающие данные', index=2)
             # Создаем датафрейм
-            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,indicator=True)
+            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,
+                               indicator=True)
 
             # Записываем каждый датафрейм в соответсвующий лист
             left_df = itog_df[itog_df['_merge'] == 'left_only']
-            left_df.drop(['_merge'],axis=1,inplace=True)
+            left_df.drop(['_merge'], axis=1, inplace=True)
             for r in dataframe_to_rows(left_df, index=False, header=True):
                 wb['Первая таблица'].append(r)
 
             right_df = itog_df[itog_df['_merge'] == 'right_only']
-            right_df.drop(['_merge'], axis=1,inplace=True)
+            right_df.drop(['_merge'], axis=1, inplace=True)
             for r in dataframe_to_rows(right_df, index=False, header=True):
                 wb['Вторая таблица'].append(r)
 
             both_df = itog_df[itog_df['_merge'] == 'both']
-            both_df.drop(['_merge'],axis=1, inplace=True)
+            both_df.drop(['_merge'], axis=1, inplace=True)
             for r in dataframe_to_rows(both_df, index=False, header=True):
                 wb['Совпадающие данные'].append(r)
 
@@ -796,7 +860,7 @@ if __name__ == '__main__':
     lbl_hello = Label(tab_comparison,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
                            'Получение совпадающих значений из 2 таблиц,\n'
-                           'Объединение 2 таблиц по выбранным колонкам,\n'                                               
+                           'Объединение 2 таблиц по выбранным колонкам,\n'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
                            '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
@@ -861,10 +925,13 @@ if __name__ == '__main__':
     #
     Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок (пересечение)', variable=group_rb_type_doc,
                 value=0).pack()
-    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из первой колонки', variable=group_rb_type_doc, value=1).pack()
-    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из второй колонки', variable=group_rb_type_doc, value=2).pack()
+    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из первой колонки',
+                variable=group_rb_type_doc, value=1).pack()
+    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из второй колонки',
+                variable=group_rb_type_doc, value=2).pack()
     Radiobutton(frame_rb_type_doc, text='Объединить таблицы', variable=group_rb_type_doc, value=3).pack()
-    Radiobutton(frame_rb_type_doc, text='Получить уникальные данные из первой и второй таблицы', variable=group_rb_type_doc, value=4).pack()
+    Radiobutton(frame_rb_type_doc, text='Получить уникальные данные из первой и второй таблицы',
+                variable=group_rb_type_doc, value=4).pack()
 
     # Создаем кнопку Обработать данные
     btn_data_do_comparison = Button(tab_comparison, text='7) Обработать данные', font=('Arial Bold', 20),
