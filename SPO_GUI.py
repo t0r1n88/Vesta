@@ -777,7 +777,7 @@ if __name__ == '__main__':
     # Определяем текстовую переменную которая будет хранить дату
     entry_date = StringVar()
     # Описание поля
-    label_name_date_field = Label(tab_calculate_date, text='Введите  дату в формате XX.XX.XXXX')
+    label_name_date_field = Label(tab_calculate_date, text='Введите  дату в формате XX.XX.XXXX\n относительно, которой нужно подсчитать текущий возраст')
     label_name_date_field.grid(column=0, row=2, padx=10, pady=10)
     # поле ввода
     date_field = Entry(tab_calculate_date, textvariable=entry_date, width=30)
