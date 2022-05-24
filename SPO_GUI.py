@@ -222,12 +222,16 @@ def calculate_age(born):
     :return: возраст
     """
 
+
     try:
-        today = date.today()
-        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-    except:
+
+        # today = date.today()
+        selected_date = pd.to_datetime(raw_selected_date,dayfirst=True)
+        # return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+        return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
+    except ParserError:
         print(born)
-        messagebox.showerror('ЦОПП Бурятия', 'Отсутствует или некорректная дата рождения слушателя\nПроверьте файл!')
+        messagebox.showerror('ЦОПП Бурятия', 'Отсутствует или некорректная дата \nПроверьте введенное значение!')
         quit()
 
 
@@ -289,6 +293,9 @@ def calculate_date():
     :return:
     """
     try:
+        # делаем глобальным значение даты.Дада я знаю что это костыль
+        global raw_selected_date
+        raw_selected_date = entry_date.get()
 
         name_column = entry_name_column.get()
         # Устанавливаем русскую локаль
@@ -767,29 +774,42 @@ if __name__ == '__main__':
           image=img_date
           ).grid(column=1, row=0, padx=10, pady=25)
 
+    # Определяем текстовую переменную которая будет хранить дату
+    entry_date = StringVar()
+    # Описание поля
+    label_name_date_field = Label(tab_calculate_date, text='Введите  дату в формате XX.XX.XXXX')
+    label_name_date_field.grid(column=0, row=2, padx=10, pady=10)
+    # поле ввода
+    date_field = Entry(tab_calculate_date, textvariable=entry_date, width=30)
+    date_field.grid(column=0, row=3, padx=5, pady=5, ipadx=30, ipady=15)
+
+
     # Создаем кнопку Выбрать файл с данными
     btn_data_date = Button(tab_calculate_date, text='1) Выберите файл с данными', font=('Arial Bold', 20),
                            command=select_file_data_date)
-    btn_data_date.grid(column=0, row=1, padx=10, pady=10)
+    btn_data_date.grid(column=0, row=4, padx=10, pady=10)
 
     btn_choose_end_folder_date = Button(tab_calculate_date, text='2) Выберите конечную папку', font=('Arial Bold', 20),
                                         command=select_end_folder_date
                                         )
-    btn_choose_end_folder_date.grid(column=0, row=2, padx=10, pady=10)
+    btn_choose_end_folder_date.grid(column=0, row=5, padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
     label_name_column = Label(tab_calculate_date,
                               text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
-    label_name_column.grid(column=0, row=3, padx=10, pady=10)
+    label_name_column.grid(column=0, row=6, padx=10, pady=10)
     # поле ввода
     column_entry = Entry(tab_calculate_date, textvariable=entry_name_column, width=30)
-    column_entry.grid(column=0, row=4, padx=5, pady=5, ipadx=30, ipady=15)
+    column_entry.grid(column=0, row=7, padx=7, pady=5, ipadx=30, ipady=15)
 
     btn_calculate_date = Button(tab_calculate_date, text='4) Обработать', font=('Arial Bold', 20),
                                 command=calculate_date)
-    btn_calculate_date.grid(column=0, row=5, padx=10, pady=10)
+    btn_calculate_date.grid(column=0, row=8, padx=10, pady=10)
+
+
+
 
     # Создаем вкладку для подсчета данных по категориям
     tab_groupby_data = ttk.Frame(tab_control)
