@@ -22,6 +22,16 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 import sys
 import locale
+import logging
+
+logging.basicConfig(
+    level=logging.WARNING,
+    filename = "error.log",
+    filemode='w',# чтобы файл лога перезаписывался  при каждом запуске.Чтобы избежать больших простыней. По умолчанию идет 'a'
+    format = "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
+    datefmt='%H:%M:%S',
+    )
+
 
 
 def resource_path(relative_path):
@@ -180,6 +190,11 @@ def generate_docs_other():
 
     except NameError as e:
         messagebox.showinfo('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Создание документов завершено!')
 
