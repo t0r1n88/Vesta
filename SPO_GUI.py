@@ -189,7 +189,7 @@ def generate_docs_other():
             doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
 
     except NameError as e:
-        messagebox.showinfo('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
@@ -247,6 +247,8 @@ def calculate_age(born):
     except ParserError:
         print(born)
         messagebox.showerror('ЦОПП Бурятия', 'Отсутствует или некорректная дата \nПроверьте введенное значение!')
+        logging.exception('AN ERROR HAS OCCURRED')
+
         quit()
 
 
@@ -262,6 +264,7 @@ def convert_date(cell):
     except TypeError:
         print(cell)
         messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
+        logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
 def create_doc_convert_date(cell):
@@ -274,10 +277,12 @@ def create_doc_convert_date(cell):
         string_date = datetime.datetime.strftime(cell, '%d.%m.%Y')
         return string_date
     except ValueError:
+        logging.exception('AN ERROR HAS OCCURRED')
         return ''
     except TypeError:
         print(cell)
         messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
+        logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
 def extract_number_month(cell):
@@ -487,8 +492,13 @@ def calculate_date():
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
@@ -594,11 +604,18 @@ def groupby_stat():
 
     except NameError:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        logging.exception('AN ERROR HAS OCCURRED')
     except TypeError:
         messagebox.showerror('ЦОПП Бурятия',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
@@ -684,8 +701,13 @@ def processing_comparison():
             wb.save(f'{path_to_end_folder_comparison}/Уникальные данные из обеих таблиц от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
         messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
 
