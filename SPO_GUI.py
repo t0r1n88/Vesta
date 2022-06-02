@@ -235,24 +235,22 @@ def calculate_data():
                     sheet = wb[temp_name]
                 else:
                     raise Exception
-
                 for key, cell in param_dict.items():
                     result_dct[key] += check_data(sheet[cell].value, mode_text)
                     new_row[key] = sheet[cell].value
 
                 temp_df = pd.DataFrame(new_row, index=['temp_index'])
                 check_df = pd.concat([check_df, temp_df], ignore_index=True)
-
                 # check_df = check_df.append(new_row, ignore_index=True)
 
                 count += 1
             # Ловим исключения
             except Exception as err:
                 count_errors += 1
-                with open(f'{path_to_end_folder_calculate_data}/ERRORS {current_time}.txt', 'a', encoding='utf-8') as f:
+                with open(f'{path_to_end_folder_calculate_data}/Необработанные файлы {current_time}.txt', 'a', encoding='utf-8') as f:
                     f.write(f'Файл {name_file} не обработан!!!\n')
 
-        check_df.to_excel(f'{path_to_end_folder_calculate_data}/Проверка вычисления.xlsx', index=False)
+        check_df.to_excel(f'{path_to_end_folder_calculate_data}/Проверка вычисления {current_time}.xlsx', index=False)
 
         # Создание итоговой таблицы результатов подсчета
 
@@ -278,7 +276,7 @@ def calculate_data():
             messagebox.showinfo('ЦОПП Бурятия',
                                 f'Обработка файлов успешно завершена!\nОбработано файлов:  {count} из {quantity_files}')
     except NameError:
-        messagebox.showinfo('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
