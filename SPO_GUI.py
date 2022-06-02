@@ -368,7 +368,7 @@ def generate_docs_other():
                 continue
         # Конвертируем в пригодный строковый формат
         for i in lst_date_columns:
-            df.iloc[:, i] = pd.to_datetime(df.iloc[:, i],errors='coerce',infer_datetime_format=True,dayfirst=True)
+            df.iloc[:, i] = pd.to_datetime(df.iloc[:, i],errors='coerce',dayfirst=True)
             df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
 
         # for column in df.columns:
