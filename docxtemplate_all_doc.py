@@ -13,7 +13,7 @@ import os
 
 def combine_all_docx(filename_master, files_lst):
     """
-    Функция для объединения файлов взято отсюда
+    Функция для объединения файлов Word взято отсюда
     https://stackoverflow.com/questions/24872527/combine-word-document-using-python-docx
     :param filename_master: базовый файл
     :param files_list: список с созданными файлами
@@ -32,18 +32,16 @@ def combine_all_docx(filename_master, files_lst):
         doc_temp = Document(files_lst[i])
         composer.append(doc_temp)
     # Сохраняем файл
-    composer.save(f"{path_to_end_folder_date}/Объединеный файл от {current_time}.docx")
+    composer.save(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx")
 
 
 df = pd.read_excel('Данные 200.xlsx')
 name_file_template_doc = 'Шаблон согласия для объединенного файла.docx'
-path_to_end_folder_date = 'data/'
+path_to_end_folder_doc = 'data/'
 data = df.to_dict('records')
 
 # Список с созданными файлами
 files_lst = []
-
-
 
 #Создаем временную папку
 with tempfile.TemporaryDirectory() as tmpdirname:

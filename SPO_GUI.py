@@ -1,8 +1,9 @@
 import pandas as pd
 import os
-
 from dateutil.parser import ParserError
 from docxtpl import DocxTemplate
+from docxcompose.composer import Composer
+from docx import Document
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -13,16 +14,14 @@ from openpyxl.styles import Font
 from openpyxl.styles import Alignment
 import time
 import datetime
-from datetime import date
-from openpyxl.chart.label import DataLabelList
-from openpyxl.chart import BarChart, Reference, PieChart, PieChart3D, Series
 import warnings
-
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 import sys
 import locale
 import logging
+import tempfile
+
 
 logging.basicConfig(
     level=logging.WARNING,
@@ -371,22 +370,41 @@ def generate_docs_other():
             df.iloc[:, i] = pd.to_datetime(df.iloc[:, i],errors='coerce',dayfirst=True)
             df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
 
-        # for column in df.columns:
-        #     if df[column].dtype == 'datetime64[ns]':
-        #         df[column] = df[column].apply(convert_date)
-        # for column in df.columns:
-        #     df[column] = pd.to_datetime(df[name_column], dayfirst=True, errors='coerce')
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
+        # Получаем состояние  чекбокса
+        mode_text = mode_combine_value.get()
 
-        # Создаем в цикле документы
-        for row in data:
-            doc = DocxTemplate(name_file_template_doc)
-            context = row
-            # print(context)
-            doc.render(context)
-            # Сохраняенм файл
-            doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
+        # В зависимости от состояния чекбокса обрабатываем файлы
+        if mode_text =='No':
+            # Создаем в цикле документы
+            for row in data:
+                doc = DocxTemplate(name_file_template_doc)
+                context = row
+                # print(context)
+                doc.render(context)
+                # Сохраняенм файл
+                doc.save(f'{path_to_end_folder_doc}/{name_type_file} {row[name_column]}.docx')
+        else:
+            # Список с созданными файлами
+            files_lst = []
+            # Создаем временную папку
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                print('created temporary directory', tmpdirname)
+                # Создаем и сохраняем во временную папку созданные документы Word
+                for row in data:
+                    doc = DocxTemplate(name_file_template_doc)
+                    context = row
+                    doc.render(context)
+                    # Сохраняем файл
+                    doc.save(f'{tmpdirname}/{row[name_column]}.docx')
+                    # Добавляем путь к файлу в список
+                    files_lst.append(f'{tmpdirname}/{row[name_column]}.docx')
+                print(len(files_lst))
+                # Получаем базовый файл
+                main_doc = files_lst.pop(0)
+                # Запускаем функцию
+                combine_all_docx(main_doc, files_lst)
 
     except NameError as e:
         messagebox.showerror('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
@@ -429,6 +447,28 @@ def set_rus_locale():
         locale.LC_ALL,
         'rus_rus' if sys.platform == 'win32' else 'ru_RU.UTF-8')
 
+def combine_all_docx(filename_master, files_lst):
+    """
+    Функция для объединения файлов Word взято отсюда
+    https://stackoverflow.com/questions/24872527/combine-word-document-using-python-docx
+    :param filename_master: базовый файл
+    :param files_list: список с созданными файлами
+    :return: итоговый файл
+    """
+    #Получаем текущее время
+    t = time.localtime()
+    current_time = time.strftime('%H_%M_%S', t)
+
+    number_of_sections = len(files_lst)
+    # Открываем и обрабатываем базовый файл
+    master = Document(filename_master)
+    composer = Composer(master)
+    # Перебираем и добавляем файлы к базовому
+    for i in range(0, number_of_sections):
+        doc_temp = Document(files_lst[i])
+        composer.append(doc_temp)
+    # Сохраняем файл
+    composer.save(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx")
 
 def calculate_age(born):
     """
@@ -985,12 +1025,29 @@ if __name__ == '__main__':
                                        )
     btn_choose_end_folder_doc.grid(column=0, row=9, padx=10, pady=10)
 
+    # Создаем переменную для хранения результа переключения чекбокса
+    mode_combine_value = StringVar()
+
+    # Устанавливаем значение по умолчанию для этой переменной. По умолчанию будет вестись подсчет числовых данных
+    mode_combine_value.set('No')
+    # Создаем чекбокс для выбора режима подсчета
+
+    chbox_mode_calculate = Checkbutton(frame_data_for_doc,
+                                               text='Поставьте галочку, если вам нужно чтобы все файлы были объединены в один',
+                                               variable=mode_combine_value,
+                                               offvalue='No',
+                                               onvalue='Yes')
+    chbox_mode_calculate.grid(column=0, row=10, padx=10, pady=10)
+
+
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
     btn_create_files_other = Button(tab_create_doc, text='Создать документы',
                                     font=('Arial Bold', 20),
                                     command=generate_docs_other
                                     )
-    btn_create_files_other.grid(column=0, row=10, padx=10, pady=10)
+    btn_create_files_other.grid(column=0, row=11, padx=10, pady=10)
+
+    # Создаем вклдаку для обработки дат рождения
 
     tab_calculate_date = ttk.Frame(tab_control)
     tab_control.add(tab_calculate_date, text='Обработка дат рождения')
