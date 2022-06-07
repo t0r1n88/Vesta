@@ -373,10 +373,10 @@ def generate_docs_other():
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
         # Получаем состояние  чекбокса
-        mode_text = mode_combine_value.get()
+        mode_combine = mode_combine_value.get()
 
         # В зависимости от состояния чекбокса обрабатываем файлы
-        if mode_text =='No':
+        if mode_combine =='No':
             # Создаем в цикле документы
             for row in data:
                 doc = DocxTemplate(name_file_template_doc)
@@ -400,7 +400,6 @@ def generate_docs_other():
                     doc.save(f'{tmpdirname}/{row[name_column]}.docx')
                     # Добавляем путь к файлу в список
                     files_lst.append(f'{tmpdirname}/{row[name_column]}.docx')
-                print(len(files_lst))
                 # Получаем базовый файл
                 main_doc = files_lst.pop(0)
                 # Запускаем функцию
@@ -652,6 +651,7 @@ def calculate_date():
 
         # Заполняем пустые строки
         df.fillna('Не заполнено!!!', inplace=True)
+
 
         # заполняем сводные таблицы
         # Сводная по возрастам
