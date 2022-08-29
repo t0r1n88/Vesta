@@ -269,16 +269,16 @@ def calculate_data():
             finish_result.to_excel(f'{path_to_end_folder_calculate_data}/Итоговые значения {current_time}.xlsx', index=False)
 
         if count_errors != 0:
-            messagebox.showinfo('ЦОПП Бурятия',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12',
                                 f'Обработка файлов завершена!\nОбработано файлов:  {count} из {quantity_files}\n Необработанные файлы указаны в файле {path_to_end_folder_calculate_data}/ERRORS {current_time}.txt ')
         else:
-            messagebox.showinfo('ЦОПП Бурятия',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12',
                                 f'Обработка файлов успешно завершена!\nОбработано файлов:  {count} из {quantity_files}')
     except NameError:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 
 def count_text_value(df):
@@ -343,7 +343,7 @@ def check_data(cell, text_mode):
 
 def generate_docs_other():
     """
-    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных ЦОПП Бурятия)
+    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных Веста Обработка таблиц и создание документов ver 1.12)
     :return:
     """
     try:
@@ -406,14 +406,14 @@ def generate_docs_other():
                 combine_all_docx(main_doc, files_lst)
 
     except NameError as e:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Создание документов завершено!')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Создание документов завершено!')
 
 
 def check_date_columns(i, value):
@@ -483,11 +483,11 @@ def calculate_age(born):
         selected_date = pd.to_datetime(raw_selected_date,dayfirst=True)
         # return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
         return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
-    except ParserError:
-        print(born)
-        messagebox.showerror('ЦОПП Бурятия', 'Отсутствует или некорректная дата \nПроверьте введенное значение!')
-        logging.exception('AN ERROR HAS OCCURRED')
 
+    except ValueError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
+                             f'Введена некорректная дата относительно которой нужно провести обработку\nПример корректной даты 01.09.2022')
+        logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
 
@@ -502,7 +502,7 @@ def convert_date(cell):
 
     except TypeError:
         print(cell)
-        messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
@@ -520,7 +520,7 @@ def create_doc_convert_date(cell):
         return ''
     except TypeError:
         print(cell)
-        messagebox.showerror('ЦОПП Бурятия', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
@@ -731,16 +731,17 @@ def calculate_date():
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
+
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
 
 
 def groupby_category():
@@ -778,14 +779,14 @@ def groupby_category():
 
 
     except NameError:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
-        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
     except TypeError:
-        messagebox.showerror('ЦОПП Бурятия',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
 
 
 def groupby_stat():
@@ -831,7 +832,7 @@ def groupby_stat():
             group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
                               'Количество повторений самого частого значения', ]
         else:
-            messagebox.showerror('ЦОПП Бурятия', 'Возникла проблема при обработке. Проверьте значения в колонке')
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Возникла проблема при обработке. Проверьте значения в колонке')
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет статистик'].append(r)
         wb['Подсчет статистик'].column_dimensions['A'].width = 30
@@ -843,21 +844,21 @@ def groupby_stat():
 
 
     except NameError:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except TypeError:
-        messagebox.showerror('ЦОПП Бурятия',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
 
 
 def processing_comparison():
@@ -940,22 +941,22 @@ def processing_comparison():
             # Сохраняем итоговый файл
             wb.save(f'{path_to_end_folder_comparison}/Уникальные данные из обеих таблиц от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror('ЦОПП Бурятия', f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('ЦОПП Бурятия', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('ЦОПП Бурятия','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('ЦОПП Бурятия', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
 
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('ЦОПП Бурятия')
-    window.geometry('720x860')
+    window.title('Веста Обработка таблиц и создание документов ver 1.12')
+    window.geometry('750x860')
     window.resizable(False, False)
 
     # Создаем объект вкладок
@@ -1041,7 +1042,7 @@ if __name__ == '__main__':
 
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
-    btn_create_files_other = Button(tab_create_doc, text='Создать документы',
+    btn_create_files_other = Button(tab_create_doc, text='6) Создать документы',
                                     font=('Arial Bold', 20),
                                     command=generate_docs_other
                                     )
@@ -1173,8 +1174,6 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_comparison,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Получение совпадающих значений из 2 таблиц,\n'
-                           'Объединение 2 таблиц по выбранным колонкам,\n'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
                            '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
