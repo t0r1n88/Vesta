@@ -269,16 +269,16 @@ def calculate_data():
             finish_result.to_excel(f'{path_to_end_folder_calculate_data}/Итоговые значения {current_time}.xlsx', index=False)
 
         if count_errors != 0:
-            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13',
                                 f'Обработка файлов завершена!\nОбработано файлов:  {count} из {quantity_files}\n Необработанные файлы указаны в файле {path_to_end_folder_calculate_data}/ERRORS {current_time}.txt ')
         else:
-            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13',
                                 f'Обработка файлов успешно завершена!\nОбработано файлов:  {count} из {quantity_files}')
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 
 def count_text_value(df):
@@ -343,7 +343,7 @@ def check_data(cell, text_mode):
 
 def generate_docs_other():
     """
-    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных Веста Обработка таблиц и создание документов ver 1.12)
+    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных Веста Обработка таблиц и создание документов ver 1.13)
     :return:
     """
     try:
@@ -406,14 +406,14 @@ def generate_docs_other():
                 combine_all_docx(main_doc, files_lst)
 
     except NameError as e:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Создание документов завершено!')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13', 'Создание документов завершено!')
 
 
 def check_date_columns(i, value):
@@ -485,7 +485,7 @@ def calculate_age(born):
         return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
 
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13',
                              f'Введена некорректная дата относительно которой нужно провести обработку\nПример корректной даты 01.09.2022')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
@@ -502,7 +502,7 @@ def convert_date(cell):
 
     except TypeError:
         print(cell)
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', 'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
@@ -520,7 +520,7 @@ def create_doc_convert_date(cell):
         return ''
     except TypeError:
         print(cell)
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', 'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
 
@@ -731,17 +731,17 @@ def calculate_date():
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
 
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13', 'Данные успешно обработаны')
 
 
 def groupby_category():
@@ -779,14 +779,14 @@ def groupby_category():
 
 
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
     except TypeError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13', 'Данные успешно обработаны')
 
 
 def groupby_stat():
@@ -832,7 +832,7 @@ def groupby_stat():
             group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
                               'Количество повторений самого частого значения', ]
         else:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', 'Возникла проблема при обработке. Проверьте значения в колонке')
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', 'Возникла проблема при обработке. Проверьте значения в колонке')
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет статистик'].append(r)
         wb['Подсчет статистик'].column_dimensions['A'].width = 30
@@ -844,21 +844,21 @@ def groupby_stat():
 
 
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except TypeError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13', 'Данные успешно обработаны')
 
 
 def processing_comparison():
@@ -915,6 +915,17 @@ def processing_comparison():
             ren_sheet.title = 'Первая таблица'
             wb.create_sheet(title='Вторая таблица', index=1)
             wb.create_sheet(title='Совпадающие данные', index=2)
+            # Создаем листы для дубликатов
+            wb.create_sheet(title='Дубликаты первой таблицы',index=3)
+            wb.create_sheet(title='Дубликаты второй таблицы',index=4)
+            # Очищаем оба датафрейма от дубликатов
+            # Получаем дубликаты в отдельный датафрейм
+            namesakes_df_first = df_frist[df_frist.duplicated([first_column],keep=False)]
+            namesakes_df_second = df_second[df_second.duplicated([second_column],keep=False)]
+            # Полностью удаляем дубликаты из базовых датафреймов
+            df_frist.drop_duplicates(subset=[first_column],keep=False,inplace=True)
+            df_second.drop_duplicates(subset=[second_column],keep=False,inplace=True)
+
             # Создаем датафрейм
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,
                                indicator=True)
@@ -935,27 +946,34 @@ def processing_comparison():
             for r in dataframe_to_rows(both_df, index=False, header=True):
                 wb['Совпадающие данные'].append(r)
 
+            # Записываем дубликаты в соответствующие листы
+            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+                wb['Дубликаты первой таблицы'].append(r)
+
+            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+                wb['Дубликаты второй таблицы'].append(r)
+
             # Сохраняем
             t = time.localtime()
             current_time = time.strftime('%H_%M_%S', t)
             # Сохраняем итоговый файл
             wb.save(f'{path_to_end_folder_comparison}/Уникальные данные из обеих таблиц от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.12','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.12', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13', 'Данные успешно обработаны')
 
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.12')
+    window.title('Веста Обработка таблиц и создание документов ver 1.13')
     window.geometry('750x860')
     window.resizable(False, False)
 
