@@ -874,38 +874,117 @@ def processing_comparison():
         # загружаем файлы
         df_frist = pd.read_excel(name_first_file_comparison, dtype=str)
         df_second = pd.read_excel(name_second_file_comparison, dtype=str)
+        # Очищаем оба датафрейма от дубликатов
+        # Получаем дубликаты в отдельный датафрейм
+        namesakes_df_first = df_frist[df_frist.duplicated([first_column], keep=False)]
+        namesakes_df_second = df_second[df_second.duplicated([second_column], keep=False)]
+
+        # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
+        if namesakes_df_first.shape[0] > 0:
+            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.13',f'В колонке {first_column} первой таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+        if namesakes_df_second.shape[0] > 0:
+            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.13',f'В колонке {second_column} второй таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+
+        # Полностью удаляем дубликаты из базовых датафреймов
+        df_frist.drop_duplicates(subset=[first_column], keep=False, inplace=True)
+        df_second.drop_duplicates(subset=[second_column], keep=False, inplace=True)
+
         # Создаем переменную для типа создаваемого документа
         status_rb_type_doc = group_rb_type_doc.get()
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        # Сохраняем итоговый файл
+        #
 
         # В зависимости от значения проводим merge
         if status_rb_type_doc == 0:
             itog_df = pd.merge(df_frist, df_second, how='inner', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(
-                f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx',
-                index=False)
+            # Создаем документ
+            wb = openpyxl.Workbook()
+            # создаем листы
+            ren_sheet = wb['Sheet']
+            ren_sheet.title = 'Итог'
+            wb.create_sheet(title='Дубликаты первая таблица', index=1)
+            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
+            # Записываем результаты в файл
+            for r in dataframe_to_rows(itog_df, index=False, header=True):
+                wb['Итог'].append(r)
+            # Записываем дубликаты в соответствующие листы
+            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+                wb['Дубликаты первая таблица'].append(r)
+
+            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+                wb['Дубликаты вторая таблица'].append(r)
+
+            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx')
+
         elif status_rb_type_doc == 1:
             itog_df = pd.merge(df_frist, df_second, how='left', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(
-                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx',
-                index=False)
+            # Создаем документ
+            wb = openpyxl.Workbook()
+            # создаем листы
+            ren_sheet = wb['Sheet']
+            ren_sheet.title = 'Итог'
+            wb.create_sheet(title='Дубликаты первая таблица', index=1)
+            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
+            # Записываем результаты в файл
+            for r in dataframe_to_rows(itog_df, index=False, header=True):
+                wb['Итог'].append(r)
+            # Записываем дубликаты в соответствующие листы
+            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+                wb['Дубликаты первая таблица'].append(r)
+
+            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+                wb['Дубликаты вторая таблица'].append(r)
+
+            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx')
             # В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
         elif status_rb_type_doc == 2:
             itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
             # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все данные из правой таблицы, для которых не нашлось пары в левой.
             # Сохраняем результат
-            itog_df.to_excel(
-                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от от {current_time}.xlsx',
-                index=False)
+            # Создаем документ
+            wb = openpyxl.Workbook()
+            # создаем листы
+            ren_sheet = wb['Sheet']
+            ren_sheet.title = 'Итог'
+            wb.create_sheet(title='Дубликаты первая таблица', index=1)
+            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
+            # Записываем результаты в файл
+            for r in dataframe_to_rows(itog_df, index=False, header=True):
+                wb['Итог'].append(r)
+            # Записываем дубликаты в соответствующие листы
+            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+                wb['Дубликаты первая таблица'].append(r)
+
+            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+                wb['Дубликаты вторая таблица'].append(r)
+
+            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от {current_time}.xlsx')
+
         elif status_rb_type_doc == 3:
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column)
             # Сохраняем результат
-            itog_df.to_excel(f'{path_to_end_folder_comparison}/Объединённые таблицы от {current_time}.xlsx',
-                             index=False)
+            # Создаем документ
+            wb = openpyxl.Workbook()
+            # создаем листы
+            ren_sheet = wb['Sheet']
+            ren_sheet.title = 'Итог'
+            wb.create_sheet(title='Дубликаты первая таблица', index=1)
+            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
+            # Записываем результаты в файл
+            for r in dataframe_to_rows(itog_df, index=False, header=True):
+                wb['Итог'].append(r)
+            # Записываем дубликаты в соответствующие листы
+            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
+                wb['Дубликаты первая таблица'].append(r)
+
+            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
+                wb['Дубликаты вторая таблица'].append(r)
+
+            wb.save(
+                f'{path_to_end_folder_comparison}/Объединённые таблицы от {current_time}.xlsx')
             # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
         elif status_rb_type_doc == 4:
             # Создаем документ
@@ -916,15 +995,8 @@ def processing_comparison():
             wb.create_sheet(title='Вторая таблица', index=1)
             wb.create_sheet(title='Совпадающие данные', index=2)
             # Создаем листы для дубликатов
-            wb.create_sheet(title='Дубликаты первой таблицы',index=3)
-            wb.create_sheet(title='Дубликаты второй таблицы',index=4)
-            # Очищаем оба датафрейма от дубликатов
-            # Получаем дубликаты в отдельный датафрейм
-            namesakes_df_first = df_frist[df_frist.duplicated([first_column],keep=False)]
-            namesakes_df_second = df_second[df_second.duplicated([second_column],keep=False)]
-            # Полностью удаляем дубликаты из базовых датафреймов
-            df_frist.drop_duplicates(subset=[first_column],keep=False,inplace=True)
-            df_second.drop_duplicates(subset=[second_column],keep=False,inplace=True)
+            wb.create_sheet(title='Дубликаты первая таблица',index=3)
+            wb.create_sheet(title='Дубликаты вторая таблица',index=4)
 
             # Создаем датафрейм
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,
@@ -948,10 +1020,10 @@ def processing_comparison():
 
             # Записываем дубликаты в соответствующие листы
             for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
-                wb['Дубликаты первой таблицы'].append(r)
+                wb['Дубликаты первая таблица'].append(r)
 
             for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
-                wb['Дубликаты второй таблицы'].append(r)
+                wb['Дубликаты вторая таблица'].append(r)
 
             # Сохраняем
             t = time.localtime()
