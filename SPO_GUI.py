@@ -12,9 +12,11 @@ import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font
 from openpyxl.styles import Alignment
+from openpyxl import load_workbook
 import time
 import datetime
 import warnings
+
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 import sys
@@ -22,15 +24,14 @@ import locale
 import logging
 import tempfile
 
-
 logging.basicConfig(
     level=logging.WARNING,
-    filename = "error.log",
-    filemode='w',# чтобы файл лога перезаписывался  при каждом запуске.Чтобы избежать больших простыней. По умолчанию идет 'a'
-    format = "%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
+    filename="error.log",
+    filemode='w',
+    # чтобы файл лога перезаписывался  при каждом запуске.Чтобы избежать больших простыней. По умолчанию идет 'a'
+    format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
     datefmt='%H:%M:%S',
-    )
-
+)
 
 
 def resource_path(relative_path):
@@ -140,6 +141,7 @@ def select_end_folder_groupby():
     global path_to_end_folder_groupby
     path_to_end_folder_groupby = filedialog.askdirectory()
 
+
 # Функции для вкладки извлечение данных
 def select_file_params_calculate_data():
     """
@@ -169,6 +171,7 @@ def select_end_folder_calculate_data():
     """
     global path_to_end_folder_calculate_data
     path_to_end_folder_calculate_data = filedialog.askdirectory()
+
 
 def calculate_data():
     """
@@ -246,7 +249,8 @@ def calculate_data():
             # Ловим исключения
             except Exception as err:
                 count_errors += 1
-                with open(f'{path_to_end_folder_calculate_data}/Необработанные файлы {current_time}.txt', 'a', encoding='utf-8') as f:
+                with open(f'{path_to_end_folder_calculate_data}/Необработанные файлы {current_time}.txt', 'a',
+                          encoding='utf-8') as f:
                     f.write(f'Файл {name_file} не обработан!!!\n')
 
         check_df.to_excel(f'{path_to_end_folder_calculate_data}/Проверка вычисления {current_time}.xlsx', index=False)
@@ -264,9 +268,11 @@ def calculate_data():
         if mode_text == 'Yes':
             # Обрабатываем датафрейм считая текстовые данные
             count_text_df = count_text_value(finish_result)
-            count_text_df.to_excel(f'{path_to_end_folder_calculate_data}/Подсчет текстовых значений {current_time}.xlsx')
+            count_text_df.to_excel(
+                f'{path_to_end_folder_calculate_data}/Подсчет текстовых значений {current_time}.xlsx')
         else:
-            finish_result.to_excel(f'{path_to_end_folder_calculate_data}/Итоговые значения {current_time}.xlsx', index=False)
+            finish_result.to_excel(f'{path_to_end_folder_calculate_data}/Итоговые значения {current_time}.xlsx',
+                                   index=False)
 
         if count_errors != 0:
             messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
@@ -275,10 +281,13 @@ def calculate_data():
             messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
                                 f'Обработка файлов успешно завершена!\nОбработано файлов:  {count} из {quantity_files}')
     except NameError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+
 
 # Функции для слияния таблиц
 
@@ -290,6 +299,7 @@ def select_end_folder_merger():
     global path_to_end_folder_merger
     path_to_end_folder_merger = filedialog.askdirectory()
 
+
 def select_folder_data_merger():
     """
     Функция для выбора папки где хранятся нужные файлы
@@ -297,6 +307,7 @@ def select_folder_data_merger():
     """
     global path_to_data_folder_merger
     path_to_data_folder_merger = filedialog.askdirectory()
+
 
 def select_standard_file_merger():
     """
@@ -307,53 +318,49 @@ def select_standard_file_merger():
     name_file_standard_merger = filedialog.askopenfilename(
         filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
+
 def merge_tables():
     """
     Функция для слияния таблиц с одинаковой структурой в одну большую таблицу
     """
     # Получаем значения из полей ввода и проверяем их на тип
     try:
-        number_sheet =int(merger_entry_number_sheet.get())
-        skip_rows  = int(merger_entry_skip_rows.get())
+        sheet_name = merger_entry_sheet_name.get()
+        skip_rows = int(merger_entry_skip_rows.get())
     except ValueError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Введите целое число!!!')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Введите целое число в поле для ввода количества пропускаемых строк!!!')
     else:
-        standard_df = pd.read_excel(name_file_standard_merger,sheet_name=number_sheet,skiprows=skip_rows)
-        cols_standard = list(standard_df.columns)
-        base_df = pd.DataFrame(columns=standard_df.columns)
-        base_df.insert(0, 'Имя файла', None)
+        # Загружаем выбранный в качестве эталонного файла в openpyxl чтобы проверить наличие такого листа
+        standard_wb = load_workbook(filename=name_file_standard_merger,read_only=True)
+        if sheet_name in standard_wb.sheetnames:
+            standard_df = pd.read_excel(name_file_standard_merger, sheet_name=sheet_name, skiprows=skip_rows)
+            cols_standard = list(standard_df.columns)
+            base_df = pd.DataFrame(columns=standard_df.columns)
+            base_df.insert(0, 'Имя файла', None)
         # Перебираем файлы
-        for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
-            for filename in filenames:
-                if filename.endswith('.xlsx'):
-                    # Получаем название файла без расширения
-                    name_file = filename.split('.xlsx')[0]
-                    temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=number_sheet)
-                    # Проверяем соответствие колонок
-                    if cols_standard == list(temp_df.columns):
-                        #Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
-                        temp_df.insert(0, 'Имя файла', None)
-                        temp_df['Имя файла'] = name_file
-                        base_df = pd.concat([base_df, temp_df], axis=0, ignore_index=True)
-
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # Сохраняем итоговый файл
-        base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx',index=False)
-        messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14','Создание общей таблицы успешно завершено!!!')
-
-
-
-
-
-
-
-
-
-
-
-
-
+            for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
+                for filename in filenames:
+                    if filename.endswith('.xlsx'):
+                        # Получаем название файла без расширения
+                        name_file = filename.split('.xlsx')[0]
+                        # Проверяем наличие нужного листа
+                        temp_wb = load_workbook(filename=f'{dirpath}/{filename}',read_only=True)
+                        if sheet_name in temp_wb.sheetnames:
+                            temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=sheet_name)
+                            # Проверяем соответствие колонок
+                            if cols_standard == list(temp_df.columns):
+                                # Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
+                                temp_df.insert(0, 'Имя файла', None)
+                                temp_df['Имя файла'] = name_file
+                                base_df = pd.concat([base_df, temp_df], axis=0, ignore_index=True)
+            t = time.localtime()
+            current_time = time.strftime('%H_%M_%S', t)
+            # Сохраняем итоговый файл
+            base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx', index=False)
+            messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
+                                'Создание общей таблицы успешно завершено!!!')
+        else:
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14','В эталонном файле нет листа с таким названием!!!')
 
 
 
@@ -418,6 +425,7 @@ def check_data(cell, text_mode):
         else:
             return 0
 
+
 def generate_docs_other():
     """
     Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных  Веста Обработка таблиц и создание документов ver 1.14)
@@ -444,7 +452,7 @@ def generate_docs_other():
                 continue
         # Конвертируем в пригодный строковый формат
         for i in lst_date_columns:
-            df.iloc[:, i] = pd.to_datetime(df.iloc[:, i],errors='coerce',dayfirst=True)
+            df.iloc[:, i] = pd.to_datetime(df.iloc[:, i], errors='coerce', dayfirst=True)
             df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
 
         # Конвертируем датафрейм в список словарей
@@ -453,7 +461,7 @@ def generate_docs_other():
         mode_combine = mode_combine_value.get()
 
         # В зависимости от состояния чекбокса обрабатываем файлы
-        if mode_combine =='No':
+        if mode_combine == 'No':
             # Создаем в цикле документы
             for row in data:
                 doc = DocxTemplate(name_file_template_doc)
@@ -483,11 +491,13 @@ def generate_docs_other():
                 combine_all_docx(main_doc, files_lst)
 
     except NameError as e:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
         messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14', 'Создание документов завершено!')
@@ -503,7 +513,7 @@ def check_date_columns(i, value):
     #  Да да это просто
     if '00:00:00' in str(value):
         try:
-            itog = pd.to_datetime(str(value),infer_datetime_format=True)
+            itog = pd.to_datetime(str(value), infer_datetime_format=True)
 
         except ParserError:
             pass
@@ -523,6 +533,7 @@ def set_rus_locale():
         locale.LC_ALL,
         'rus_rus' if sys.platform == 'win32' else 'ru_RU.UTF-8')
 
+
 def combine_all_docx(filename_master, files_lst):
     """
     Функция для объединения файлов Word взято отсюда
@@ -531,7 +542,7 @@ def combine_all_docx(filename_master, files_lst):
     :param files_list: список с созданными файлами
     :return: итоговый файл
     """
-    #Получаем текущее время
+    # Получаем текущее время
     t = time.localtime()
     current_time = time.strftime('%H_%M_%S', t)
 
@@ -546,6 +557,7 @@ def combine_all_docx(filename_master, files_lst):
     # Сохраняем файл
     composer.save(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx")
 
+
 def calculate_age(born):
     """
     Функция для расчета текущего возраста взято с https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python/9754466#9754466
@@ -553,11 +565,10 @@ def calculate_age(born):
     :return: возраст
     """
 
-
     try:
 
         # today = date.today()
-        selected_date = pd.to_datetime(raw_selected_date,dayfirst=True)
+        selected_date = pd.to_datetime(raw_selected_date, dayfirst=True)
         # return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
         return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
 
@@ -579,9 +590,11 @@ def convert_date(cell):
 
     except TypeError:
         print(cell)
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
+
 
 def create_doc_convert_date(cell):
     """
@@ -597,9 +610,11 @@ def create_doc_convert_date(cell):
         return ''
     except TypeError:
         print(cell)
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Проверьте правильность заполнения ячеек с датой!!!')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
+
 
 def extract_number_month(cell):
     """
@@ -729,7 +744,6 @@ def calculate_date():
         # Заполняем пустые строки
         df.fillna('Не заполнено!!!', inplace=True)
 
-
         # заполняем сводные таблицы
         # Сводная по возрастам
 
@@ -808,15 +822,18 @@ def calculate_date():
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
 
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14', 'Данные успешно обработаны')
 
@@ -856,9 +873,11 @@ def groupby_category():
 
 
     except NameError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
     except TypeError:
         messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
@@ -909,7 +928,8 @@ def groupby_stat():
             group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
                               'Количество повторений самого частого значения', ]
         else:
-            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Возникла проблема при обработке. Проверьте значения в колонке')
+            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                                 'Возникла проблема при обработке. Проверьте значения в колонке')
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет статистик'].append(r)
         wb['Подсчет статистик'].column_dimensions['A'].width = 30
@@ -921,10 +941,12 @@ def groupby_stat():
 
 
     except NameError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите файл с данными и папку куда будет генерироваться файл')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except TypeError:
         messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
@@ -932,7 +954,8 @@ def groupby_stat():
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
         messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14', 'Данные успешно обработаны')
@@ -958,9 +981,11 @@ def processing_comparison():
 
         # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
         if namesakes_df_first.shape[0] > 0:
-            messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',f'В колонке {first_column} первой таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+            messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',
+                                   f'В колонке {first_column} первой таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
         if namesakes_df_second.shape[0] > 0:
-            messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',f'В колонке {second_column} второй таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+            messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',
+                                   f'В колонке {second_column} второй таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
 
         # Полностью удаляем дубликаты из базовых датафреймов
         df_frist.drop_duplicates(subset=[first_column], keep=False, inplace=True)
@@ -987,10 +1012,10 @@ def processing_comparison():
             for r in dataframe_to_rows(itog_df, index=False, header=True):
                 wb['Итог'].append(r)
             # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
                 wb['Дубликаты первая таблица'].append(r)
 
-            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
                 wb['Дубликаты вторая таблица'].append(r)
 
             wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx')
@@ -1009,13 +1034,14 @@ def processing_comparison():
             for r in dataframe_to_rows(itog_df, index=False, header=True):
                 wb['Итог'].append(r)
             # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
                 wb['Дубликаты первая таблица'].append(r)
 
-            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
                 wb['Дубликаты вторая таблица'].append(r)
 
-            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx')
+            wb.save(
+                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx')
             # В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
         elif status_rb_type_doc == 2:
             itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
@@ -1032,13 +1058,14 @@ def processing_comparison():
             for r in dataframe_to_rows(itog_df, index=False, header=True):
                 wb['Итог'].append(r)
             # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
                 wb['Дубликаты первая таблица'].append(r)
 
-            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
                 wb['Дубликаты вторая таблица'].append(r)
 
-            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от {current_time}.xlsx')
+            wb.save(
+                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от {current_time}.xlsx')
 
         elif status_rb_type_doc == 3:
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column)
@@ -1072,8 +1099,8 @@ def processing_comparison():
             wb.create_sheet(title='Вторая таблица', index=1)
             wb.create_sheet(title='Совпадающие данные', index=2)
             # Создаем листы для дубликатов
-            wb.create_sheet(title='Дубликаты первая таблица',index=3)
-            wb.create_sheet(title='Дубликаты вторая таблица',index=4)
+            wb.create_sheet(title='Дубликаты первая таблица', index=3)
+            wb.create_sheet(title='Дубликаты вторая таблица', index=4)
 
             # Создаем датафрейм
             itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,
@@ -1096,10 +1123,10 @@ def processing_comparison():
                 wb['Совпадающие данные'].append(r)
 
             # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
                 wb['Дубликаты первая таблица'].append(r)
 
-            for r in dataframe_to_rows(namesakes_df_second,index=False,header=True):
+            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
                 wb['Дубликаты вторая таблица'].append(r)
 
             # Сохраняем
@@ -1108,14 +1135,17 @@ def processing_comparison():
             # Сохраняем итоговый файл
             wb.save(f'{path_to_end_folder_comparison}/Уникальные данные из обеих таблиц от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14','Возникла ошибка!!! Подробности ошибки в файле error.log')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14', 'Данные успешно обработаны')
 
@@ -1201,12 +1231,11 @@ if __name__ == '__main__':
     # Создаем чекбокс для выбора режима подсчета
 
     chbox_mode_calculate = Checkbutton(frame_data_for_doc,
-                                               text='Поставьте галочку, если вам нужно чтобы все файлы были объединены в один',
-                                               variable=mode_combine_value,
-                                               offvalue='No',
-                                               onvalue='Yes')
+                                       text='Поставьте галочку, если вам нужно чтобы все файлы были объединены в один',
+                                       variable=mode_combine_value,
+                                       offvalue='No',
+                                       onvalue='Yes')
     chbox_mode_calculate.grid(column=0, row=10, padx=10, pady=10)
-
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
     btn_create_files_other = Button(tab_create_doc, text='6) Создать документы',
@@ -1239,12 +1268,12 @@ if __name__ == '__main__':
     # Определяем текстовую переменную которая будет хранить дату
     entry_date = StringVar()
     # Описание поля
-    label_name_date_field = Label(tab_calculate_date, text='Введите  дату в формате XX.XX.XXXX\n относительно, которой нужно подсчитать текущий возраст')
+    label_name_date_field = Label(tab_calculate_date,
+                                  text='Введите  дату в формате XX.XX.XXXX\n относительно, которой нужно подсчитать текущий возраст')
     label_name_date_field.grid(column=0, row=2, padx=10, pady=10)
     # поле ввода
     date_field = Entry(tab_calculate_date, textvariable=entry_date, width=30)
     date_field.grid(column=0, row=3, padx=5, pady=5, ipadx=30, ipady=15)
-
 
     # Создаем кнопку Выбрать файл с данными
     btn_data_date = Button(tab_calculate_date, text='1) Выберите файл с данными', font=('Arial Bold', 20),
@@ -1269,9 +1298,6 @@ if __name__ == '__main__':
     btn_calculate_date = Button(tab_calculate_date, text='4) Обработать', font=('Arial Bold', 20),
                                 command=calculate_date)
     btn_calculate_date.grid(column=0, row=8, padx=10, pady=10)
-
-
-
 
     # Создаем вкладку для подсчета данных по категориям
     tab_groupby_data = ttk.Frame(tab_control)
@@ -1419,7 +1445,6 @@ if __name__ == '__main__':
                                     )
     btn_data_do_comparison.grid(column=0, row=11, padx=10, pady=10)
 
-
     # Создаем вкладку для обработки таблиц excel  с одинаковой структурой
     tab_calculate_data = ttk.Frame(tab_control)
     tab_control.add(tab_calculate_data, text='Извлечение данных')
@@ -1464,10 +1489,10 @@ if __name__ == '__main__':
     # Создаем чекбокс для выбора режима подсчета
 
     chbox_mode_calculate = Checkbutton(tab_calculate_data,
-                                               text='Поставьте галочку, если вам нужно подсчитать текстовые данные ',
-                                               variable=mode_text_value,
-                                               offvalue='No',
-                                               onvalue='Yes')
+                                       text='Поставьте галочку, если вам нужно подсчитать текстовые данные ',
+                                       variable=mode_text_value,
+                                       offvalue='No',
+                                       onvalue='Yes')
     chbox_mode_calculate.grid(column=0, row=5, padx=10, pady=10)
 
     # Создаем кнопку для запуска подсчета файлов
@@ -1490,7 +1515,7 @@ if __name__ == '__main__':
     lbl_hello = Label(tab_merger_tables,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние однотипных таблиц'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
-                           )
+                      )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -1506,49 +1531,47 @@ if __name__ == '__main__':
 
     # Создаем кнопку Выбрать папку с данными
     btn_data_merger = Button(frame_data_for_merger, text='1) Выберите папку с данными', font=('Arial Bold', 20),
-                              command=select_folder_data_merger
-                              )
+                             command=select_folder_data_merger
+                             )
     btn_data_merger.grid(column=0, row=3, padx=10, pady=10)
 
     # Создаем кнопку Выбрать эталонный файл
 
-    btn_example_merger = Button(frame_data_for_merger,text='2) Выберите эталонный файл',font=('Arial Bold', 20),
+    btn_example_merger = Button(frame_data_for_merger, text='2) Выберите эталонный файл', font=('Arial Bold', 20),
                                 command=select_standard_file_merger)
-    btn_example_merger.grid(column=0,row=4,padx=10, pady=10)
+    btn_example_merger.grid(column=0, row=4, padx=10, pady=10)
 
     btn_choose_end_folder_merger = Button(frame_data_for_merger, text='3) Выберите конечную папку',
-                                           font=('Arial Bold', 20),
-                                           command=select_end_folder_merger
-                                           )
+                                          font=('Arial Bold', 20),
+                                          command=select_end_folder_merger
+                                          )
     btn_choose_end_folder_merger.grid(column=0, row=5, padx=10, pady=10)
 
     # Определяем переменную
-    merger_entry_number_sheet = StringVar()
+    merger_entry_sheet_name = StringVar()
     # Описание поля
-    merger_label_number_sheet = Label(frame_data_for_merger,
-                                      text='4) Введите порядковый номер листа\nкоторый нужно обработать')
-    merger_label_number_sheet.grid(column=0, row=6, padx=10, pady=10)
+    merger_label_sheet_name = Label(frame_data_for_merger,
+                                    text='4) Введите название листа\nкоторый нужно обработать')
+    merger_label_sheet_name.grid(column=0, row=6, padx=10, pady=10)
     # поле ввода
-    merger_number_sheet_entry = Entry(frame_data_for_merger, textvariable=merger_entry_number_sheet, width=5)
+    merger_number_sheet_entry = Entry(frame_data_for_merger, textvariable=merger_entry_sheet_name, width=15)
     merger_number_sheet_entry.grid(column=0, row=7, padx=5, pady=5, ipadx=10, ipady=7)
 
     # Определяем переменную в которой будем хранить количество пропускаемых строк
     merger_entry_skip_rows = StringVar()
     # Описание поля
     merger_label_skip_rows = Label(frame_data_for_merger,
-                                      text='5) Введите количество строк\nв таблице которые нужно пропустить\nчтобы добраться до данных')
+                                   text='5) Введите количество строк\nв таблице которые нужно пропустить\nчтобы добраться до данных')
     merger_label_skip_rows.grid(column=0, row=8, padx=10, pady=10)
     # поле ввода
     merger_number_skip_rows = Entry(frame_data_for_merger, textvariable=merger_entry_skip_rows, width=5)
     merger_number_skip_rows.grid(column=0, row=9, padx=5, pady=5, ipadx=10, ipady=7)
 
-
     # Создаем кнопку слияния
 
-
     btn_merger_process = Button(tab_merger_tables, text='6) Провести слияние таблиц',
-                                  font=('Arial Bold', 20),
-                                  command=merge_tables)
+                                font=('Arial Bold', 20),
+                                command=merge_tables)
     btn_merger_process.grid(column=0, row=10, padx=10, pady=10)
 
 window.mainloop()
