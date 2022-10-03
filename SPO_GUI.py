@@ -280,6 +280,83 @@ def calculate_data():
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13','Возникла ошибка!!! Подробности ошибки в файле error.log')
 
+# Функции для слияния таблиц
+
+def select_end_folder_merger():
+    """
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
+    """
+    global path_to_end_folder_merger
+    path_to_end_folder_merger = filedialog.askdirectory()
+
+def select_folder_data_merger():
+    """
+    Функция для выбора папки где хранятся нужные файлы
+    :return:
+    """
+    global path_to_data_folder_merger
+    path_to_data_folder_merger = filedialog.askdirectory()
+
+def select_standard_file_merger():
+    """
+    Функция для выбора файла c ячейками которые нужно подсчитать
+    :return: Путь к файлу
+    """
+    global name_file_standard_merger
+    name_file_standard_merger = filedialog.askopenfilename(
+        filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+def merge_tables():
+    """
+    Функция для слияния таблиц с одинаковой структурой в одну большую таблицу
+    """
+    # Получаем значения из полей ввода и проверяем их на тип
+    try:
+        number_sheet =int(merger_entry_number_sheet.get())
+        skip_rows  = int(merger_entry_skip_rows.get())
+    except ValueError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.13', 'Введите целое число!!!')
+    else:
+        standard_df = pd.read_excel(name_file_standard_merger,sheet_name=number_sheet,skiprows=skip_rows)
+        cols_standard = list(standard_df.columns)
+        base_df = pd.DataFrame(columns=standard_df.columns)
+        base_df.insert(0, 'Имя файла', None)
+        # Перебираем файлы
+        for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
+            for filename in filenames:
+                if filename.endswith('.xlsx'):
+                    # Получаем название файла без расширения
+                    name_file = filename.split('.xlsx')[0]
+                    temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=number_sheet)
+                    # Проверяем соответствие колонок
+                    if cols_standard == list(temp_df.columns):
+                        #Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
+                        temp_df.insert(0, 'Имя файла', None)
+                        temp_df['Имя файла'] = name_file
+                        base_df = pd.concat([base_df, temp_df], axis=0, ignore_index=True)
+
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        # Сохраняем итоговый файл
+        base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx',index=False)
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.13','Создание общей таблицы успешно завершено!!!')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def count_text_value(df):
     """
@@ -1046,7 +1123,7 @@ def processing_comparison():
 if __name__ == '__main__':
     window = Tk()
     window.title('Веста Обработка таблиц и создание документов ver 1.13')
-    window.geometry('750x860')
+    window.geometry('774x860')
     window.resizable(False, False)
 
     # Создаем объект вкладок
@@ -1399,5 +1476,79 @@ if __name__ == '__main__':
                            command=calculate_data
                            )
     btn_calculate.grid(column=0, row=6, padx=10, pady=10)
+
+    """
+    Создание вкладки для объединения таблиц в одну большую
+    """
+    # Создаем вкладку для подсчета данных по категориям
+    tab_merger_tables = ttk.Frame(tab_control)
+    tab_control.add(tab_merger_tables, text='Слияние')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Подсчет данных  по категориям
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_merger_tables,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние однотипных таблиц'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           )
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_to_img = resource_path('logo.png')
+    img_merger = PhotoImage(file=path_to_img)
+    Label(tab_merger_tables,
+          image=img_merger
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_merger = LabelFrame(tab_merger_tables, text='Подготовка')
+    frame_data_for_merger.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать папку с данными
+    btn_data_merger = Button(frame_data_for_merger, text='1) Выберите папку с данными', font=('Arial Bold', 20),
+                              command=select_folder_data_merger
+                              )
+    btn_data_merger.grid(column=0, row=3, padx=10, pady=10)
+
+    # Создаем кнопку Выбрать эталонный файл
+
+    btn_example_merger = Button(frame_data_for_merger,text='2) Выберите эталонный файл',font=('Arial Bold', 20),
+                                command=select_standard_file_merger)
+    btn_example_merger.grid(column=0,row=4,padx=10, pady=10)
+
+    btn_choose_end_folder_merger = Button(frame_data_for_merger, text='3) Выберите конечную папку',
+                                           font=('Arial Bold', 20),
+                                           command=select_end_folder_merger
+                                           )
+    btn_choose_end_folder_merger.grid(column=0, row=5, padx=10, pady=10)
+
+    # Определяем переменную
+    merger_entry_number_sheet = StringVar()
+    # Описание поля
+    merger_label_number_sheet = Label(frame_data_for_merger,
+                                      text='4) Введите порядковый номер листа\nкоторый нужно обработать')
+    merger_label_number_sheet.grid(column=0, row=6, padx=10, pady=10)
+    # поле ввода
+    merger_number_sheet_entry = Entry(frame_data_for_merger, textvariable=merger_entry_number_sheet, width=5)
+    merger_number_sheet_entry.grid(column=0, row=7, padx=5, pady=5, ipadx=10, ipady=7)
+
+    # Определяем переменную в которой будем хранить количество пропускаемых строк
+    merger_entry_skip_rows = StringVar()
+    # Описание поля
+    merger_label_skip_rows = Label(frame_data_for_merger,
+                                      text='5) Введите количество строк\nв таблице которые нужно пропустить\nчтобы добраться до данных')
+    merger_label_skip_rows.grid(column=0, row=8, padx=10, pady=10)
+    # поле ввода
+    merger_number_skip_rows = Entry(frame_data_for_merger, textvariable=merger_entry_skip_rows, width=5)
+    merger_number_skip_rows.grid(column=0, row=9, padx=5, pady=5, ipadx=10, ipady=7)
+
+
+    # Создаем кнопку слияния
+
+
+    btn_merger_process = Button(tab_merger_tables, text='6) Провести слияние таблиц',
+                                  font=('Arial Bold', 20),
+                                  command=merge_tables)
+    btn_merger_process.grid(column=0, row=10, padx=10, pady=10)
 
 window.mainloop()
