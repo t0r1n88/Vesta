@@ -330,39 +330,49 @@ def merge_tables():
     except ValueError:
         messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Введите целое число в поле для ввода количества пропускаемых строк!!!')
     else:
-        # Загружаем выбранный в качестве эталонного файла в openpyxl чтобы проверить наличие такого листа
-        standard_wb = load_workbook(filename=name_file_standard_merger,read_only=True)
-        if sheet_name in standard_wb.sheetnames:
-            standard_df = pd.read_excel(name_file_standard_merger, sheet_name=sheet_name, skiprows=skip_rows)
-            cols_standard = list(standard_df.columns)
-            base_df = pd.DataFrame(columns=standard_df.columns)
-            base_df.insert(0, 'Имя файла', None)
-        # Перебираем файлы
-            for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
-                for filename in filenames:
-                    if filename.endswith('.xlsx'):
-                        # Получаем название файла без расширения
-                        name_file = filename.split('.xlsx')[0]
-                        # Проверяем наличие нужного листа
-                        temp_wb = load_workbook(filename=f'{dirpath}/{filename}',read_only=True)
-                        if sheet_name in temp_wb.sheetnames:
-                            temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=sheet_name)
-                            # Проверяем соответствие колонок
-                            if cols_standard == list(temp_df.columns):
-                                # Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
-                                temp_df.insert(0, 'Имя файла', None)
-                                temp_df['Имя файла'] = name_file
-                                base_df = pd.concat([base_df, temp_df], axis=0, ignore_index=True)
-            t = time.localtime()
-            current_time = time.strftime('%H_%M_%S', t)
-            # Сохраняем итоговый файл
-            base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx', index=False)
-            messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
-                                'Создание общей таблицы успешно завершено!!!')
-        else:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14','В эталонном файле нет листа с таким названием!!!')
-
-
+        # Оборачиваем в try
+        try:
+            # Загружаем выбранный в качестве эталонного файла в openpyxl чтобы проверить наличие такого листа
+            standard_wb = load_workbook(filename=name_file_standard_merger,read_only=True)
+            if sheet_name in standard_wb.sheetnames:
+                standard_df = pd.read_excel(name_file_standard_merger, sheet_name=sheet_name, skiprows=skip_rows)
+                cols_standard = list(standard_df.columns)
+                base_df = pd.DataFrame(columns=standard_df.columns)
+                base_df.insert(0, 'Имя файла', None)
+            # Перебираем файлы
+                for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
+                    for filename in filenames:
+                        if filename.endswith('.xlsx'):
+                            # Получаем название файла без расширения
+                            name_file = filename.split('.xlsx')[0]
+                            # Проверяем наличие нужного листа
+                            temp_wb = load_workbook(filename=f'{dirpath}/{filename}',read_only=True)
+                            if sheet_name in temp_wb.sheetnames:
+                                temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=sheet_name)
+                                # Проверяем соответствие колонок
+                                if cols_standard == list(temp_df.columns):
+                                    # Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
+                                    temp_df.insert(0, 'Имя файла', None)
+                                    temp_df['Имя файла'] = name_file
+                                    base_df = pd.concat([base_df, temp_df], axis=0, ignore_index=True)
+                t = time.localtime()
+                current_time = time.strftime('%H_%M_%S', t)
+                # Сохраняем итоговый файл
+                base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx', index=False)
+                messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
+                                    'Создание общей таблицы успешно завершено!!!')
+            else:
+                messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14','В эталонном файле нет листа с таким названием!!!')
+        except NameError:
+            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                                 f'Выберите папку с файлами,эталонный файл и папку куда будут генерироваться файлы')
+        except PermissionError:
+            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                                 f'Закройте файл выбранный эталонным или файлы из обрабатываемой папки')
+        # except:
+        #     logging.exception('AN ERROR HAS OCCURRED')
+        #     messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+        #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 
 def count_text_value(df):
@@ -1153,7 +1163,7 @@ def processing_comparison():
 if __name__ == '__main__':
     window = Tk()
     window.title(' Веста Обработка таблиц и создание документов ver 1.14')
-    window.geometry('774x860')
+    window.geometry('774x860+700+100')
     window.resizable(False, False)
 
     # Создаем объект вкладок
