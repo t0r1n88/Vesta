@@ -106,19 +106,16 @@ def convert_params_columns_to_int(lst):
     Функция для конвератации значений колонок которые нужно обработать.
     Очищает от пустых строк, чтобы в итоге остался список из чисел в формате int
     """
-    out_lst = []  # Создаем список в который будем добавлять только числа
-    for value in lst:  # Перебираем список
+    out_lst = [] # Создаем список в который будем добавлять только числа
+    for value in lst: # Перебираем список
         try:
             # Обрабатываем случай с нулем, для того чтобы после приведения к питоновскому отсчету от нуля не получилась колонка с номером -1
             number = int(value)
             if number != 0:
-                out_lst.append(value)  # Если конвертирования прошло без ошибок то добавляем
+                out_lst.append(value) # Если конвертирования прошло без ошибок то добавляем
             else:
                 continue
-        except:
-            # Иначе пропускаем
-            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
-                                 f'Проверьте файл с порядковыми номерами колонок.В нем должны быть только цифры!')
+        except: # Иначе пропускаем
             continue
     return out_lst
 
@@ -1032,8 +1029,9 @@ def processing_comparison():
         first_sheet_name = entry_first_sheet_name.get()
         second_sheet_name = entry_second_sheet_name.get()
         # загружаем файлы
-        first_df = pd.read_excel(name_first_file_comparison, sheet_name=first_sheet_name, dtype=str)
-        second_df = pd.read_excel(name_second_file_comparison, sheet_name=second_sheet_name, dtype=str)
+        # На случай если
+        first_df = pd.read_excel(name_first_file_comparison, sheet_name=first_sheet_name, dtype=str,keep_default_na=False)
+        second_df = pd.read_excel(name_second_file_comparison, sheet_name=second_sheet_name, dtype=str,keep_default_na=False)
         params = pd.read_excel(file_params, header=None, keep_default_na=False)
 
         # Преврашаем каждую колонку в список
@@ -1085,9 +1083,9 @@ def processing_comparison():
         wb = openpyxl.Workbook()
         # создаем листы
         ren_sheet = wb['Sheet']
-        ren_sheet.title = 'Таблица 1. Не найденные совпадения'
-        wb.create_sheet(title='Таблица 2. Не найденные совпадения', index=1)
-        wb.create_sheet(title='Объединенная таблица', index=2)
+        ren_sheet.title = 'Таблица 1'
+        wb.create_sheet(title='Таблица 2', index=1)
+        wb.create_sheet(title='Совпадающие данные', index=2)
         # Создаем листы для дубликатов
         wb.create_sheet(title='Дубликаты первая таблица', index=3)
         wb.create_sheet(title='Дубликаты вторая таблица', index=4)
@@ -1100,17 +1098,17 @@ def processing_comparison():
         left_df = itog_df[itog_df['_merge'] == 'left_only']
         left_df.drop(['_merge'], axis=1, inplace=True)
         for r in dataframe_to_rows(left_df, index=False, header=True):
-            wb['Таблица 1. Не найденные совпадения'].append(r)
+            wb['Таблица 1'].append(r)
 
         right_df = itog_df[itog_df['_merge'] == 'right_only']
         right_df.drop(['_merge'], axis=1, inplace=True)
         for r in dataframe_to_rows(right_df, index=False, header=True):
-            wb['Таблица 2. Не найденные совпадения'].append(r)
+            wb['Таблица 2'].append(r)
 
         both_df = itog_df[itog_df['_merge'] == 'both']
         both_df.drop(['_merge'], axis=1, inplace=True)
         for r in dataframe_to_rows(both_df, index=False, header=True):
-            wb['Объединенная таблица'].append(r)
+            wb['Совпадающие данные'].append(r)
 
         # Записываем дубликаты в соответствующие листы
         for r in dataframe_to_rows(duplicates_first_df, index=False, header=True):
@@ -1131,6 +1129,10 @@ def processing_comparison():
     except KeyError:
         messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except ValueError:
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
@@ -1422,7 +1424,7 @@ if __name__ == '__main__':
     btn_select_end_comparison.grid(column=0, row=10, padx=10, pady=10)
 
     # Создаем кнопку Обработать данные
-    btn_data_do_comparison = Button(tab_comparison, text='8) Произвести слияние\nтаблиц', font=('Arial Bold', 20),
+    btn_data_do_comparison = Button(tab_comparison, text='7) Произвести слияние\nтаблиц', font=('Arial Bold', 20),
                                     command=processing_comparison
                                     )
     btn_data_do_comparison.grid(column=0, row=11, padx=10, pady=10)
