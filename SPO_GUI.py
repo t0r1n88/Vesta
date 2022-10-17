@@ -84,6 +84,54 @@ def select_file_data_date():
     name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
 
+# Функциия для слияния таблиц
+
+def convert_columns_to_str(df, number_columns):
+    """
+    Функция для конвертации указанных столбцов в строковый тип и очистки от пробельных символов в начале и конце
+    """
+
+    for column in number_columns:  # Перебираем список нужных колонок
+        try:
+            df.iloc[:, column] = df.iloc[:, column].astype(str)
+            # Очищаем колонку от пробельных символов с начала и конца
+            df.iloc[:, column] = df.iloc[:, column].apply(lambda x: x.strip())
+        except IndexError:
+            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                                 'Проверьте порядковые номера колонок которые вы хотите обработать.')
+
+
+def convert_params_columns_to_int(lst):
+    """
+    Функция для конвератации значений колонок которые нужно обработать.
+    Очищает от пустых строк, чтобы в итоге остался список из чисел в формате int
+    """
+    out_lst = []  # Создаем список в который будем добавлять только числа
+    for value in lst:  # Перебираем список
+        try:
+            # Обрабатываем случай с нулем, для того чтобы после приведения к питоновскому отсчету от нуля не получилась колонка с номером -1
+            number = int(value)
+            if number != 0:
+                out_lst.append(value)  # Если конвертирования прошло без ошибок то добавляем
+            else:
+                continue
+        except:
+            # Иначе пропускаем
+            messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                                 f'Проверьте файл с порядковыми номерами колонок.В нем должны быть только цифры!')
+            continue
+    return out_lst
+
+
+def select_file_params_comparsion():
+    """
+    Функция для выбора файла с параметрами колонок т.е. кокие колонки нужно обрабатывать
+    :return:
+    """
+    global file_params
+    file_params = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
 def select_first_comparison():
     """
     Функция для выбора  первого файла с данными которые нужно сравнить
@@ -328,27 +376,29 @@ def merge_tables():
         sheet_name = merger_entry_sheet_name.get()
         skip_rows = int(merger_entry_skip_rows.get())
     except ValueError:
-        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14', 'Введите целое число в поле для ввода количества пропускаемых строк!!!')
+        messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
+                             'Введите целое число в поле для ввода количества пропускаемых строк!!!')
     else:
         # Оборачиваем в try
         try:
             # Загружаем выбранный в качестве эталонного файла в openpyxl чтобы проверить наличие такого листа
-            standard_wb = load_workbook(filename=name_file_standard_merger,read_only=True)
+            standard_wb = load_workbook(filename=name_file_standard_merger, read_only=True)
             if sheet_name in standard_wb.sheetnames:
                 standard_df = pd.read_excel(name_file_standard_merger, sheet_name=sheet_name, skiprows=skip_rows)
                 cols_standard = list(standard_df.columns)
                 base_df = pd.DataFrame(columns=standard_df.columns)
                 base_df.insert(0, 'Имя файла', None)
-            # Перебираем файлы
+                # Перебираем файлы
                 for dirpath, dirnames, filenames in os.walk(path_to_data_folder_merger):
                     for filename in filenames:
                         if filename.endswith('.xlsx'):
                             # Получаем название файла без расширения
                             name_file = filename.split('.xlsx')[0]
                             # Проверяем наличие нужного листа
-                            temp_wb = load_workbook(filename=f'{dirpath}/{filename}',read_only=True)
+                            temp_wb = load_workbook(filename=f'{dirpath}/{filename}', read_only=True)
                             if sheet_name in temp_wb.sheetnames:
-                                temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows, sheet_name=sheet_name)
+                                temp_df = pd.read_excel(f'{dirpath}/{filename}', skiprows=skip_rows,
+                                                        sheet_name=sheet_name)
                                 # Проверяем соответствие колонок
                                 if cols_standard == list(temp_df.columns):
                                     # Если совпадает то вставляем колонку с именем файла и добавляем в общую таблицу
@@ -362,7 +412,8 @@ def merge_tables():
                 messagebox.showinfo(' Веста Обработка таблиц и создание документов ver 1.14',
                                     'Создание общей таблицы успешно завершено!!!')
             else:
-                messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14','В эталонном файле нет листа с таким названием!!!')
+                messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14',
+                                     'В эталонном файле нет листа с таким названием!!!')
         except NameError:
             messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
                                  f'Выберите папку с файлами,эталонный файл и папку куда будут генерироваться файлы')
@@ -978,172 +1029,101 @@ def processing_comparison():
     """
     try:
         # Получаем значения текстовых полей
-        first_column = entry_first_name_column.get()
-        second_column = entry_second_name_column.get()
-
+        first_sheet_name = entry_first_sheet_name.get()
+        second_sheet_name = entry_second_sheet_name.get()
         # загружаем файлы
-        df_frist = pd.read_excel(name_first_file_comparison, dtype=str)
-        df_second = pd.read_excel(name_second_file_comparison, dtype=str)
-        # Очищаем оба датафрейма от дубликатов
-        # Получаем дубликаты в отдельный датафрейм
-        namesakes_df_first = df_frist[df_frist.duplicated([first_column], keep=False)]
-        namesakes_df_second = df_second[df_second.duplicated([second_column], keep=False)]
+        first_df = pd.read_excel(name_first_file_comparison, sheet_name=first_sheet_name, dtype=str)
+        second_df = pd.read_excel(name_second_file_comparison, sheet_name=second_sheet_name, dtype=str)
+        params = pd.read_excel(file_params, header=None, keep_default_na=False)
+
+        # Преврашаем каждую колонку в список
+        params_first_columns = params[0].tolist()
+        params_second_columns = params[1].tolist()
+
+        # Конвертируем в инт заодно проверяя корректность введенных данных
+        int_params_first_columns = convert_params_columns_to_int(params_first_columns)
+        int_params_second_columns = convert_params_columns_to_int(params_second_columns)
+
+        # Отнимаем 1 от каждого значения чтобы привести к питоновским индексам
+        int_params_first_columns = list(map(lambda x: x - 1, int_params_first_columns))
+        int_params_second_columns = list(map(lambda x: x - 1, int_params_second_columns))
+
+        # Конвертируем нужные нам колонки в str
+        convert_columns_to_str(first_df, int_params_first_columns)
+        convert_columns_to_str(second_df, int_params_second_columns)
+
+        # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
+        first_df['ID'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
+        second_df['ID'] = second_df.iloc[:, int_params_second_columns].sum(axis=1)
+
+        # очищаем от пробелов между словами
+        first_df['ID'] = first_df['ID'].apply(lambda x: x.replace(' ', ''))
+        second_df['ID'] = second_df['ID'].apply(lambda x: x.replace(' ', ''))
+
+        # Обрабатываем дубликаты
+
+        duplicates_first_df = first_df[first_df.duplicated(subset=['ID'],
+                                                           keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
+
+        first_df.drop_duplicates(subset=['ID'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
+
+        duplicates_second_df = second_df[second_df.duplicated(subset=['ID'],
+                                                              keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
+        second_df.drop_duplicates(subset=['ID'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
 
         # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
-        if namesakes_df_first.shape[0] > 0:
+        if duplicates_first_df.shape[0] > 0:
             messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',
-                                   f'В колонке {first_column} первой таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
-        if namesakes_df_second.shape[0] > 0:
+                                   f'В первой таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+        if duplicates_second_df.shape[0] > 0:
             messagebox.showwarning(' Веста Обработка таблиц и создание документов ver 1.14',
-                                   f'В колонке {second_column} второй таблицы обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
+                                   f'Во второй таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
 
-        # Полностью удаляем дубликаты из базовых датафреймов
-        df_frist.drop_duplicates(subset=[first_column], keep=False, inplace=True)
-        df_second.drop_duplicates(subset=[second_column], keep=False, inplace=True)
+            # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
 
-        # Создаем переменную для типа создаваемого документа
-        status_rb_type_doc = group_rb_type_doc.get()
+        # Создаем документ
+        wb = openpyxl.Workbook()
+        # создаем листы
+        ren_sheet = wb['Sheet']
+        ren_sheet.title = 'Таблица 1. Не найденные совпадения'
+        wb.create_sheet(title='Таблица 2. Не найденные совпадения', index=1)
+        wb.create_sheet(title='Объединенная таблица', index=2)
+        # Создаем листы для дубликатов
+        wb.create_sheet(title='Дубликаты первая таблица', index=3)
+        wb.create_sheet(title='Дубликаты вторая таблица', index=4)
+
+        # Проводим слияние
+        itog_df = pd.merge(first_df, second_df, how='outer', left_on=['ID'], right_on=['ID'],
+                           indicator=True)
+
+        # Записываем каждый датафрейм в соответсвующий лист
+        left_df = itog_df[itog_df['_merge'] == 'left_only']
+        left_df.drop(['_merge'], axis=1, inplace=True)
+        for r in dataframe_to_rows(left_df, index=False, header=True):
+            wb['Таблица 1. Не найденные совпадения'].append(r)
+
+        right_df = itog_df[itog_df['_merge'] == 'right_only']
+        right_df.drop(['_merge'], axis=1, inplace=True)
+        for r in dataframe_to_rows(right_df, index=False, header=True):
+            wb['Таблица 2. Не найденные совпадения'].append(r)
+
+        both_df = itog_df[itog_df['_merge'] == 'both']
+        both_df.drop(['_merge'], axis=1, inplace=True)
+        for r in dataframe_to_rows(both_df, index=False, header=True):
+            wb['Объединенная таблица'].append(r)
+
+        # Записываем дубликаты в соответствующие листы
+        for r in dataframe_to_rows(duplicates_first_df, index=False, header=True):
+            wb['Дубликаты первая таблица'].append(r)
+
+        for r in dataframe_to_rows(duplicates_second_df, index=False, header=True):
+            wb['Дубликаты вторая таблица'].append(r)
+
+        # Сохраняем
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        #
-
-        # В зависимости от значения проводим merge
-        if status_rb_type_doc == 0:
-            itog_df = pd.merge(df_frist, df_second, how='inner', left_on=first_column, right_on=second_column)
-            # Сохраняем результат
-            # Создаем документ
-            wb = openpyxl.Workbook()
-            # создаем листы
-            ren_sheet = wb['Sheet']
-            ren_sheet.title = 'Итог'
-            wb.create_sheet(title='Дубликаты первая таблица', index=1)
-            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
-            # Записываем результаты в файл
-            for r in dataframe_to_rows(itog_df, index=False, header=True):
-                wb['Итог'].append(r)
-            # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
-                wb['Дубликаты первая таблица'].append(r)
-
-            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
-                wb['Дубликаты вторая таблица'].append(r)
-
-            wb.save(f'{path_to_end_folder_comparison}/Совпадающие значения из обоих таблиц от {current_time}.xlsx')
-
-        elif status_rb_type_doc == 1:
-            itog_df = pd.merge(df_frist, df_second, how='left', left_on=first_column, right_on=second_column)
-            # Сохраняем результат
-            # Создаем документ
-            wb = openpyxl.Workbook()
-            # создаем листы
-            ren_sheet = wb['Sheet']
-            ren_sheet.title = 'Итог'
-            wb.create_sheet(title='Дубликаты первая таблица', index=1)
-            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
-            # Записываем результаты в файл
-            for r in dataframe_to_rows(itog_df, index=False, header=True):
-                wb['Итог'].append(r)
-            # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
-                wb['Дубликаты первая таблица'].append(r)
-
-            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
-                wb['Дубликаты вторая таблица'].append(r)
-
-            wb.save(
-                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из первой таблицы от {current_time}.xlsx')
-            # В результат попадают совпадающие по ключу данные обеих таблиц и все записи из левой таблицы, для которых не нашлось пары в правой.
-        elif status_rb_type_doc == 2:
-            itog_df = pd.merge(df_frist, df_second, how='right', left_on=first_column, right_on=second_column)
-            # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все данные из правой таблицы, для которых не нашлось пары в левой.
-            # Сохраняем результат
-            # Создаем документ
-            wb = openpyxl.Workbook()
-            # создаем листы
-            ren_sheet = wb['Sheet']
-            ren_sheet.title = 'Итог'
-            wb.create_sheet(title='Дубликаты первая таблица', index=1)
-            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
-            # Записываем результаты в файл
-            for r in dataframe_to_rows(itog_df, index=False, header=True):
-                wb['Итог'].append(r)
-            # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
-                wb['Дубликаты первая таблица'].append(r)
-
-            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
-                wb['Дубликаты вторая таблица'].append(r)
-
-            wb.save(
-                f'{path_to_end_folder_comparison}/Совпадающие значения + уникальные значения из второй таблицы от {current_time}.xlsx')
-
-        elif status_rb_type_doc == 3:
-            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column)
-            # Сохраняем результат
-            # Создаем документ
-            wb = openpyxl.Workbook()
-            # создаем листы
-            ren_sheet = wb['Sheet']
-            ren_sheet.title = 'Итог'
-            wb.create_sheet(title='Дубликаты первая таблица', index=1)
-            wb.create_sheet(title='Дубликаты вторая таблица', index=2)
-            # Записываем результаты в файл
-            for r in dataframe_to_rows(itog_df, index=False, header=True):
-                wb['Итог'].append(r)
-            # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
-                wb['Дубликаты первая таблица'].append(r)
-
-            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
-                wb['Дубликаты вторая таблица'].append(r)
-
-            wb.save(
-                f'{path_to_end_folder_comparison}/Объединённые таблицы от {current_time}.xlsx')
-            # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не важен.
-        elif status_rb_type_doc == 4:
-            # Создаем документ
-            wb = openpyxl.Workbook()
-            # создаем листы
-            ren_sheet = wb['Sheet']
-            ren_sheet.title = 'Первая таблица'
-            wb.create_sheet(title='Вторая таблица', index=1)
-            wb.create_sheet(title='Совпадающие данные', index=2)
-            # Создаем листы для дубликатов
-            wb.create_sheet(title='Дубликаты первая таблица', index=3)
-            wb.create_sheet(title='Дубликаты вторая таблица', index=4)
-
-            # Создаем датафрейм
-            itog_df = pd.merge(df_frist, df_second, how='outer', left_on=first_column, right_on=second_column,
-                               indicator=True)
-
-            # Записываем каждый датафрейм в соответсвующий лист
-            left_df = itog_df[itog_df['_merge'] == 'left_only']
-            left_df.drop(['_merge'], axis=1, inplace=True)
-            for r in dataframe_to_rows(left_df, index=False, header=True):
-                wb['Первая таблица'].append(r)
-
-            right_df = itog_df[itog_df['_merge'] == 'right_only']
-            right_df.drop(['_merge'], axis=1, inplace=True)
-            for r in dataframe_to_rows(right_df, index=False, header=True):
-                wb['Вторая таблица'].append(r)
-
-            both_df = itog_df[itog_df['_merge'] == 'both']
-            both_df.drop(['_merge'], axis=1, inplace=True)
-            for r in dataframe_to_rows(both_df, index=False, header=True):
-                wb['Совпадающие данные'].append(r)
-
-            # Записываем дубликаты в соответствующие листы
-            for r in dataframe_to_rows(namesakes_df_first, index=False, header=True):
-                wb['Дубликаты первая таблица'].append(r)
-
-            for r in dataframe_to_rows(namesakes_df_second, index=False, header=True):
-                wb['Дубликаты вторая таблица'].append(r)
-
-            # Сохраняем
-            t = time.localtime()
-            current_time = time.strftime('%H_%M_%S', t)
-            # Сохраняем итоговый файл
-            wb.save(f'{path_to_end_folder_comparison}/Уникальные данные из обеих таблиц от {current_time}.xlsx')
+        # Сохраняем итоговый файл
+        wb.save(f'{path_to_end_folder_comparison}/Результат слияния 2 таблиц от {current_time}.xlsx')
     except NameError:
         messagebox.showerror(' Веста Обработка таблиц и создание документов ver 1.14',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
@@ -1370,7 +1350,7 @@ if __name__ == '__main__':
     # Создаем вкладку для сравнения 2 столбцов
 
     tab_comparison = ttk.Frame(tab_control)
-    tab_control.add(tab_comparison, text='Сравнение или объединение 2 таблиц')
+    tab_control.add(tab_comparison, text='Слияние 2 таблиц')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Создание документов
@@ -1378,7 +1358,9 @@ if __name__ == '__main__':
     lbl_hello = Label(tab_comparison,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
-                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                           '\nДля корректной работы дубликаты из таблиц переносятся'
+                           '\nна отдельные листы конечного файла!!!'
+                           '\nСлияние дубликтов проводите вручную!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -1392,65 +1374,55 @@ if __name__ == '__main__':
     frame_data_for_comparison = LabelFrame(tab_comparison, text='Подготовка')
     frame_data_for_comparison.grid(column=0, row=2, padx=10)
 
+    # Создаем кнопку выбрать файл с параметрами
+    btn_columns_params = Button(frame_data_for_comparison, text='1) Выберите файл с параметрами слияния',
+                                font=('Arial Bold', 10),
+                                command=select_file_params_comparsion)
+    btn_columns_params.grid(column=0, row=3, padx=10, pady=10)
+
     # Создаем кнопку Выбрать  первый файл с данными
-    btn_data_first_comparison = Button(frame_data_for_comparison, text='1) Выберите первый файл с данными',
+    btn_data_first_comparison = Button(frame_data_for_comparison, text='2) Выберите первый файл с данными',
                                        font=('Arial Bold', 10),
                                        command=select_first_comparison
                                        )
-    btn_data_first_comparison.grid(column=0, row=3, padx=10, pady=10)
+    btn_data_first_comparison.grid(column=0, row=4, padx=10, pady=10)
 
     # Определяем текстовую переменную
-    entry_first_name_column = StringVar()
+    entry_first_sheet_name = StringVar()
     # Описание поля
-    label_first_name_column = Label(frame_data_for_comparison,
-                                    text='2) Введите название колонки в первом файле')
-    label_first_name_column.grid(column=0, row=4, padx=10, pady=10)
-    # поле ввода
-    column_first_entry = Entry(frame_data_for_comparison, textvariable=entry_first_name_column, width=30)
-    column_first_entry.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+    label_first_sheet_name = Label(frame_data_for_comparison,
+                                   text='3) Введите название листа в первом файле')
+    label_first_sheet_name.grid(column=0, row=5, padx=10, pady=10)
+    # поле ввода имени листа
+    first_sheet_name_entry = Entry(frame_data_for_comparison, textvariable=entry_first_sheet_name, width=30)
+    first_sheet_name_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=15, ipady=10)
 
     # Создаем кнопку Выбрать  второй файл с данными
-    btn_data_second_comparison = Button(frame_data_for_comparison, text='3) Выберите второй файл с данными',
+    btn_data_second_comparison = Button(frame_data_for_comparison, text='4) Выберите второй файл с данными',
                                         font=('Arial Bold', 10),
                                         command=select_second_comparison
                                         )
-    btn_data_second_comparison.grid(column=0, row=6, padx=10, pady=10)
+    btn_data_second_comparison.grid(column=0, row=7, padx=10, pady=10)
 
     # Определяем текстовую переменную
-    entry_second_name_column = StringVar()
+    entry_second_sheet_name = StringVar()
     # Описание поля
-    label_second_name_column = Label(frame_data_for_comparison,
-                                     text='4) Введите название колонки во втором файле')
-    label_second_name_column.grid(column=0, row=7, padx=10, pady=10)
+    label_second_sheet_name = Label(frame_data_for_comparison,
+                                    text='5) Введите название листа во втором файле')
+    label_second_sheet_name.grid(column=0, row=8, padx=10, pady=10)
     # поле ввода
-    column_second_entry = Entry(frame_data_for_comparison, textvariable=entry_second_name_column, width=30)
-    column_second_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=15, ipady=10)
+    second__sheet_name_entry = Entry(frame_data_for_comparison, textvariable=entry_second_sheet_name, width=30)
+    second__sheet_name_entry.grid(column=0, row=9, padx=5, pady=5, ipadx=15, ipady=10)
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
-    btn_select_end_comparison = Button(frame_data_for_comparison, text='5) Выберите конечную папку',
+    btn_select_end_comparison = Button(frame_data_for_comparison, text='6) Выберите конечную папку',
                                        font=('Arial Bold', 10),
                                        command=select_end_folder_comparison
                                        )
-    btn_select_end_comparison.grid(column=0, row=9, padx=10, pady=10)
-
-    # Создаем переменную хранящую тип документа, в зависимости от значения будет использоваться та или иная функция
-    group_rb_type_doc = IntVar()
-    # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
-    frame_rb_type_doc = LabelFrame(tab_comparison, text='6) Выберите тип сравнения,объединения')
-    frame_rb_type_doc.grid(column=0, row=10, padx=10)
-    #
-    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок (пересечение)', variable=group_rb_type_doc,
-                value=0).pack()
-    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из первой колонки',
-                variable=group_rb_type_doc, value=1).pack()
-    Radiobutton(frame_rb_type_doc, text='Общие данные для обеих колонок+уникальные данные из второй колонки',
-                variable=group_rb_type_doc, value=2).pack()
-    Radiobutton(frame_rb_type_doc, text='Объединить таблицы', variable=group_rb_type_doc, value=3).pack()
-    Radiobutton(frame_rb_type_doc, text='Получить уникальные данные из первой и второй таблицы',
-                variable=group_rb_type_doc, value=4).pack()
+    btn_select_end_comparison.grid(column=0, row=10, padx=10, pady=10)
 
     # Создаем кнопку Обработать данные
-    btn_data_do_comparison = Button(tab_comparison, text='7) Обработать данные', font=('Arial Bold', 20),
+    btn_data_do_comparison = Button(tab_comparison, text='8) Произвести слияние\nтаблиц', font=('Arial Bold', 20),
                                     command=processing_comparison
                                     )
     btn_data_do_comparison.grid(column=0, row=11, padx=10, pady=10)
@@ -1517,13 +1489,13 @@ if __name__ == '__main__':
     """
     # Создаем вкладку для подсчета данных по категориям
     tab_merger_tables = ttk.Frame(tab_control)
-    tab_control.add(tab_merger_tables, text='Слияние')
+    tab_control.add(tab_merger_tables, text='Слияние файлов')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Подсчет данных  по категориям
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_merger_tables,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние однотипных таблиц'
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние однотипных файлов Excel'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
                       )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
@@ -1571,7 +1543,7 @@ if __name__ == '__main__':
     merger_entry_skip_rows = StringVar()
     # Описание поля
     merger_label_skip_rows = Label(frame_data_for_merger,
-                                   text='5) Введите количество строк\nв таблице которые нужно пропустить\nчтобы добраться до данных')
+                                   text='5) Введите количество строк\nв файле, которые нужно пропустить\nчтобы добраться до данных')
     merger_label_skip_rows.grid(column=0, row=8, padx=10, pady=10)
     # поле ввода
     merger_number_skip_rows = Entry(frame_data_for_merger, textvariable=merger_entry_skip_rows, width=5)
@@ -1579,7 +1551,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку слияния
 
-    btn_merger_process = Button(tab_merger_tables, text='6) Провести слияние таблиц',
+    btn_merger_process = Button(tab_merger_tables, text='6) Произвести слияние \nфайлов',
                                 font=('Arial Bold', 20),
                                 command=merge_tables)
     btn_merger_process.grid(column=0, row=10, padx=10, pady=10)
