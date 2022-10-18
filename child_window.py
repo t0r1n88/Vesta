@@ -1,16 +1,17 @@
 from tkinter import *
 
+
 # класс для дочернего окна
 class ChildWindow():
-    def __init__(self,parent, width, height, title='Vesta', resizable=(False, False),icon=None):
+    def __init__(self, parent, width, height, title='Vesta', resizable=(False, False), icon=None):
         # Создаем дочернее окно указывая что родительским явлется окно переданное в аргументе parent
         self.root = Toplevel(parent)
         # Прописываем атрибуты
         self.root.title(title)  # Название окна
-        self.root.geometry(f'{width}x{height}+600+200') # Размер окна и сдвиг относительно левого верхнего угла
-        self.root.resizable(resizable[0],resizable[1]) # Возможность изменения размера окна
+        self.root.geometry(f'{width}x{height}+600+200')  # Размер окна и сдвиг относительно левого верхнего угла
+        self.root.resizable(resizable[0], resizable[1])  # Возможность изменения размера окна
         if icon:
-            self.root.iconbitmap(icon) # иконка
+            self.root.iconbitmap(icon)  # иконка
 
         # Сразу же как только будет создаваться дочернее окно, оно будет забирать фокусировку  на себя
         self.grab_focus()
@@ -26,6 +27,3 @@ class ChildWindow():
         self.root.focus_set()
         # Ждем пока дочернее окно не будет закрыто
         self.root.wait_window()
-
-
-
