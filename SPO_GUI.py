@@ -675,14 +675,10 @@ def create_doc_convert_date(cell):
         string_date = datetime.datetime.strftime(cell, '%d.%m.%Y')
         return string_date
     except ValueError:
-        logging.exception('AN ERROR HAS OCCURRED')
-        return ''
+        return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
     except TypeError:
-        print(cell)
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.15',
-                             'Проверьте правильность заполнения ячеек с датой!!!')
-        logging.exception('AN ERROR HAS OCCURRED')
-        quit()
+        return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
+
 
 
 def processing_date_column(df, lst_columns):
@@ -1080,14 +1076,13 @@ def processing_comparison():
         int_params_first_columns = list(map(lambda x: x - 1, int_params_first_columns))
         int_params_second_columns = list(map(lambda x: x - 1, int_params_second_columns))
 
-        # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
-        processing_date_column(first_df, int_params_first_columns)
-        processing_date_column(second_df, int_params_second_columns)
-
         # Конвертируем нужные нам колонки в str
         convert_columns_to_str(first_df, int_params_first_columns)
         convert_columns_to_str(second_df, int_params_second_columns)
 
+        # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
+        processing_date_column(first_df, int_params_first_columns)
+        processing_date_column(second_df, int_params_second_columns)
 
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
         first_df['ID'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
