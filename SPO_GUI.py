@@ -568,19 +568,30 @@ def check_date_columns(i, value):
     :param value:
     :return:
     """
-    #  Да да это просто
-    if '00:00:00' in str(value):
-        try:
-            itog = pd.to_datetime(str(value), infer_datetime_format=True)
+    # #  Да да это просто
+    # if '00:00:00' in str(value):
+    #     try:
+    #         itog = pd.to_datetime(str(value), infer_datetime_format=True)
+    #
+    #     except ParserError:
+    #         pass
+    #     except ValueError:
+    #         pass
+    #     except TypeError:
+    #         pass
+    #     else:
+    #         return i
+    try:
+        itog = pd.to_datetime(str(value), infer_datetime_format=True)
 
-        except ParserError:
-            pass
-        except ValueError:
-            pass
-        except TypeError:
-            pass
-        else:
-            return i
+    except ParserError:
+        pass
+    except ValueError:
+        pass
+    except TypeError:
+        pass
+    else:
+        return i
 
 
 def set_rus_locale():
@@ -672,6 +683,29 @@ def create_doc_convert_date(cell):
                              'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
+
+
+def processing_date_column(df, lst_columns):
+    """
+    Функция для обработки столбцов с датами. конвертация в строку формата ДД.ММ.ГГГГ
+    """
+    # получаем первую строку
+    first_row = df.iloc[0, lst_columns]
+
+    lst_first_row = list(first_row)  # Превращаем строку в список
+    lst_date_columns = []  # Создаем список куда будем сохранять колонки в которых находятся даты
+    tupl_row = list(zip(lst_columns,
+                        lst_first_row))  # Создаем список кортежей формата (номер колонки,значение строки в этой колонке)
+
+    for idx, value in tupl_row:  # Перебираем кортеж
+        result = check_date_columns(idx, value)  # проверяем является ли значение датой
+        if result:  # если да то добавляем список порядковый номер колонки
+            lst_date_columns.append(result)
+        else:  # иначе проверяем следующее значение
+            continue
+    for i in lst_date_columns:  # Перебираем список с колонками дат, превращаем их в даты и конвертируем в нужный строковый формат
+        df.iloc[:, i] = pd.to_datetime(df.iloc[:, i], errors='coerce', dayfirst=True)
+        df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
 
 
 def extract_number_month(cell):
@@ -1046,9 +1080,14 @@ def processing_comparison():
         int_params_first_columns = list(map(lambda x: x - 1, int_params_first_columns))
         int_params_second_columns = list(map(lambda x: x - 1, int_params_second_columns))
 
+        # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
+        processing_date_column(first_df, int_params_first_columns)
+        processing_date_column(second_df, int_params_second_columns)
+
         # Конвертируем нужные нам колонки в str
         convert_columns_to_str(first_df, int_params_first_columns)
         convert_columns_to_str(second_df, int_params_second_columns)
+
 
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
         first_df['ID'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
