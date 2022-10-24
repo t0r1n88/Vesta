@@ -568,19 +568,6 @@ def check_date_columns(i, value):
     :param value:
     :return:
     """
-    # #  Да да это просто
-    # if '00:00:00' in str(value):
-    #     try:
-    #         itog = pd.to_datetime(str(value), infer_datetime_format=True)
-    #
-    #     except ParserError:
-    #         pass
-    #     except ValueError:
-    #         pass
-    #     except TypeError:
-    #         pass
-    #     else:
-    #         return i
     try:
         itog = pd.to_datetime(str(value), infer_datetime_format=True)
 
