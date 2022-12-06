@@ -13,6 +13,12 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font
 from openpyxl.styles import Alignment
 from openpyxl import load_workbook
+import pytrovich
+from pytrovich.detector import PetrovichGenderDetector
+from pytrovich.enums import NamePart, Gender, Case
+from pytrovich.maker import PetrovichDeclinationMaker
+
+
 import time
 import datetime
 import warnings
@@ -97,7 +103,7 @@ def convert_columns_to_str(df, number_columns):
             # Очищаем колонку от пробельных символов с начала и конца
             df.iloc[:, column] = df.iloc[:, column].apply(lambda x: x.strip())
         except IndexError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                                  'Проверьте порядковые номера колонок которые вы хотите обработать.')
 
 
@@ -320,17 +326,17 @@ def calculate_data():
                                    index=False)
 
         if count_errors != 0:
-            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18',
                                 f'Обработка файлов завершена!\nОбработано файлов:  {count} из {quantity_files}\n Необработанные файлы указаны в файле {path_to_end_folder_calculate_data}/ERRORS {current_time}.txt ')
         else:
-            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18',
                                 f'Обработка файлов успешно завершена!\nОбработано файлов:  {count} из {quantity_files}')
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 
@@ -373,7 +379,7 @@ def merge_tables():
         sheet_name = merger_entry_sheet_name.get()
         skip_rows = int(merger_entry_skip_rows.get())
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Введите целое число в поле для ввода количества пропускаемых строк!!!')
     else:
         # Оборачиваем в try
@@ -406,20 +412,20 @@ def merge_tables():
                 current_time = time.strftime('%H_%M_%S', t)
                 # Сохраняем итоговый файл
                 base_df.to_excel(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx', index=False)
-                messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17',
+                messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18',
                                     'Создание общей таблицы успешно завершено!!!')
             else:
                 messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.14',
                                      'В эталонном файле нет листа с таким названием!!!')
         except NameError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                                  f'Выберите папку с файлами,эталонный файл и папку куда будут генерироваться файлы')
         except PermissionError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                                  f'Закройте файл выбранный эталонным или файлы из обрабатываемой папки')
         # except:
         #     logging.exception('AN ERROR HAS OCCURRED')
-        #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
         #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 
@@ -486,7 +492,7 @@ def check_data(cell, text_mode):
 
 def generate_docs_other():
     """
-    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных Веста Обработка таблиц и создание документов ver 1.17)
+    Функция для создания документов из произвольных таблиц(т.е. отличающихся от структуры базы данных Веста Обработка таблиц и создание документов ver 1.18)
     :return:
     """
     try:
@@ -549,16 +555,16 @@ def generate_docs_other():
                 combine_all_docx(main_doc, files_lst)
 
     except NameError as e:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17', 'Создание документов завершено!')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Создание документов завершено!')
 
 
 def check_date_columns(i, value):
@@ -629,7 +635,7 @@ def calculate_age(born):
         return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
 
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Введена некорректная дата относительно которой нужно провести обработку\nПример корректной даты 01.09.2022')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
@@ -646,7 +652,7 @@ def convert_date(cell):
 
     except TypeError:
         print(cell)
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Проверьте правильность заполнения ячеек с датой!!!')
         logging.exception('AN ERROR HAS OCCURRED')
         quit()
@@ -897,20 +903,20 @@ def calculate_date():
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
 
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Данные успешно обработаны')
 
 
 def groupby_category():
@@ -948,16 +954,16 @@ def groupby_category():
 
 
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
     except TypeError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Данные успешно обработаны')
 
 
 def groupby_stat():
@@ -1003,7 +1009,7 @@ def groupby_stat():
             group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
                               'Количество повторений самого частого значения', ]
         else:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                                  'Возникла проблема при обработке. Проверьте значения в колонке')
         for r in dataframe_to_rows(group_df, index=True, header=True):
             wb['Подсчет статистик'].append(r)
@@ -1016,24 +1022,24 @@ def groupby_stat():
 
 
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except TypeError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Данные успешно обработаны')
 
 
 def processing_comparison():
@@ -1095,10 +1101,10 @@ def processing_comparison():
 
         # # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
         if duplicates_first_df.shape[0] > 0:
-            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.18',
                                    f'В первой таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
         if duplicates_second_df.shape[0] > 0:
-            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.17',
+            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.18',
                                    f'Во второй таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
@@ -1168,28 +1174,158 @@ def processing_comparison():
         wb.save(f'{path_to_end_folder_comparison}/Результат слияния 2 таблиц от {current_time}.xlsx')
 
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
     except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.17',
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.17', 'Данные успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Данные успешно обработаны')
+
+"""
+Функции для склонения ФИО по падежам
+"""
+def select_data_decl_case():
+    """
+    Функция для файла с данными
+    :return: Путь к файлу с данными
+    """
+    global data_decl_case
+    # Получаем путь к файлу
+    data_decl_case = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+def select_end_folder_decl_case():
+    """
+    Функия для выбора папки.Определенно вот это когда нибудь я перепишу на ООП
+    :return:
+    """
+    global path_to_end_folder_decl_case
+    path_to_end_folder_decl_case = filedialog.askdirectory()
+
+
+def capitalize_double_name(word):
+    """
+    Функция для того чтобы в двойных именах и фамилиях вторая часть была также с большой буквы
+    """
+    lst_word = word.split('-')
+    if len(lst_word) == 1:
+        return word
+    else:
+        first_word = lst_word[0].capitalize()
+        second_word = lst_word[1].capitalize()
+        return f'{first_word}-{second_word}'
+
+
+def detect_gender(lastname, firstname, middlename):
+    """
+    Функция для определения гендера слова
+    """
+    detector = PetrovichGenderDetector()  # создаем объект детектора
+    try:
+        gender_result = detector.detect(lastname=lastname, firstname=firstname, middlename=middlename)
+        return gender_result
+    except StopIteration:  # если не удалось определить то считаем что гендер андрогинный
+        return Gender.ANDROGYNOUS
+
+
+def decl_on_case(fio: str, case: Case) -> str:
+    """
+    Функция для склонения ФИО по падежам
+    """
+    fio = fio.strip()  # очищаем строку от пробельных символов с начала и конца
+    part_fio = fio.split()  # разбиваем по пробелам создавая список где [0] это Фамилия,[1]-Имя,[2]-Отчество
+
+    if len(part_fio) == 3:  # проверяем на длину и обрабатываем только те что имеют длину 3 во всех остальных случаях просим просклонять самостоятельно
+        maker = PetrovichDeclinationMaker() # создаем объект класса
+        lastname = part_fio[0].capitalize()  # Фамилия
+        firstname = part_fio[1].capitalize()  # Имя
+        middlename = part_fio[2].capitalize()  # Отчество
+
+        # Определяем гендер для корректного склонения
+        gender = detect_gender(lastname, firstname, middlename)
+        # Склоняем
+        case_result_lastname = maker.make(NamePart.LASTNAME, gender, case, lastname)
+        case_result_lastname = capitalize_double_name(case_result_lastname)  # обрабатываем случаи двойной фамилии
+        case_result_firstname = maker.make(NamePart.FIRSTNAME, gender, case, firstname)
+        case_result_firstname = capitalize_double_name(case_result_firstname)  # обрабатываем случаи двойного имени
+
+        case_result_middlename = maker.make(NamePart.MIDDLENAME, gender, case, middlename)
+        # Возвращаем результат
+        result_fio = f'{case_result_lastname} {case_result_firstname} {case_result_middlename}'
+        return result_fio
+
+
+
+    else:
+        return 'Проверьте количество слов, должно быть 3 разделенных пробелами слова'
+
+def process_decl_case():
+    """
+    Функция для проведения склонения ФИО по падежам
+    :return:
+    """
+    try:
+        fio_column = decl_case_entry_fio.get()
+
+        df = pd.read_excel(data_decl_case, dtype={fio_column: str})
+
+        temp_df = pd.DataFrame()  # временный датафрейм для хранения колонок просклоненных по падежам
+
+        # Получаем номер колонки с фио которые нужно обработать
+        lst_columns = list(df.columns)  # Превращаем в список
+        index_fio_column = lst_columns.index(fio_column)  # получаем индекс
+
+        # Обрабатываем nan значения и те которые обозначены пробелом
+        df[fio_column].fillna('Не заполнено', inplace=True)
+        df[fio_column] = df[fio_column].apply(lambda x: x.strip())
+        df[fio_column] = df[fio_column].apply(
+            lambda x: x if x else 'Не заполнено')  # Если пустая строка то заменяем на значение Не заполнено
+
+        temp_df['Родительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.GENITIVE))
+        temp_df['Дательный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.DATIVE))
+        temp_df['Винительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.ACCUSATIVE))
+        temp_df['Творительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.INSTRUMENTAL))
+        temp_df['Предложный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.PREPOSITIONAL))
+
+        # Вставляем получившиеся колонки после базовой колонки с фио
+        df.insert(index_fio_column + 1, 'Родительный_падеж', temp_df['Родительный_падеж'])
+        df.insert(index_fio_column + 2, 'Дательный_падеж', temp_df['Дательный_падеж'])
+        df.insert(index_fio_column + 3, 'Винительный_падеж', temp_df['Винительный_падеж'])
+        df.insert(index_fio_column + 4, 'Творительный_падеж', temp_df['Творительный_падеж'])
+        df.insert(index_fio_column + 5, 'Предложный_падеж', temp_df['Предложный_падеж'])
+
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        df.to_excel(f'{path_to_end_folder_decl_case}/ФИО по падежам от {current_time}.xlsx', index=False)
+    except NameError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
+                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except ValueError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
+                             f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    else:
+        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.18', 'Данные успешно обработаны')
 
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.17')
+    window.title('Веста Обработка таблиц и создание документов ver 1.18')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
 
@@ -1199,7 +1335,7 @@ if __name__ == '__main__':
 
     # Создаем вкладку создания документов по шаблону
     tab_create_doc = ttk.Frame(tab_control)
-    tab_control.add(tab_create_doc, text='Создание документов')
+    tab_control.add(tab_create_doc, text='Создание\nдокументов')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Создание документов
@@ -1284,7 +1420,7 @@ if __name__ == '__main__':
     # Создаем вклдаку для обработки дат рождения
 
     tab_calculate_date = ttk.Frame(tab_control)
-    tab_control.add(tab_calculate_date, text='Обработка дат рождения')
+    tab_control.add(tab_calculate_date, text='Обработка\nдат рождения')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Обработка дат рождения
@@ -1338,7 +1474,7 @@ if __name__ == '__main__':
 
     # Создаем вкладку для подсчета данных по категориям
     tab_groupby_data = ttk.Frame(tab_control)
-    tab_control.add(tab_groupby_data, text='Подсчет данных')
+    tab_control.add(tab_groupby_data, text='Подсчет\nданных')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Подсчет данных  по категориям
@@ -1397,7 +1533,7 @@ if __name__ == '__main__':
     # Создаем вкладку для сравнения 2 столбцов
 
     tab_comparison = ttk.Frame(tab_control)
-    tab_control.add(tab_comparison, text='Слияние 2 таблиц')
+    tab_control.add(tab_comparison, text='Слияние\n2 таблиц')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Создание документов
@@ -1476,7 +1612,7 @@ if __name__ == '__main__':
 
     # Создаем вкладку для обработки таблиц excel  с одинаковой структурой
     tab_calculate_data = ttk.Frame(tab_control)
-    tab_control.add(tab_calculate_data, text='Извлечение данных')
+    tab_control.add(tab_calculate_data, text='Извлечение\nданных')
     tab_control.pack(expand=1, fill='both')
     # Добавляем виджеты на вклдаку Обработки данных
     # Создаем метку для описания назначения программы
@@ -1536,7 +1672,7 @@ if __name__ == '__main__':
     """
     # Создаем вкладку для подсчета данных по категориям
     tab_merger_tables = ttk.Frame(tab_control)
-    tab_control.add(tab_merger_tables, text='Слияние файлов')
+    tab_control.add(tab_merger_tables, text='Слияние\nфайлов')
     tab_control.pack(expand=1, fill='both')
 
     # Добавляем виджеты на вкладку Подсчет данных  по категориям
@@ -1602,5 +1738,62 @@ if __name__ == '__main__':
                                 font=('Arial Bold', 20),
                                 command=merge_tables)
     btn_merger_process.grid(column=0, row=10, padx=10, pady=10)
+
+
+    """
+    Создание вкладки для склонения ФИО по падежам
+    """
+    # Создаем вкладку для подсчета данных по категориям
+    tab_decl_by_cases = ttk.Frame(tab_control)
+    tab_control.add(tab_decl_by_cases, text='Склонение ФИО\nпо падежам')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Подсчет данных  по категориям
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_decl_by_cases,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                      )
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_to_img = resource_path('logo.png')
+    img_decl_by_cases = PhotoImage(file=path_to_img)
+    Label(tab_decl_by_cases,
+          image=img_decl_by_cases
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_decl_case = LabelFrame(tab_decl_by_cases, text='Подготовка')
+    frame_data_for_decl_case.grid(column=0, row=2, padx=10)
+
+   # выбрать файл с данными
+    btn_data_decl_case = Button(frame_data_for_decl_case, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+                                command=select_data_decl_case)
+    btn_data_decl_case.grid(column=0, row=3, padx=10, pady=10)
+
+    # Ввести название колонки с ФИО
+    # # Определяем переменную
+    decl_case_fio_col = StringVar()
+    # Описание поля ввода
+    decl_case_label_fio = Label(frame_data_for_decl_case,
+                                    text='2) Введите название колонки\n с ФИО в им.падеже')
+    decl_case_label_fio.grid(column=0, row=4, padx=10, pady=10)
+    # поле ввода
+    decl_case_entry_fio = Entry(frame_data_for_decl_case, textvariable=decl_case_fio_col, width=15)
+    decl_case_entry_fio.grid(column=0, row=5, padx=5, pady=5, ipadx=10, ipady=7)
+    #
+    btn_choose_end_folder_decl_case = Button(frame_data_for_decl_case, text='3) Выберите конечную папку',
+                                          font=('Arial Bold', 20),
+                                          command=select_end_folder_decl_case
+                                          )
+    btn_choose_end_folder_decl_case.grid(column=0, row=6, padx=10, pady=10)
+
+    # Создаем кнопку склонения по падежам
+
+    btn_decl_case_process = Button(tab_decl_by_cases, text='4) Произвести склонение \nпо падежам',
+                                font=('Arial Bold', 20),
+                                command=process_decl_case)
+    btn_decl_case_process.grid(column=0, row=7, padx=10, pady=10)
 
 window.mainloop()
