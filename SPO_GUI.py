@@ -1801,7 +1801,7 @@ if __name__ == '__main__':
                                     text='2) Введите название колонки\n с ФИО в им.падеже')
     decl_case_label_fio.grid(column=0, row=4, padx=10, pady=10)
     # поле ввода
-    decl_case_entry_fio = Entry(frame_data_for_decl_case, textvariable=decl_case_fio_col, width=15)
+    decl_case_entry_fio = Entry(frame_data_for_decl_case, textvariable=decl_case_fio_col, width=25)
     decl_case_entry_fio.grid(column=0, row=5, padx=5, pady=5, ipadx=10, ipady=7)
     #
     btn_choose_end_folder_decl_case = Button(frame_data_for_decl_case, text='3) Выберите конечную папку',
