@@ -1217,20 +1217,43 @@ def capitalize_double_name(word):
     """
     Функция для того чтобы в двойных именах и фамилиях вторая часть была также с большой буквы
     """
-    lst_word = word.split('-')
-    if len(lst_word) == 1:
+    lst_word = word.split('-')  # сплитим по дефису
+    if len(lst_word) == 1:  # если длина списка равна 1 то это не двойная фамилия и просто возвращаем слово
+
         return word
-    else:
-        first_word = lst_word[0].capitalize()
+    elif len(lst_word) == 2:
+        first_word = lst_word[0].capitalize()  # делаем первую букву слова заглавной а остальные строчными
         second_word = lst_word[1].capitalize()
         return f'{first_word}-{second_word}'
+    else:
+        return 'Не удалось просклонять'
 
 
-def detect_gender(lastname, firstname, middlename):
+def case_lastname(maker, lastname, gender, case: Case):
+    """
+    Функция для обработки и склонения фамилии. Это нужно для обработки случаев двойной фамилии
+    """
+
+    lst_lastname = lastname.split('-')  # сплитим по дефису
+
+    if len(lst_lastname) == 1:  # если длина списка равна 1 то это не двойная фамилия и просто обрабатываем слово
+        case_result_lastname = maker.make(NamePart.LASTNAME, gender, case, lastname)
+        return case_result_lastname
+    elif len(lst_lastname) == 2:
+        first_lastname = lst_lastname[0].capitalize()  # делаем первую букву слова заглавной а остальные строчными
+        second_lastname = lst_lastname[1].capitalize()
+        # Склоняем по отдельности
+        first_lastname = maker.make(NamePart.LASTNAME, gender, case, first_lastname)
+        second_lastname = maker.make(NamePart.LASTNAME, gender, case, second_lastname)
+
+        return f'{first_lastname}-{second_lastname}'
+
+
+def detect_gender(detector, lastname, firstname, middlename):
     """
     Функция для определения гендера слова
     """
-    detector = PetrovichGenderDetector()  # создаем объект детектора
+    #     detector = PetrovichGenderDetector() # создаем объект детектора
     try:
         gender_result = detector.detect(lastname=lastname, firstname=firstname, middlename=middlename)
         return gender_result
@@ -1246,25 +1269,23 @@ def decl_on_case(fio: str, case: Case) -> str:
     part_fio = fio.split()  # разбиваем по пробелам создавая список где [0] это Фамилия,[1]-Имя,[2]-Отчество
 
     if len(part_fio) == 3:  # проверяем на длину и обрабатываем только те что имеют длину 3 во всех остальных случаях просим просклонять самостоятельно
-        maker = PetrovichDeclinationMaker() # создаем объект класса
+        maker = PetrovichDeclinationMaker()  # создаем объект класса
         lastname = part_fio[0].capitalize()  # Фамилия
         firstname = part_fio[1].capitalize()  # Имя
         middlename = part_fio[2].capitalize()  # Отчество
 
         # Определяем гендер для корректного склонения
-        gender = detect_gender(lastname, firstname, middlename)
+        detector = PetrovichGenderDetector()  # создаем объект детектора
+        gender = detect_gender(detector, lastname, firstname, middlename)
         # Склоняем
-        case_result_lastname = maker.make(NamePart.LASTNAME, gender, case, lastname)
-        case_result_lastname = capitalize_double_name(case_result_lastname)  # обрабатываем случаи двойной фамилии
+
+        case_result_lastname = case_lastname(maker, lastname, gender, case)  # обрабатываем фамилию
         case_result_firstname = maker.make(NamePart.FIRSTNAME, gender, case, firstname)
         case_result_firstname = capitalize_double_name(case_result_firstname)  # обрабатываем случаи двойного имени
-
         case_result_middlename = maker.make(NamePart.MIDDLENAME, gender, case, middlename)
         # Возвращаем результат
         result_fio = f'{case_result_lastname} {case_result_firstname} {case_result_middlename}'
         return result_fio
-
-
 
     else:
         return 'Проверьте количество слов, должно быть 3 разделенных пробелами слова'
