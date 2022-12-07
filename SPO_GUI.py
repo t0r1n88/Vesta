@@ -503,6 +503,9 @@ def generate_docs_other():
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
         df = pd.read_excel(name_file_data_doc, dtype=str)
 
+        # Заполняем Nan
+        df.fillna(' ',inplace=True)
+
         # получаем первую строку датафрейма
         first_row = df.iloc[0, :]
         lst_first_row = list(first_row)
@@ -557,6 +560,10 @@ def generate_docs_other():
     except NameError as e:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
                              f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except PermissionError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
+                             f'Закройте все файлы Word созданные Вестой')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
