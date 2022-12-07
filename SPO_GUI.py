@@ -1334,7 +1334,7 @@ def process_decl_case():
         logging.exception('AN ERROR HAS OCCURRED')
     except ValueError:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.18',
-                             f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
+                             f'В таблице нет колонки с таким названием!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
