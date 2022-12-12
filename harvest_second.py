@@ -51,7 +51,8 @@ for dirpath, dirnames, filenames in os.walk(dir_name):
             temb_wb = load_workbook(filename=f'{dirpath}/{filename}')  # загружаем файл
 
             if standard_size_sheets == len(temb_wb.sheetnames):  # если количество листов одинаково то обрабатываем
-                count_errors = 0
+                count_errors = 0 # счетчик ошибок
+                dct_name_sheet = {} # создаем словарь где ключ это название листа в эталонном файле а значение это название листа в обрабатываемом файле
                 for idx, data in enumerate(dct_df.items()):  # Проводим проверку на совпадение
                     print('*****')
                     print(idx)
@@ -73,14 +74,14 @@ for dirpath, dirnames, filenames in os.walk(dir_name):
                         count_errors += 1
                         # если хоть одна ошибка то проверяем следующий файл
                     else:
+                        dct_name_sheet[name_sheet] = temp_name_sheet
                         continue
 
-
-                    if count_errors != 0:
-                        continue
+                if count_errors != 0:
+                    continue
                     # если нет то начинаем обрабатывать листы
                 for name_sheet, df in dct_df.items():
-                    temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=temp_name_sheet,
+                    temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=dct_name_sheet[name_sheet],
                                             dtype=str)  # загружаем датафрейм
                     for row in dataframe_to_rows(temp_df, index=False, header=False):
                         standard_wb[name_sheet].append(row)  # добавляем данные
