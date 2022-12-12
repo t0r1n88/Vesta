@@ -21,8 +21,10 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 
 skip_rows = 0
-file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
-dir_name = 'data/harvest'
+# file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
+file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
+# dir_name = 'data/harvest'
+dir_name = 'data/temp2'
 path_to_end_folder_merger = 'data/temp'
 checkbox_harvest = 0
 
@@ -92,7 +94,7 @@ for dirpath, dirnames, filenames in os.walk(dir_name):
 current_time = time.strftime('%H_%M_%S %d.%m.%Y')
 standard_wb.save(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx')  # сохраняем
 
-
+err_df.to_excel(f'{path_to_end_folder_merger}/Файлы с неправильными листами от {current_time}.xlsx',index=False)
 
 
 
