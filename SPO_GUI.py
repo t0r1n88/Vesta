@@ -1095,6 +1095,8 @@ def processing_comparison():
         first_df['ID'] = first_df['ID'].apply(lambda x: x.replace(' ', ''))
         second_df['ID'] = second_df['ID'].apply(lambda x: x.replace(' ', ''))
 
+
+
         # Обрабатываем дубликаты
 
         duplicates_first_df = first_df[first_df.duplicated(subset=['ID'],

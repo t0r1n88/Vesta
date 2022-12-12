@@ -26,7 +26,7 @@ file_standard_merger = 'data/harvest/Приложение_№_1_Чеченска
 dir_name = 'data/harvest'
 # dir_name = 'data/temp2'
 path_to_end_folder_merger = 'data/temp'
-checkbox_harvest = 1
+checkbox_harvest = 0
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
 err_df = pd.DataFrame(columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'])
