@@ -21,12 +21,13 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 
 skip_rows = 0
-file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
+# file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
+file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
 # file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
 dir_name = 'data/harvest'
 # dir_name = 'data/temp2'
 path_to_end_folder_merger = 'data/temp'
-checkbox_harvest = 2
+checkbox_harvest = 1
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
 err_df = pd.DataFrame(columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'])
@@ -200,7 +201,7 @@ elif checkbox_harvest == 2:
                     # если нет то начинаем обрабатывать листы
                     for name_sheet, skip_rows in dct_manage_harvest.items():
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,skiprows=skip_rows,
-                                                dtype=str)  # загружаем датафрейм
+                                                dtype=str,header=None)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
