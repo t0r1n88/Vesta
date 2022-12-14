@@ -20,14 +20,16 @@ import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 
-skip_rows = 0
+skip_rows = 1
 # file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
-file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
+# file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
+file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
 # file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
-dir_name = 'data/harvest'
+# dir_name = 'data/harvest'
+dir_name = 'data/union'
 # dir_name = 'data/temp2'
 path_to_end_folder_merger = 'data/temp'
-checkbox_harvest = 1
+checkbox_harvest = 0
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
 err_df = pd.DataFrame(columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'])
@@ -46,7 +48,7 @@ for sheet in standard_wb.sheetnames:  # Добавляем в словарь д�
     temp_df = pd.read_excel(file_standard_merger, sheet_name=sheet, dtype=str)
     dct_df[sheet] = temp_df
 
-if checkbox_harvest == 0:  # Вариант объеденения по названию листов
+if checkbox_harvest == 0:  # Вариант объединения по названию листов
     for dirpath, dirnames, filenames in os.walk(dir_name):
         for filename in filenames:
             if (filename.endswith('.xlsx') and not filename.startswith(
@@ -54,8 +56,39 @@ if checkbox_harvest == 0:  # Вариант объеденения по назв
                 # Получаем название файла без расширения
                 name_file = filename.split('.xlsx')[0]
                 print(name_file)
-                temb_wb = load_workbook(filename=f'{dirpath}/{filename}')  # загружаем файл
-                if len(temb_wb.sheetnames) == standard_size_sheets:  # сравниваем количество листов в файле
+                temb_wb = load_workbook(filename=f'{dirpath}/{filename}')  # загружаем файл, для проверки листов
+                """
+                Проверяем наличие листов из эталонного файла в проверяемом файле, если они есть то начинаем 
+                дальнейшую проверку
+                """
+                if set_standard_sheets.issubset(set(temb_wb.sheetnames)):
+                    count_errors = 0
+                    # проверяем наличие листов указанных в файле параметров
+                    for name_sheet, df in dct_df.items():  # Проводим проверку на совпадение
+                        lst_df = pd.read_excel(f'{dirpath}/{filename}',sheet_name=name_sheet)
+                        if lst_df.shape[1] != df.shape[1]:
+                            # если количество колонок не совпадает то записываем как ошибку
+                            temp_error_df = pd.DataFrame(
+                                columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
+                                data=[[name_file, name_sheet, 'Количество колонок отличается от эталонного',
+                                       f'Ожидалось {df.shape[1]} колонок, а в листе {lst_df.shape[1]}']])  # создаем временный датафрейм. потом надо подумать над словарем
+
+                            err_df = pd.concat([err_df, temp_error_df],
+                                               ignore_index=True)  # добавляем в датафрейм ошибок
+                            count_errors += 1
+
+                    # если хоть одна ошибка то проверяем следующий файл
+                    if count_errors != 0:
+                        continue
+                    # если нет то начинаем обрабатывать листы
+                    for name_sheet, df in dct_df.items():
+                        temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
+                                                dtype=str)  # загружаем датафрейм
+                        temp_df['Откуда взяты данные'] = name_file
+                        for row in dataframe_to_rows(temp_df, index=False, header=False):
+                            standard_wb[name_sheet].append(row)  # добавляем данные
+
+                elif len(temb_wb.sheetnames) == standard_size_sheets:  # сравниваем количество листов в файле
                     diff_name_sheets = set(temb_wb.sheetnames).difference(
                         set(standard_sheets))  # проверяем разницу в названиях листов
                     print(diff_name_sheets)
@@ -90,11 +123,18 @@ if checkbox_harvest == 0:  # Вариант объеденения по назв
                         # если нет то начинаем обрабатывать листы
                         for name_sheet, df in dct_df.items():
                             temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
-                                                    dtype=str)  # загружаем датафрейм
+                                                    dtype=str,skiprows=skip_rows)  # загружаем датафрейм
                             temp_df['Откуда взяты данные'] = name_file
                             for row in dataframe_to_rows(temp_df, index=False, header=False):
                                 standard_wb[name_sheet].append(row)  # добавляем данные
                 else:
+                    temp_error_df = pd.DataFrame(
+                        columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
+                        data=[[name_file,'', 'Не совпадает количество или название листов в файле',
+                               f'Листы, которые есть в файле: {",".join(temb_wb.sheetnames)}']])  # создаем временный датафрейм. потом надо подумать над словарем
+
+                    err_df = pd.concat([err_df, temp_error_df],
+                                       ignore_index=True)  # добавляем в датафрейм ошибок
                     continue  # если не совпадает то проверяем следующий файл
 
     # Получаем текущую дату
@@ -141,7 +181,7 @@ elif checkbox_harvest == 1:  # Вариант объединения по пор
                         # если нет то начинаем обрабатывать листы
                     for name_sheet, df in dct_df.items():
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=dct_name_sheet[name_sheet],
-                                                dtype=str)  # загружаем датафрейм
+                                                dtype=str,skiprows=skip_rows)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
@@ -183,7 +223,7 @@ elif checkbox_harvest == 2:
                 if set_params_sheets.issubset(set(temb_wb.sheetnames)):
                     count_errors = 0
                     # проверяем наличие листов указанных в файле параметров
-                    for name_sheet, skip_rows in dct_manage_harvest.items():  # Проводим проверку на совпадение
+                    for name_sheet, skip_r in dct_manage_harvest.items():  # Проводим проверку на совпадение
                         # print(name_sheet,skip_rows)
                         if len(temb_wb[name_sheet][1]) != dct_df[name_sheet].shape[1]:
                             # если количество колонок не совпадает то записываем как ошибку
@@ -199,8 +239,8 @@ elif checkbox_harvest == 2:
                     if count_errors != 0:
                         continue
                     # если нет то начинаем обрабатывать листы
-                    for name_sheet, skip_rows in dct_manage_harvest.items():
-                        temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,skiprows=skip_rows,
+                    for name_sheet, skip_r in dct_manage_harvest.items():
+                        temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,skiprows=skip_r,
                                                 dtype=str,header=None)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
