@@ -29,7 +29,8 @@ file_standard_merger = 'data/union/Ингушетия Приложение_№_1
 dir_name = 'data/union'
 # dir_name = 'data/temp2'
 path_to_end_folder_merger = 'data/temp'
-checkbox_harvest = 0
+params_harvest = 'data/params.xlsx'  # файл с параметрами
+checkbox_harvest = 2
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
 err_df = pd.DataFrame(columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'])
@@ -102,31 +103,6 @@ if checkbox_harvest == 0:  # Вариант объединения по назв
 
                         continue
 
-                    if standard_sheets == sorted(temb_wb.sheetnames):  # если названия листов одинаковые то обрабатываем
-                        count_errors = 0
-
-                        for name_sheet, df in dct_df.items():  # Проводим проверку на совпадение
-                            if len(temb_wb[name_sheet][1]) != df.shape[1]:
-                                # если количество колонок не совпадает то записываем как ошибку
-                                temp_error_df = pd.DataFrame(
-                                    columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
-                                    data=[[name_file, name_sheet, 'Количество колонок отличается от эталонного',
-                                           f'Ожидалось {df.shape[1]} колонок, а в листе {len(temb_wb[name_sheet][1])}']])  # создаем временный датафрейм. потом надо подумать над словарем
-
-                                err_df = pd.concat([err_df, temp_error_df],
-                                                   ignore_index=True)  # добавляем в датафрейм ошибок
-                                count_errors += 1
-
-                        # если хоть одна ошибка то проверяем следующий файл
-                        if count_errors != 0:
-                            continue
-                        # если нет то начинаем обрабатывать листы
-                        for name_sheet, df in dct_df.items():
-                            temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
-                                                    dtype=str,skiprows=skip_rows)  # загружаем датафрейм
-                            temp_df['Откуда взяты данные'] = name_file
-                            for row in dataframe_to_rows(temp_df, index=False, header=False):
-                                standard_wb[name_sheet].append(row)  # добавляем данные
                 else:
                     temp_error_df = pd.DataFrame(
                         columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
@@ -135,12 +111,11 @@ if checkbox_harvest == 0:  # Вариант объединения по назв
 
                     err_df = pd.concat([err_df, temp_error_df],
                                        ignore_index=True)  # добавляем в датафрейм ошибок
-                    continue  # если не совпадает то проверяем следующий файл
 
     # Получаем текущую дату
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
-    standard_wb.save(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx')  # сохраняем
-    err_df.to_excel(f'{path_to_end_folder_merger}/Файлы с неправильными листами от {current_time}.xlsx',
+    standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту А Общая таблица от {current_time}.xlsx')  # сохраняем
+    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту А Ошибки от {current_time}.xlsx',
                     index=False)  # сохраняем ошибки
 elif checkbox_harvest == 1:  # Вариант объединения по порядку
     for dirpath, dirnames, filenames in os.walk(dir_name):
@@ -156,47 +131,51 @@ elif checkbox_harvest == 1:  # Вариант объединения по пор
                     count_errors = 0  # счетчик ошибок
                     dct_name_sheet = {}  # создаем словарь где ключ это название листа в эталонном файле а значение это название листа в обрабатываемом файле
                     for idx, data in enumerate(dct_df.items()):  # Проводим проверку на совпадение
-
                         name_sheet = data[0]  # получаем название листа
                         df = data[1]  # получаем датафрейм
                         temp_name_sheet = temb_wb.sheetnames[idx]  #
-                        if len(temb_wb[temp_name_sheet][1]) != df.shape[1]:
+                        lst_df = pd.read_excel(f'{dirpath}/{filename}',sheet_name=temp_name_sheet)
+                        if lst_df.shape[1] != df.shape[1]:
                             # если количество колонок не совпадает то записываем как ошибку
                             temp_error_df = pd.DataFrame(
                                 columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
                                 data=[
                                     [name_file, name_sheet, 'Количество колонок отличается от эталонного',
-                                     f'Ожидалось {df.shape[1]} колонок, а в листе {len(temb_wb[temp_name_sheet][1])}']])  # создаем временный датафрейм. потом надо подумать над словарем
+                                     f'Ожидалось {df.shape[1]} колонок, а в листе {lst_df.shape[1]}']])  # создаем временный датафрейм. потом надо подумать над словарем
 
                             err_df = pd.concat([err_df, temp_error_df],
                                                ignore_index=True)  # добавляем в датафрейм ошибок
                             count_errors += 1
-                            # если хоть одна ошибка то проверяем следующий файл
+
                         else:
                             dct_name_sheet[name_sheet] = temp_name_sheet
-                            continue
-
+                    # если хоть одна ошибка то проверяем следующий файл
                     if count_errors != 0:
                         continue
                         # если нет то начинаем обрабатывать листы
                     for name_sheet, df in dct_df.items():
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=dct_name_sheet[name_sheet],
-                                                dtype=str,skiprows=skip_rows)  # загружаем датафрейм
+                                                dtype=str)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
                 else:
-                    continue  # если не совпадает то проверяем следующий файл
+                    temp_error_df = pd.DataFrame(
+                        columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
+                        data=[[name_file, '', 'Не совпадает количество или название листов в файле',
+                               f'Листы, которые есть в файле: {",".join(temb_wb.sheetnames)}']])  # создаем временный датафрейм. потом надо подумать над словарем
+
+                    err_df = pd.concat([err_df, temp_error_df],
+                                       ignore_index=True)  # добавляем в датафрейм ошибок
 
     # Получаем текущую дату
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
-    standard_wb.save(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx')  # сохраняем
+    standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту Б Общая таблица от {current_time}.xlsx')  # сохраняем
 
-    err_df.to_excel(f'{path_to_end_folder_merger}/Файлы с неправильными листами от {current_time}.xlsx', index=False)
+    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту Б Ошибки о {current_time}.xlsx', index=False)
 
 # Если выбран управляемый сбор данных
 elif checkbox_harvest == 2:
-    params_harvest = 'data/params.xlsx'  # файл с параметрами
     df_params = pd.read_excel(params_harvest, header=None)  # загружаем параметры
     print(df_params)
     tmp_name_sheets = df_params[0].tolist()  # создаем списки чтобы потом из них сделать словарь
@@ -223,14 +202,14 @@ elif checkbox_harvest == 2:
                 if set_params_sheets.issubset(set(temb_wb.sheetnames)):
                     count_errors = 0
                     # проверяем наличие листов указанных в файле параметров
-                    for name_sheet, skip_r in dct_manage_harvest.items():  # Проводим проверку на совпадение
-                        # print(name_sheet,skip_rows)
-                        if len(temb_wb[name_sheet][1]) != dct_df[name_sheet].shape[1]:
+                    for name_sheet, skip_r in dct_manage_harvest.items():  # Проводим проверку на совпадение количества колонок
+                        lst_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet)
+                        if lst_df.shape[1] != dct_df[name_sheet].shape[1]:
                             # если количество колонок не совпадает то записываем как ошибку
                             temp_error_df = pd.DataFrame(
                                 columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
                                 data=[[name_file, name_sheet, 'Количество колонок отличается от эталонного',
-                                       f'Ожидалось {dct_df[name_sheet].shape[1]} колонок, а в листе {len(temb_wb[name_sheet][1])}']])  # создаем временный датафрейм. потом надо подумать над словарем
+                                       f'Ожидалось {dct_df[name_sheet].shape[1]} колонок, а в листе {lst_df.shape[1]}']])  # создаем временный датафрейм. потом надо подумать над словарем
                             err_df = pd.concat([err_df, temp_error_df],
                                                ignore_index=True)  # добавляем в датафрейм ошибок
                             count_errors += 1
@@ -246,11 +225,17 @@ elif checkbox_harvest == 2:
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
                 else:
-                    continue  # если не совпадает то проверяем следующий файл
+                    temp_error_df = pd.DataFrame(
+                        columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'],
+                        data=[[name_file, '', 'Не совпадает количество или название листов в файле',
+                               f'Листы, которые есть в файле: {",".join(temb_wb.sheetnames)}']])  # создаем временный датафрейм. потом надо подумать над словарем
+
+                    err_df = pd.concat([err_df, temp_error_df],
+                                       ignore_index=True)  # добавляем в датафрейм ошибок
 
     # # Получаем текущую дату
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
-    standard_wb.save(f'{path_to_end_folder_merger}/Общая таблица от {current_time}.xlsx')  # сохраняем
-    err_df.to_excel(f'{path_to_end_folder_merger}/Файлы с неправильными листами от {current_time}.xlsx',
+    standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту В Общая таблица от {current_time}.xlsx')  # сохраняем
+    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту В Ошибки от {current_time}.xlsx',
                     index=False)  # сохраняем ошибки
     #
