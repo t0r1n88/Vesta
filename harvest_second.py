@@ -20,14 +20,18 @@ import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 
-skip_rows = 1
+skip_rows = 0
 # file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
 # file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
-file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
+# file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
+file_standard_merger = 'data/merged_file/Ингушетия Приложение_№_1 (2).xlsx'
 # file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
+# file_standard_merger = 'data/merged_file/БАК.xlsx'
+# file_standard_merger = 'data/temp3/СПС-191.xlsx'
 # dir_name = 'data/harvest'
-dir_name = 'data/union'
-# dir_name = 'data/temp2'
+# dir_name = 'data/union' # многолистные списки СКФО
+# dir_name = 'data/temp3' # однолистные списки
+dir_name = 'data/merged_file' # сложные объединеные заголовки
 path_to_end_folder_merger = 'data/temp'
 params_harvest = 'data/params.xlsx'  # файл с параметрами
 checkbox_harvest = 2
@@ -84,7 +88,7 @@ if checkbox_harvest == 0:  # Вариант объединения по назв
                     # если нет то начинаем обрабатывать листы
                     for name_sheet, df in dct_df.items():
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
-                                                dtype=str)  # загружаем датафрейм
+                                                dtype=str,skiprows=skip_rows)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
@@ -155,7 +159,7 @@ elif checkbox_harvest == 1:  # Вариант объединения по пор
                         # если нет то начинаем обрабатывать листы
                     for name_sheet, df in dct_df.items():
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=dct_name_sheet[name_sheet],
-                                                dtype=str)  # загружаем датафрейм
+                                                dtype=str,skiprows=skip_rows)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
