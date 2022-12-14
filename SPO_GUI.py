@@ -1910,7 +1910,7 @@ if __name__ == '__main__':
     frame_rb_type_harvest = LabelFrame(tab_merger_tables, text='1) Выберите вариант слияния')
     frame_rb_type_harvest.grid(column=0, row=1, padx=10)
     #
-    Radiobutton(frame_rb_type_harvest, text='А) Простое слияние по названиию листов', variable=group_rb_type_harvest, value=0).pack()
+    Radiobutton(frame_rb_type_harvest, text='А) Простое слияние по названию листов', variable=group_rb_type_harvest, value=0).pack()
     Radiobutton(frame_rb_type_harvest, text='Б) Слияние по порядку листов', variable=group_rb_type_harvest, value=1).pack()
     Radiobutton(frame_rb_type_harvest, text='В) Сложное слияние по названиию листов', variable=group_rb_type_harvest, value=2).pack()
 
