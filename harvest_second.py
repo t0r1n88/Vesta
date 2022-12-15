@@ -23,21 +23,19 @@ pd.options.mode.chained_assignment = None
 skip_rows = 0
 # file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
 # file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
-# file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
-# file_standard_merger = 'data/merged_file/Ингушетия Приложение_№_1 (2).xlsx'
-file_standard_merger = 'data/test1/Свод  за 1 квартал 2022 года.xlsx'
-# file_standard_merger = 'data/test1/Нет заливкиСвод  за 1 квартал 2022 года.xlsx'
-# file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
-# file_standard_merger = 'data/merged_file/БАК.xlsx'
-# file_standard_merger = 'data/temp3/СПС-191.xlsx'
+file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
+# file_standard_merger = 'data/clone_file/Тестовый файл №1.xlsx'
+# file_standard_merger = 'data/Сложные таблицы/Сложный вариант таблицы №1.xlsx'
+
+
 # dir_name = 'data/harvest'
-# dir_name = 'data/union' # многолистные списки СКФО
-# dir_name = 'data/temp3' # однолистные списки
+# dir_name = 'data/Сложные таблицы' # многолистные списки СКФО
+dir_name = 'data/union' # однолистные списки
 # dir_name = 'data/merged_file' # сложные объединеные заголовки
-dir_name = 'data/test1' # сложные объединеные заголовки
+# dir_name = 'data/test1' # сложные объединеные заголовки
 path_to_end_folder_merger = 'data/temp'
-# params_harvest = 'data/params.xlsx'  # файл с параметрами
-params_harvest = 'data/params_svod.xlsx'  # файл с параметрами
+params_harvest = 'data/params.xlsx'  # файл с параметрами
+# params_harvest = 'data/params_svod.xlsx'  # файл с параметрами
 checkbox_harvest = 2
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
@@ -131,8 +129,16 @@ if checkbox_harvest == 0:  # Вариант объединения по назв
     # Получаем текущую дату
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
     standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту А Общая таблица от {current_time}.xlsx')  # сохраняем
-    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту А Ошибки от {current_time}.xlsx',
-                    index=False)  # сохраняем ошибки
+    err_out_wb = openpyxl.Workbook() # создаем объект openpyxl для сохранения датафрейма
+    for row in dataframe_to_rows(err_df, index=False, header=True):
+        err_out_wb['Sheet'].append(row)  # добавляем данные
+    # устанавливаем размер колонок
+    err_out_wb['Sheet'].column_dimensions['A'].width = 40
+    err_out_wb['Sheet'].column_dimensions['B'].width = 30
+    err_out_wb['Sheet'].column_dimensions['C'].width = 55
+    err_out_wb['Sheet'].column_dimensions['D'].width = 100
+    err_out_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту А Ошибки от {current_time}.xlsx')
+
 elif checkbox_harvest == 1:  # Вариант объединения по порядку
     for dirpath, dirnames, filenames in os.walk(dir_name):
         for filename in filenames:
@@ -188,19 +194,25 @@ elif checkbox_harvest == 1:  # Вариант объединения по пор
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
     standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту Б Общая таблица от {current_time}.xlsx')  # сохраняем
 
-    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту Б Ошибки о {current_time}.xlsx', index=False)
+    err_out_wb = openpyxl.Workbook() # создаем объект openpyxl для сохранения датафрейма
+    for row in dataframe_to_rows(err_df, index=False, header=True):
+        err_out_wb['Sheet'].append(row)  # добавляем данные
+    # устанавливаем размер колонок
+    err_out_wb['Sheet'].column_dimensions['A'].width = 40
+    err_out_wb['Sheet'].column_dimensions['B'].width = 30
+    err_out_wb['Sheet'].column_dimensions['C'].width = 55
+    err_out_wb['Sheet'].column_dimensions['D'].width = 100
+    err_out_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту Б Ошибки от {current_time}.xlsx')
 
 # Если выбран управляемый сбор данных
 elif checkbox_harvest == 2:
     df_params = pd.read_excel(params_harvest, header=None)  # загружаем параметры
-    print(df_params)
     df_params[0] = df_params[0].astype(str) # делаем данные строковыми чтобы корректно работало обращение по названию листов
 
     tmp_name_sheets = df_params[0].tolist()  # создаем списки чтобы потом из них сделать словарь
     tmp_skip_rows = df_params[1].tolist()
     dct_manage_harvest = dict(zip(tmp_name_sheets,
                                   tmp_skip_rows))  # создаем словарь где ключ это название листа а значение это сколько строк нужно пропустить
-    print(dct_manage_harvest)
     set_params_sheets = set(dct_manage_harvest.keys())  # создаем множество из ключей(листов) которые нужно обработать
     if not set_params_sheets.issubset(
             set_standard_sheets):  # проверяем совпадение названий в эталонном файле и в файле параметров
@@ -254,6 +266,14 @@ elif checkbox_harvest == 2:
     # # Получаем текущую дату
     current_time = time.strftime('%H_%M_%S %d.%m.%Y')
     standard_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту В Общая таблица от {current_time}.xlsx')  # сохраняем
-    err_df.to_excel(f'{path_to_end_folder_merger}/Слияние по варианту В Ошибки от {current_time}.xlsx',
-                    index=False)  # сохраняем ошибки
+    err_out_wb = openpyxl.Workbook() # создаем объект openpyxl для сохранения датафрейма
+    for row in dataframe_to_rows(err_df, index=False, header=True):
+        err_out_wb['Sheet'].append(row)  # добавляем данные
+    # устанавливаем размер колонок
+    err_out_wb['Sheet'].column_dimensions['A'].width = 40
+    err_out_wb['Sheet'].column_dimensions['B'].width = 30
+    err_out_wb['Sheet'].column_dimensions['C'].width = 55
+    err_out_wb['Sheet'].column_dimensions['D'].width = 100
+    err_out_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту В Ошибки от {current_time}.xlsx')
+
     #
