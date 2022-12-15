@@ -19,24 +19,25 @@ import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
-
+pd.options.display.width = 0 # чтобы показывало всю таблицу
 skip_rows = 0
 # file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
 # file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
-file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
-# file_standard_merger = 'data/clone_file/Тестовый файл №1.xlsx'
-# file_standard_merger = 'data/Сложные таблицы/Сложный вариант таблицы №1.xlsx'
+# file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
+file_standard_merger = 'data/Сокращенное сложные таблицы/Сложный вариант таблицы №1.xlsx'
+# file_standard_merger = 'data/Простые таблицы/Тестовый файл №1.xlsx'
 
 
 # dir_name = 'data/harvest'
-# dir_name = 'data/Сложные таблицы' # многолистные списки СКФО
-dir_name = 'data/union' # однолистные списки
+dir_name = 'data/Сокращенное сложные таблицы' # многолистные списки СКФО
+# dir_name = 'data/Простые таблицы' # многолистные списки СКФО
+# dir_name = 'data/union' # однолистные списки
 # dir_name = 'data/merged_file' # сложные объединеные заголовки
 # dir_name = 'data/test1' # сложные объединеные заголовки
 path_to_end_folder_merger = 'data/temp'
-params_harvest = 'data/params.xlsx'  # файл с параметрами
-# params_harvest = 'data/params_svod.xlsx'  # файл с параметрами
-checkbox_harvest = 2
+# params_harvest = 'data/params для простой таблицы.xlsx'  # файл с параметрами
+params_harvest = 'data/params для сложной таблицы.xlsx'  # файл с параметрами
+checkbox_harvest = 0
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
 err_df = pd.DataFrame(columns=['Название файла', 'Наименование листа', 'Тип ошибки', 'Описание ошибки'])
@@ -252,6 +253,7 @@ elif checkbox_harvest == 2:
                         temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,skiprows=skip_r,
                                                 dtype=str,header=None)  # загружаем датафрейм
                         temp_df['Откуда взяты данные'] = name_file
+
                         for row in dataframe_to_rows(temp_df, index=False, header=False):
                             standard_wb[name_sheet].append(row)  # добавляем данные
                 else:
