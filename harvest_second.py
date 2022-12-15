@@ -24,16 +24,20 @@ skip_rows = 0
 # file_standard_merger = 'data/harvest/Приложение_№_1_Чеченская_Республика_01_12 (2).xlsx'
 # file_standard_merger = 'data/harvest/Ингушетия Приложение_№_1 (2).xlsx'
 # file_standard_merger = 'data/union/Ингушетия Приложение_№_1 (2).xlsx'
-file_standard_merger = 'data/merged_file/Ингушетия Приложение_№_1 (2).xlsx'
+# file_standard_merger = 'data/merged_file/Ингушетия Приложение_№_1 (2).xlsx'
+file_standard_merger = 'data/test1/Свод  за 1 квартал 2022 года.xlsx'
+# file_standard_merger = 'data/test1/Нет заливкиСвод  за 1 квартал 2022 года.xlsx'
 # file_standard_merger = 'data/temp2/Список 24.05.01 Проектирование, производство и эксплуатация ракет и ракетно-космических комплексов.xlsx'
 # file_standard_merger = 'data/merged_file/БАК.xlsx'
 # file_standard_merger = 'data/temp3/СПС-191.xlsx'
 # dir_name = 'data/harvest'
 # dir_name = 'data/union' # многолистные списки СКФО
 # dir_name = 'data/temp3' # однолистные списки
-dir_name = 'data/merged_file' # сложные объединеные заголовки
+# dir_name = 'data/merged_file' # сложные объединеные заголовки
+dir_name = 'data/test1' # сложные объединеные заголовки
 path_to_end_folder_merger = 'data/temp'
-params_harvest = 'data/params.xlsx'  # файл с параметрами
+# params_harvest = 'data/params.xlsx'  # файл с параметрами
+params_harvest = 'data/params_svod.xlsx'  # файл с параметрами
 checkbox_harvest = 2
 
 # Создаем датафрейм куда будем сохранять ошибочные файлы
@@ -46,6 +50,14 @@ standard_wb = load_workbook(filename=file_standard_merger)  # Загружаем
 standard_sheets = sorted(standard_wb.sheetnames)  # отсортрованный список листов по которому будет вестись сравнение
 set_standard_sheets = set(standard_sheets)  # создаем множество из листов эталонного файла
 standard_size_sheets = len(standard_sheets)
+
+"Удаляем пустые и строки с заливкой которые могут тянуться вниз и из этого данные из других файлов начина" \
+"ются с тысячных строк"
+for sheet in standard_wb.sheetnames:
+    del_cols_df = pd.read_excel(file_standard_merger,sheet_name=sheet) # загружаем датафрейм чтобы узнать сколько есть заполненны строк
+
+    temp_sheet_max_row = standard_wb[sheet].max_row # получаем последнюю строку
+    standard_wb[sheet].delete_rows(del_cols_df.shape[0]+2,temp_sheet_max_row) # удаляем все лишнее
 
 dct_df = dict()  # создаем словарь в котором будем хранить да
 
@@ -182,6 +194,8 @@ elif checkbox_harvest == 1:  # Вариант объединения по пор
 elif checkbox_harvest == 2:
     df_params = pd.read_excel(params_harvest, header=None)  # загружаем параметры
     print(df_params)
+    df_params[0] = df_params[0].astype(str) # делаем данные строковыми чтобы корректно работало обращение по названию листов
+
     tmp_name_sheets = df_params[0].tolist()  # создаем списки чтобы потом из них сделать словарь
     tmp_skip_rows = df_params[1].tolist()
     dct_manage_harvest = dict(zip(tmp_name_sheets,
@@ -201,7 +215,7 @@ elif checkbox_harvest == 2:
                     '~$')) and filename != name_file_standard_merger:  # не обрабатываем эталонный файл
                 # Получаем название файла без расширения
                 name_file = filename.split('.xlsx')[0]
-                # print(name_file)
+                print(name_file)
                 temb_wb = load_workbook(filename=f'{dirpath}/{filename}')  # загружаем файл
                 if set_params_sheets.issubset(set(temb_wb.sheetnames)):
                     count_errors = 0
