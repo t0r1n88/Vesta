@@ -17,7 +17,7 @@ import pytrovich
 from pytrovich.detector import PetrovichGenderDetector
 from pytrovich.enums import NamePart, Gender, Case
 from pytrovich.maker import PetrovichDeclinationMaker
-
+import random
 
 import time
 import datetime
@@ -1304,15 +1304,21 @@ def processing_comparison():
     """
     try:
         # Получаем значения текстовых полей
-        first_sheet_name = entry_first_sheet_name.get()
-        second_sheet_name = entry_second_sheet_name.get()
-
+        first_sheet_name = str(entry_first_sheet_name.get())
+        second_sheet_name = str(entry_second_sheet_name.get())
         # загружаем файлы
-        # На случай если
         first_df = pd.read_excel(name_first_file_comparison, sheet_name=first_sheet_name, dtype=str,
                                  keep_default_na=False)
+        # получаем имя файла
+        name_first_df = name_first_file_comparison.split('/')[-1]
+        name_first_df = name_first_df.split('.xlsx')[0]
+
         second_df = pd.read_excel(name_second_file_comparison, sheet_name=second_sheet_name, dtype=str,
                                   keep_default_na=False)
+        # получаем имя файла
+        name_second_df = name_second_file_comparison.split('/')[-1]
+        name_second_df = name_second_df.split('.xlsx')[0]
+
         params = pd.read_excel(file_params, header=None, keep_default_na=False)
 
         # Преврашаем каждую колонку в список
@@ -1335,26 +1341,34 @@ def processing_comparison():
         processing_date_column(first_df, int_params_first_columns)
         processing_date_column(second_df, int_params_second_columns)
 
+        # Проверяем наличие колонки _merge
+        if '_merge' in first_df.columns:
+            first_df.drop(columns=['_merge'], inplace=True)
+        if '_merge' in second_df.columns:
+            second_df.drop(columns=['_merge'], inplace=True)
+        # Проверяем наличие колонки ID
+        if 'ID_объединения' in first_df.columns:
+            first_df.drop(columns=['ID_объединения'], inplace=True)
+        if 'ID_объединения' in second_df.columns:
+            second_df.drop(columns=['ID_объединения'], inplace=True)
+
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
-        first_df['ID'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
-        second_df['ID'] = second_df.iloc[:, int_params_second_columns].sum(axis=1)
+        first_df['ID_объединения'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
+        second_df['ID_объединения'] = second_df.iloc[:, int_params_second_columns].sum(axis=1)
 
-        # очищаем от пробелов между словами
-        first_df['ID'] = first_df['ID'].apply(lambda x: x.replace(' ', ''))
-        second_df['ID'] = second_df['ID'].apply(lambda x: x.replace(' ', ''))
-
-
+        first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
+        second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
 
         # Обрабатываем дубликаты
 
-        duplicates_first_df = first_df[first_df.duplicated(subset=['ID'],
+        duplicates_first_df = first_df[first_df.duplicated(subset=['ID_объединения'],
                                                            keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
 
-        first_df.drop_duplicates(subset=['ID'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
+        first_df.drop_duplicates(subset=['ID_объединения'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
 
-        duplicates_second_df = second_df[second_df.duplicated(subset=['ID'],
+        duplicates_second_df = second_df[second_df.duplicated(subset=['ID_объединения'],
                                                               keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
-        second_df.drop_duplicates(subset=['ID'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
+        second_df.drop_duplicates(subset=['ID_объединения'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
 
         # # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
         if duplicates_first_df.shape[0] > 0:
@@ -1373,17 +1387,17 @@ def processing_comparison():
         ren_sheet.title = 'Таблица 1'
         wb.create_sheet(title='Таблица 2', index=1)
         wb.create_sheet(title='Совпадающие данные', index=2)
+        wb.create_sheet(title='Объединённая таблица', index=3)
         # Создаем листы для дубликатов
-        wb.create_sheet(title='Дубликаты первая таблица', index=3)
-        wb.create_sheet(title='Дубликаты вторая таблица', index=4)
+        wb.create_sheet(title='Дубликаты первая таблица', index=4)
+        wb.create_sheet(title='Дубликаты вторая таблица', index=5)
 
         # Проводим слияние
-        itog_df = pd.merge(first_df, second_df, how='outer', left_on=['ID'], right_on=['ID'],
+        itog_df = pd.merge(first_df, second_df, how='outer', left_on=['ID_объединения'], right_on=['ID_объединения'],
                            indicator=True)
 
         # Создаем переменные содержащие в себе количество колонок в базовых датареймах
         first_df_quantity_cols = len(first_df.columns)  # не забываем что там добавилась колонка ID
-
 
         # Записываем каждый датафрейм в соответсвующий лист
         # Левая таблица
@@ -1414,8 +1428,23 @@ def processing_comparison():
 
         both_df = itog_df[itog_df['_merge'] == 'both']
         both_df.drop(['_merge'], axis=1, inplace=True)
+        # Очищаем от _x  и _y
+        clean_both_columns = clean_ending_columns(list(both_df.columns), name_first_df, name_second_df)
+        both_df.columns = clean_both_columns
+
         for r in dataframe_to_rows(both_df, index=False, header=True):
             wb['Совпадающие данные'].append(r)
+
+        # Сохраняем общую таблицу
+        # Заменяем названия индикаторов на более понятные
+        itog_df['_merge'] = itog_df['_merge'].apply(lambda x: 'Данные из первой таблицы' if x == 'left_only' else
+        ('Данные из второй таблицы' if x == 'right_only' else 'Совпадающие данные'))
+        itog_df['_merge'] = itog_df['_merge'].astype(str)
+
+        clean_itog_df = clean_ending_columns(list(itog_df.columns), name_first_df, name_second_df)
+        itog_df.columns = clean_itog_df
+        for r in dataframe_to_rows(itog_df, index=False, header=True):
+            wb['Объединённая таблица'].append(r)
 
         # Записываем дубликаты в соответствующие листы
         for r in dataframe_to_rows(duplicates_first_df, index=False, header=True):
@@ -1423,12 +1452,13 @@ def processing_comparison():
 
         for r in dataframe_to_rows(duplicates_second_df, index=False, header=True):
             wb['Дубликаты вторая таблица'].append(r)
-
-        # Сохраняем
+        # генерируем текущее время
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_comparison}/Результат слияния 2 таблиц от {current_time}.xlsx')
+
+
 
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.19',
@@ -1448,6 +1478,32 @@ def processing_comparison():
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.19', 'Данные успешно обработаны')
+
+def clean_ending_columns(lst_columns:list,name_first_df,name_second_df):
+    """
+    Функция для очистки колонок таблицы с совпадающими данными от окончаний _x _y
+    добавление вместо них времени формата час_минута_секунда
+    :param lst_columns:
+    :param time_generate
+    :param name_first_df
+    :param name_second_df
+    :return:
+    """
+    out_columns = [] # список для очищенных названий
+    for name_column in lst_columns:
+        if '_x' in name_column:
+            # если они есть то проводим очистку и добавление времени
+            cut_name_column = name_column[:-2] # обрезаем
+            temp_name = f'{cut_name_column}_{name_first_df}' # соединяем
+            out_columns.append(temp_name) # добавляем
+        elif '_y' in name_column:
+            cut_name_column = name_column[:-2]  # обрезаем
+            temp_name = f'{cut_name_column}_{name_second_df}'  # соединяем
+            out_columns.append(temp_name)  # добавляем
+        else:
+            out_columns.append(name_column)
+    return out_columns
+
 
 """
 Функции для склонения ФИО по падежам
