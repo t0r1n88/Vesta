@@ -669,8 +669,8 @@ def merge_tables():
             messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                                  f'Выберите файл с параметрами!\n'
                                  f'Если вы выбрали файл с параметрами, а ошибка повторяется,то перенесите папку \n'
-                                 f'с файлами которые вы хотите объединить в корень диска. Проблема может быть в \n '
-                                 f'в слишком длинном пути к проверяемым файлам')
+                                 f'с файлами которые вы хотите обработать в корень диска. Проблема может быть в \n '
+                                 f'в слишком длинном пути к обрабатываемым файлам')
         # except:
         #     logging.exception('AN ERROR HAS OCCURRED')
         #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
@@ -816,6 +816,10 @@ def generate_docs_other():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'Закройте все файлы Word созданные Вестой')
         logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
@@ -1168,6 +1172,10 @@ def calculate_date():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
 
     except:
         logging.exception('AN ERROR HAS OCCURRED')
@@ -1220,6 +1228,10 @@ def groupby_category():
     except TypeError:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.20', 'Данные успешно обработаны')
 
@@ -1291,6 +1303,10 @@ def groupby_stat():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'В колонке {name_column}\nПрисутствуют некорректные данные!\nДанные должны быть однотипными')
         logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
@@ -1475,6 +1491,10 @@ def processing_comparison():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
         logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
@@ -1652,6 +1672,10 @@ def process_decl_case():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
                              f'В таблице нет колонки с таким названием!\nПроверьте написание названия колонки')
         logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.20',
