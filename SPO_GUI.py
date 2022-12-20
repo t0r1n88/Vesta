@@ -466,7 +466,7 @@ def merge_tables():
                                 # если нет то начинаем обрабатывать листы
                                 for name_sheet, df in dct_df.items():
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
-                                                            dtype=str, skiprows=skip_rows)  # загружаем датафрейм
+                                                            dtype=str, skiprows=skip_rows,header=None)  # загружаем датафрейм
                                     temp_df['Откуда взяты данные'] = name_file
                                     for row in dataframe_to_rows(temp_df, index=False, header=False):
                                         standard_wb[name_sheet].append(row)  # добавляем данные
@@ -552,7 +552,7 @@ def merge_tables():
                                 for name_sheet, df in dct_df.items():
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}',
                                                             sheet_name=dct_name_sheet[name_sheet],
-                                                            dtype=str, skiprows=skip_rows)  # загружаем датафрейм
+                                                            dtype=str, skiprows=skip_rows,header=None)  # загружаем датафрейм
                                     temp_df['Откуда взяты данные'] = name_file
                                     for row in dataframe_to_rows(temp_df, index=False, header=False):
                                         standard_wb[name_sheet].append(row)  # добавляем данные
