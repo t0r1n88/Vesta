@@ -1727,12 +1727,52 @@ def process_decl_case():
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.22', 'Данные успешно обработаны')
 
+"""
+Функции для создания контекстного меню(Копировать,вставить,вырезать)
+"""
+def make_textmenu(root):
+    """
+    Функции для контекстного меню( вырезать,копировать,вставить)
+    взято отсюда https://gist.github.com/angeloped/91fb1bb00f1d9e0cd7a55307a801995f
+    """
+    # эта штука делает меню
+    global the_menu
+    the_menu = Menu(root, tearoff=0)
+    the_menu.add_command(label="Вырезать")
+    the_menu.add_command(label="Копировать")
+    the_menu.add_command(label="Вставить")
+    the_menu.add_separator()
+    the_menu.add_command(label="Выбрать все")
+
+def callback_select_all(event):
+    """
+    Функции для контекстного меню( вырезать,копировать,вставить)
+    взято отсюда https://gist.github.com/angeloped/91fb1bb00f1d9e0cd7a55307a801995f
+    """
+    # select text after 50ms
+    window.after(50, lambda: event.widget.select_range(0, 'end'))
+
+def show_textmenu(event):
+    """
+    Функции для контекстного меню( вырезать,копировать,вставить)
+    взято отсюда https://gist.github.com/angeloped/91fb1bb00f1d9e0cd7a55307a801995f
+    """
+    e_widget = event.widget
+    the_menu.entryconfigure("Вырезать", command=lambda: e_widget.event_generate("<<Cut>>"))
+    the_menu.entryconfigure("Копировать", command=lambda: e_widget.event_generate("<<Copy>>"))
+    the_menu.entryconfigure("Вставить", command=lambda: e_widget.event_generate("<<Paste>>"))
+    the_menu.entryconfigure("Выбрать все", command=lambda: e_widget.select_range(0, 'end'))
+    the_menu.tk.call("tk_popup", the_menu, event.x_root, event.y_root)
+
+
 
 if __name__ == '__main__':
     window = Tk()
     window.title('Веста Обработка таблиц и создание документов ver 1.22')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
+    # Добавляем контекстное меню в поля ввода
+    make_textmenu(window)
 
     # Создаем объект вкладок
 
@@ -2209,5 +2249,6 @@ if __name__ == '__main__':
                                 font=('Arial Bold', 20),
                                 command=process_decl_case)
     btn_decl_case_process.grid(column=0, row=7, padx=10, pady=10)
-
+window.bind_class("Entry", "<Button-3><ButtonRelease-3>", show_textmenu)
+window.bind_class("Entry", "<Control-a>", callback_select_all)
 window.mainloop()
