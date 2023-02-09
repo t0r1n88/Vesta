@@ -1486,9 +1486,13 @@ def processing_comparison():
         for column in first_df_columns:
             # очищаем от _x
             name_column = column.split('_x')[0]
-            # Обновляем значение в случае если в колонке _merge стоит both, иначе оставляем старое значение
-            update_df[column] = np.where(update_df['_merge'] == 'both', update_df[dct_second_columns[name_column]],
-                                         update_df[column])
+            # Обновляем значение в случае если в колонке _merge стоит both, иначе оставляем старое значение,
+            # Чтобы обновить значение в ячейке, во второй таблице не должно быть пустого значения или пробела в аналогичной колонке
+
+            update_df[column] = np.where(
+                (update_df['_merge'] == 'both') & (update_df[dct_second_columns[name_column]]) & (
+                            update_df[dct_second_columns[name_column]] != ' '),
+                update_df[dct_second_columns[name_column]], update_df[column])
 
             # Удаляем колонки с _y
         update_df.drop(columns=[column for column in update_df.columns if column.endswith('_y')], inplace=True)
