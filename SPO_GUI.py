@@ -1265,12 +1265,10 @@ def groupby_stat():
             row = pd.DataFrame(data=dct_row, index=['Сумма'])
             # Добавим в датафрейм
             group_df = pd.concat([group_df, row], axis=0)
-            # group_df = group_df.append({name_column:all_sum},ignore_index=True)
             # Обновим названия индексов
             group_df.index = ['Количество значений', 'Среднее', 'Стандартное отклонение', 'Минимальное значение',
                               '25%(Первый квартиль)', 'Медиана', '75%(Третий квартиль)', 'Максимальное значение',
                               'Сумма']
-
 
 
         elif group_df.shape[0] == 4:
