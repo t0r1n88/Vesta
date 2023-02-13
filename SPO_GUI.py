@@ -1253,7 +1253,6 @@ def groupby_stat():
         font_name_table = Font(name='Arial Black', size=15, italic=True)
         # Создаем файл excel
         wb = openpyxl.Workbook()
-        wb = openpyxl.Workbook()
         ren_sheet = wb['Sheet']
         ren_sheet.title = 'Подсчет статистик'
 
