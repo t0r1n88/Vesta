@@ -1286,7 +1286,7 @@ def groupby_stat():
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_groupby}/Подсчет статистик по колонке{name_column} {current_time}.xlsx')
+        wb.save(f'{path_to_end_folder_groupby}/Подсчет статистик по колонке {name_column} {current_time}.xlsx')
 
 
     except NameError:
