@@ -20,9 +20,8 @@ from pytrovich.enums import NamePart, Gender, Case
 from pytrovich.maker import PetrovichDeclinationMaker
 import time
 import datetime
-from iteration_utilities import duplicates
 import warnings
-
+from collections import Counter
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 pd.options.mode.chained_assignment = None
 import sys
@@ -1199,7 +1198,7 @@ def groupby_category():
 
         # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
         lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = list(duplicates(lst_length_column))
+        check_dupl_length = [k for k,v in Counter(lst_length_column).items() if v>1]
 
         # проверяем наличие объединенных ячеек
         check_merge = [column for column in df.columns if 'Unnamed' in column]
@@ -1271,7 +1270,7 @@ def groupby_stat():
 
         # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
         lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = list(duplicates(lst_length_column))
+        check_dupl_length = [k for k,v in Counter(lst_length_column).items() if v>1]
 
         # проверяем наличие объединенных ячеек
         check_merge = [column for column in df.columns if 'Unnamed' in column]
