@@ -1404,24 +1404,6 @@ def processing_comparison():
         first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
         second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
 
-        # Обрабатываем дубликаты
-
-        duplicates_first_df = first_df[first_df.duplicated(subset=['ID_объединения'],
-                                                           keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
-
-        first_df.drop_duplicates(subset=['ID_объединения'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
-
-        duplicates_second_df = second_df[second_df.duplicated(subset=['ID_объединения'],
-                                                              keep=False)]  # Сохраняем все значения у которых есть дубликаты в отдельный датафрейм
-        second_df.drop_duplicates(subset=['ID_объединения'], keep=False, inplace=True)  # Удаляем дубликаты из датафрейма
-
-        # # Проверяем размер датафрейма с дубликатами, если он больше 0 то выдаем сообшение пользователю
-        if duplicates_first_df.shape[0] > 0:
-            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.24',
-                                   f'В первой таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
-        if duplicates_second_df.shape[0] > 0:
-            messagebox.showwarning('Веста Обработка таблиц и создание документов ver 1.24',
-                                   f'Во второй таблице обнаружены дубликаты!!!\nДля корректного объединения таблиц ,дубликаты перенесены в отдельный лист итоговой таблицы')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
 
@@ -1434,9 +1416,7 @@ def processing_comparison():
         wb.create_sheet(title='Совпадающие данные', index=2)
         wb.create_sheet(title='Обновленная таблица', index=3)
         wb.create_sheet(title='Объединённая таблица', index=4)
-        # Создаем листы для дубликатов
-        wb.create_sheet(title='Дубликаты первая таблица', index=5)
-        wb.create_sheet(title='Дубликаты вторая таблица', index=6)
+
 
         # Создаем переменные содержащие в себе количество колонок в базовых датареймах
         first_df_quantity_cols = len(first_df.columns)  # не забываем что там добавилась колонка ID
@@ -1494,13 +1474,6 @@ def processing_comparison():
         itog_df.columns = clean_itog_df
         for r in dataframe_to_rows(itog_df, index=False, header=True):
             wb['Объединённая таблица'].append(r)
-
-        # Записываем дубликаты в соответствующие листы
-        for r in dataframe_to_rows(duplicates_first_df, index=False, header=True):
-            wb['Дубликаты первая таблица'].append(r)
-
-        for r in dataframe_to_rows(duplicates_second_df, index=False, header=True):
-            wb['Дубликаты вторая таблица'].append(r)
 
         # получаем список с совпадающими колонками первой таблицы
         first_df_columns = [column for column in list(update_df.columns) if str(column).endswith('_x')]
