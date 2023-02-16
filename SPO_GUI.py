@@ -1383,8 +1383,8 @@ def processing_comparison():
         convert_columns_to_str(second_df, int_params_second_columns)
 
         # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
-        processing_date_column(first_df, int_params_first_columns)
-        processing_date_column(second_df, int_params_second_columns)
+        # processing_date_column(first_df, int_params_first_columns)
+        # processing_date_column(second_df, int_params_second_columns)
 
         # Проверяем наличие колонки _merge
         if '_merge' in first_df.columns:
