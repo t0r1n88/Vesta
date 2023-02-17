@@ -1278,6 +1278,8 @@ def groupby_stat():
         if check_merge or check_dupl_length:
             df.columns = [f'Колонка №{i}' for i in range(1, df.shape[1] + 1)]
 
+        # очищ
+
         # Делаем названия колонок строковыми
         df.columns = list(map(str, list(df.columns)))
 
