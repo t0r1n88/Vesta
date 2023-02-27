@@ -28,7 +28,7 @@ import sys
 import locale
 import logging
 import tempfile
-
+import re
 logging.basicConfig(
     level=logging.WARNING,
     filename="error.log",
@@ -1191,6 +1191,7 @@ def groupby_category():
     """
     try:
         df = pd.read_excel(name_file_data_groupby)
+        df.columns = list(map(str, list(df.columns)))
         # Создаем шрифт которым будем выделять названия таблиц
         font_name_table = Font(name='Arial Black', size=15, italic=True)
         # Создаем файл excel
@@ -1205,9 +1206,12 @@ def groupby_category():
         # если есть хоть один Unnamed то просто заменяем названия колонок на Колонка №цифра
         if check_merge or check_dupl_length:
             df.columns = [f'Колонка №{i}' for i in range(1, df.shape[1] + 1)]
+        # очищаем названия колонок от символов */\ []''
+        # Создаем регулярное выражение
+        pattern_symbols = re.compile(r"[/*'\[\]/\\]")
+        clean_df_columns = [re.sub(pattern_symbols,'',column) for column in df.columns]
+        df.columns = clean_df_columns
 
-        # Делаем названия колонок строковыми
-        df.columns = list(map(str, list(df.columns)))
         # Добавляем столбец для облегчения подсчета по категориям
         df['Для подсчета'] = 1
 
@@ -1262,6 +1266,8 @@ def groupby_stat():
 
     try:
         df = pd.read_excel(name_file_data_groupby)
+        # Делаем названия колонок строковыми
+        df.columns = list(map(str, list(df.columns)))
 
         # Создаем шрифт которым будем выделять названия таблиц
         font_name_table = Font(name='Arial Black', size=15, italic=True)
@@ -1278,10 +1284,12 @@ def groupby_stat():
         if check_merge or check_dupl_length:
             df.columns = [f'Колонка №{i}' for i in range(1, df.shape[1] + 1)]
 
-        # очищ
+        # очищаем названия колонок от символов */\ []''
+        # Создаем регулярное выражение
+        pattern_symbols = re.compile(r"[/*'\[\]/\\]")
+        clean_df_columns = [re.sub(pattern_symbols,'',column) for column in df.columns]
+        df.columns = clean_df_columns
 
-        # Делаем названия колонок строковыми
-        df.columns = list(map(str, list(df.columns)))
 
         # Добавляем столбец для облегчения подсчета по категориям
         df['Итого'] = 1
