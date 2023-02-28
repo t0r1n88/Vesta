@@ -1820,13 +1820,13 @@ if __name__ == '__main__':
     frame_data_for_doc.grid(column=0, row=2, padx=10)
 
     # Создаем кнопку Выбрать шаблон
-    btn_template_doc = Button(frame_data_for_doc, text='1) Выберите шаблон документа', font=('Arial Bold', 20),
+    btn_template_doc = Button(frame_data_for_doc, text='1) Выберите шаблон документа', font=('Arial Bold', 15),
                               command=select_file_template_doc
                               )
     btn_template_doc.grid(column=0, row=3, padx=10, pady=10)
     #
     # Создаем кнопку Выбрать файл с данными
-    btn_data_doc = Button(frame_data_for_doc, text='2) Выберите файл с данными', font=('Arial Bold', 20),
+    btn_data_doc = Button(frame_data_for_doc, text='2) Выберите файл с данными', font=('Arial Bold', 15),
                           command=select_file_data_doc
                           )
     btn_data_doc.grid(column=0, row=4, padx=10, pady=10)
@@ -1838,25 +1838,29 @@ if __name__ == '__main__':
     # Описание поля
     label_name_column_data = Label(frame_data_for_doc,
                                    text='3) Введите название колонки в таблице\n по которой будут создаваться имена файлов')
-    label_name_column_data.grid(column=0, row=5, padx=10, pady=10)
+    label_name_column_data.grid(column=0, row=5, padx=10, pady=5)
     # поле ввода
     data_column_entry = Entry(frame_data_for_doc, textvariable=entry_name_column_data, width=30)
-    data_column_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=30, ipady=15)
+    data_column_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=30, ipady=4)
 
     # Поле для ввода названия генериуемых документов
     # Определяем текстовую переменную
     entry_type_file = StringVar()
     # Описание поля
     label_name_column_type_file = Label(frame_data_for_doc, text='4) Введите название создаваемых документов')
-    label_name_column_type_file.grid(column=0, row=7, padx=10, pady=10)
+    label_name_column_type_file.grid(column=0, row=7, padx=10, pady=5)
     # поле ввода
     type_file_column_entry = Entry(frame_data_for_doc, textvariable=entry_type_file, width=30)
-    type_file_column_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=30, ipady=15)
+    type_file_column_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=30, ipady=4)
 
-    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='5) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='5) Выберите конечную папку', font=('Arial Bold', 15),
                                        command=select_end_folder_doc
                                        )
     btn_choose_end_folder_doc.grid(column=0, row=9, padx=10, pady=10)
+
+    # Создаем область для того чтобы поместить туда опции
+    frame_data_for_options = LabelFrame(tab_create_doc, text='Дополнительные опции')
+    frame_data_for_options.grid(column=0, row=10, padx=10)
 
     # Создаем переменную для хранения результа переключения чекбокса
     mode_combine_value = StringVar()
@@ -1865,19 +1869,45 @@ if __name__ == '__main__':
     mode_combine_value.set('No')
     # Создаем чекбокс для выбора режима подсчета
 
-    chbox_mode_calculate = Checkbutton(frame_data_for_doc,
+    chbox_mode_calculate = Checkbutton(frame_data_for_options,
                                        text='Поставьте галочку, если вам нужно чтобы все файлы были объединены в один',
                                        variable=mode_combine_value,
                                        offvalue='No',
                                        onvalue='Yes')
-    chbox_mode_calculate.grid(column=0, row=10, padx=10, pady=10)
+    chbox_mode_calculate.grid(column=0, row=11, padx=10, pady=5)
+
+    # создаем чекбокс для единичного документа
+
+    # Создаем переменную для хранения результа переключения чекбокса
+    mode_group_doc = StringVar()
+
+    # Устанавливаем значение по умолчанию для этой переменной. По умолчанию будет вестись подсчет числовых данных
+    mode_group_doc.set('No')
+    # Создаем чекбокс для выбора режима подсчета
+    chbox_mode_group = Checkbutton(frame_data_for_options,
+                                       text='Поставьте галочку, если вам нужно создать один документ\nдля конкретного значения (например для определенного ФИО)',
+                                       variable=mode_group_doc,
+                                       offvalue='No',
+                                       onvalue='Yes')
+    chbox_mode_group.grid(column=0, row=12, padx=10, pady=5)
+    # Создаем поле для ввода значения по которому будет создаваться единичный документ
+    # Определяем текстовую переменную
+    entry_group = StringVar()
+    # Описание поля
+    label_name_column_group = Label(frame_data_for_options, text='Введите значение из колонки\nуказанной на шаге 3 для которого нужно создать один документ,\nнапример конкретное ФИО')
+    label_name_column_group.grid(column=0, row=13, padx=10, pady=5)
+    # поле ввода
+    type_file_group_entry = Entry(frame_data_for_options, textvariable=entry_group, width=30)
+    type_file_group_entry.grid(column=0, row=14, padx=5, pady=5, ipadx=30, ipady=4)
+
+
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
-    btn_create_files_other = Button(tab_create_doc, text='6) Создать документы',
-                                    font=('Arial Bold', 20),
+    btn_create_files_other = Button(tab_create_doc, text='6) Создать документ(ы)',
+                                    font=('Arial Bold', 15),
                                     command=generate_docs_other
                                     )
-    btn_create_files_other.grid(column=0, row=11, padx=10, pady=10)
+    btn_create_files_other.grid(column=0, row=14, padx=10, pady=10)
 
     # Создаем вклдаку для обработки дат рождения
 
