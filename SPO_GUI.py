@@ -898,11 +898,7 @@ def check_date_columns(i, value):
     try:
         itog = pd.to_datetime(str(value), infer_datetime_format=True)
 
-    except ParserError:
-        pass
-    except ValueError:
-        pass
-    except TypeError:
+    except:
         pass
     else:
         return i
@@ -1744,17 +1740,30 @@ def decl_on_case(fio: str, case: Case) -> str:
     else:
         return 'Проверьте количество слов, должно быть 3 разделенных пробелами слова'
 
-def create_initials(cell,checkbox):
+def create_initials(cell,checkbox,space):
     """
     Функция для создания инициалов
     """
     lst_fio = cell.split(' ') # сплитим по пробелу
     if len(lst_fio) == 3: # проверяем на стандартный размер в 3 слова иначе ничего не меняем
-        if checkbox == 'ФИО':
-            # возвращаем строку вида Иванов И.И.
-            return f'{lst_fio[0]} {lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}.'
+        if checkbox == 'ФИ':
+            if space == 'без пробела':
+                # возвращаем строку вида Иванов И.И.
+                return f'{lst_fio[0]} {lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}.'
+            else:
+                # возвращаем строку с пробелом после имени Иванов И. И.
+                return f'{lst_fio[0]} {lst_fio[1][0].upper()}. {lst_fio[2][0].upper()}.'
+
         else:
-            return f'{lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}. {lst_fio[0]}'
+            if space == 'без пробела':
+                # И.И. Иванов
+                return f'{lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}. {lst_fio[0]}'
+            else:
+                # И. И. Иванов
+                return f'{lst_fio[1][0].upper()}. {lst_fio[2][0].upper()}. {lst_fio[0]}'
+
+
+
     else:
         return cell
 
@@ -1785,8 +1794,39 @@ def process_decl_case():
         temp_df['Винительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.ACCUSATIVE))
         temp_df['Творительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.INSTRUMENTAL))
         temp_df['Предложный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.PREPOSITIONAL))
-        temp_df['Инициалы_ФИО'] = df[fio_column].apply(lambda x: create_initials(x,'ФИО'))
-        temp_df['Инициалы_ИОФ'] = df[fio_column].apply(lambda x: create_initials(x,'ИОФ'))
+        temp_df['Фамилия_инициалы'] = df[fio_column].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Инициалы_фамилия'] = df[fio_column].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Фамилия_инициалы_пробел'] = df[fio_column].apply(lambda x: create_initials(x,'ФИ','пробел'))
+        temp_df['Инициалы_фамилия_пробел'] = df[fio_column].apply(lambda x: create_initials(x,'ИФ','пробел'))
+
+        # Создаем колонки для склонения фамилий с иницалами родительный падеж
+        temp_df['Фамилия_инициалы_род_падеж'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Фамилия_инициалы_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_род_падеж'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Инициалы_фамилия_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+
+        # Создаем колонки для склонения фамилий с иницалами дательный падеж
+        temp_df['Фамилия_инициалы_дат_падеж'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Фамилия_инициалы_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_дат_падеж'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Инициалы_фамилия_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+
+        # Создаем колонки для склонения фамилий с иницалами винительный падеж
+        temp_df['Фамилия_инициалы_вин_падеж'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Фамилия_инициалы_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_вин_падеж'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Инициалы_фамилия_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+
+        # Создаем колонки для склонения фамилий с иницалами творительный падеж
+        temp_df['Фамилия_инициалы_твор_падеж'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Фамилия_инициалы_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_твор_падеж'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Инициалы_фамилия_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        # Создаем колонки для склонения фамилий с иницалами предложный падеж
+        temp_df['Фамилия_инициалы_пред_падеж'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
+        temp_df['Фамилия_инициалы_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_пред_падеж'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
+        temp_df['Инициалы_фамилия_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Вставляем получившиеся колонки после базовой колонки с фио
         df.insert(index_fio_column + 1, 'Родительный_падеж', temp_df['Родительный_падеж'])
@@ -1794,8 +1834,37 @@ def process_decl_case():
         df.insert(index_fio_column + 3, 'Винительный_падеж', temp_df['Винительный_падеж'])
         df.insert(index_fio_column + 4, 'Творительный_падеж', temp_df['Творительный_падеж'])
         df.insert(index_fio_column + 5, 'Предложный_падеж', temp_df['Предложный_падеж'])
-        df.insert(index_fio_column + 6, 'Инициалы_ФИО', temp_df['Инициалы_ФИО'])
-        df.insert(index_fio_column + 7, 'Инициалы_ИОФ', temp_df['Инициалы_ИОФ'])
+        df.insert(index_fio_column + 6, 'Фамилия_инициалы', temp_df['Фамилия_инициалы'])
+        df.insert(index_fio_column + 7, 'Инициалы_фамилия', temp_df['Инициалы_фамилия'])
+        df.insert(index_fio_column + 8, 'Фамилия_инициалы_пробел', temp_df['Фамилия_инициалы_пробел'])
+        df.insert(index_fio_column + 9, 'Инициалы_фамилия_пробел', temp_df['Инициалы_фамилия_пробел'])
+        # Добавляем колонки с склонениями инициалов родительный падеж
+        df.insert(index_fio_column + 10, 'Фамилия_инициалы_род_падеж', temp_df['Фамилия_инициалы_род_падеж'])
+        df.insert(index_fio_column + 11, 'Фамилия_инициалы_род_падеж_пробел', temp_df['Фамилия_инициалы_род_падеж_пробел'])
+        df.insert(index_fio_column + 12, 'Инициалы_фамилия_род_падеж', temp_df['Инициалы_фамилия_род_падеж'])
+        df.insert(index_fio_column + 13, 'Инициалы_фамилия_род_падеж_пробел', temp_df['Инициалы_фамилия_род_падеж_пробел'])
+        # Добавляем колонки с склонениями инициалов дательный падеж
+        df.insert(index_fio_column + 14, 'Фамилия_инициалы_дат_падеж', temp_df['Фамилия_инициалы_дат_падеж'])
+        df.insert(index_fio_column + 15, 'Фамилия_инициалы_дат_падеж_пробел', temp_df['Фамилия_инициалы_дат_падеж_пробел'])
+        df.insert(index_fio_column + 16, 'Инициалы_фамилия_дат_падеж', temp_df['Инициалы_фамилия_дат_падеж'])
+        df.insert(index_fio_column + 17, 'Инициалы_фамилия_дат_падеж_пробел', temp_df['Инициалы_фамилия_дат_падеж_пробел'])
+        # Добавляем колонки с склонениями инициалов винительный падеж
+        df.insert(index_fio_column + 18, 'Фамилия_инициалы_вин_падеж', temp_df['Фамилия_инициалы_вин_падеж'])
+        df.insert(index_fio_column + 19, 'Фамилия_инициалы_вин_падеж_пробел', temp_df['Фамилия_инициалы_вин_падеж_пробел'])
+        df.insert(index_fio_column + 20, 'Инициалы_фамилия_вин_падеж', temp_df['Инициалы_фамилия_вин_падеж'])
+        df.insert(index_fio_column + 21, 'Инициалы_фамилия_вин_падеж_пробел', temp_df['Инициалы_фамилия_вин_падеж_пробел'])
+        # Добавляем колонки с склонениями инициалов творительный падеж
+        df.insert(index_fio_column + 22, 'Фамилия_инициалы_твор_падеж', temp_df['Фамилия_инициалы_твор_падеж'])
+        df.insert(index_fio_column + 23, 'Фамилия_инициалы_твор_падеж_пробел', temp_df['Фамилия_инициалы_твор_падеж_пробел'])
+        df.insert(index_fio_column + 24, 'Инициалы_фамилия_твор_падеж', temp_df['Инициалы_фамилия_твор_падеж'])
+        df.insert(index_fio_column + 25, 'Инициалы_фамилия_твор_падеж_пробел', temp_df['Инициалы_фамилия_твор_падеж_пробел'])
+        # Добавляем колонки с склонениями инициалов предложный падеж
+        df.insert(index_fio_column + 26, 'Фамилия_инициалы_пред_падеж', temp_df['Фамилия_инициалы_пред_падеж'])
+        df.insert(index_fio_column + 27, 'Фамилия_инициалы_пред_падеж_пробел', temp_df['Фамилия_инициалы_пред_падеж_пробел'])
+        df.insert(index_fio_column + 28, 'Инициалы_фамилия_пред_падеж', temp_df['Инициалы_фамилия_пред_падеж'])
+        df.insert(index_fio_column + 29, 'Инициалы_фамилия_пред_падеж_пробел', temp_df['Инициалы_фамилия_пред_падеж_пробел'])
+
+
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
@@ -1815,10 +1884,10 @@ def process_decl_case():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.26',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.26',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    # except:
+    #     logging.exception('AN ERROR HAS OCCURRED')
+    #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.26',
+    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.26', 'Данные успешно обработаны')
 
@@ -2319,7 +2388,7 @@ if __name__ == '__main__':
     # Добавляем виджеты на вкладку Подсчет данных  по категориям
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_decl_by_cases,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам'
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам и создание инициалов'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
                       )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
