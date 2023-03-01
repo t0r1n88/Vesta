@@ -1744,6 +1744,20 @@ def decl_on_case(fio: str, case: Case) -> str:
     else:
         return 'Проверьте количество слов, должно быть 3 разделенных пробелами слова'
 
+def create_initials(cell,checkbox):
+    """
+    Функция для создания инициалов
+    """
+    lst_fio = cell.split(' ') # сплитим по пробелу
+    if len(lst_fio) == 3: # проверяем на стандартный размер в 3 слова иначе ничего не меняем
+        if checkbox == 'ФИО':
+            # возвращаем строку вида Иванов И.И.
+            return f'{lst_fio[0]} {lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}.'
+        else:
+            return f'{lst_fio[1][0].upper()}.{lst_fio[2][0].upper()}. {lst_fio[0]}'
+    else:
+        return cell
+
 def process_decl_case():
     """
     Функция для проведения склонения ФИО по падежам
@@ -1771,6 +1785,8 @@ def process_decl_case():
         temp_df['Винительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.ACCUSATIVE))
         temp_df['Творительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.INSTRUMENTAL))
         temp_df['Предложный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.PREPOSITIONAL))
+        temp_df['Инициалы_ФИО'] = df[fio_column].apply(lambda x: create_initials(x,'ФИО'))
+        temp_df['Инициалы_ИОФ'] = df[fio_column].apply(lambda x: create_initials(x,'ИОФ'))
 
         # Вставляем получившиеся колонки после базовой колонки с фио
         df.insert(index_fio_column + 1, 'Родительный_падеж', temp_df['Родительный_падеж'])
@@ -1778,6 +1794,8 @@ def process_decl_case():
         df.insert(index_fio_column + 3, 'Винительный_падеж', temp_df['Винительный_падеж'])
         df.insert(index_fio_column + 4, 'Творительный_падеж', temp_df['Творительный_падеж'])
         df.insert(index_fio_column + 5, 'Предложный_падеж', temp_df['Предложный_падеж'])
+        df.insert(index_fio_column + 6, 'Инициалы_ФИО', temp_df['Инициалы_ФИО'])
+        df.insert(index_fio_column + 7, 'Инициалы_ИОФ', temp_df['Инициалы_ИОФ'])
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
