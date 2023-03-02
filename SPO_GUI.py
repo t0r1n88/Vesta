@@ -775,20 +775,25 @@ def generate_docs_other():
         df.fillna(' ',inplace=True)
 
         # получаем первую строку датафрейма
-        first_row = df.iloc[0, :]
-        lst_first_row = list(first_row)
+        # first_row = df.iloc[0, :]
+        # lst_first_row = list(first_row)
         lst_date_columns = []
-        # Перебираем
-        for idx, value in enumerate(lst_first_row):
-            result = check_date_columns(idx, value)
-            if result:
-                lst_date_columns.append(result)
-            else:
-                continue
+       # Перебираем
+       #  for idx, value in enumerate(lst_first_row):
+       #      result = check_date_columns(idx, value)
+       #      if result:
+       #          lst_date_columns.append(result)
+       #      else:
+       #          continue
+        for idx,column in enumerate(df.columns):
+            if 'дата' in column.lower():
+                lst_date_columns.append(idx)
+
         # Конвертируем в пригодный строковый формат
         for i in lst_date_columns:
             df.iloc[:, i] = pd.to_datetime(df.iloc[:, i], errors='coerce', dayfirst=True)
             df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
+
 
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
@@ -897,7 +902,6 @@ def check_date_columns(i, value):
     """
     try:
         itog = pd.to_datetime(str(value), infer_datetime_format=True)
-
     except:
         pass
     else:
