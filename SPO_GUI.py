@@ -803,7 +803,7 @@ def generate_docs_other():
         if mode_combine == 'No':
             if mode_group == 'No':
                 # Создаем в цикле документы
-                for row in data:
+                for idx,row in enumerate(data):
                     doc = DocxTemplate(name_file_template_doc)
                     context = row
                     # print(context)
@@ -812,6 +812,9 @@ def generate_docs_other():
                     # получаем название файла и убираем недопустимые символы < > : " /\ | ? *
                     name_file = f'{name_type_file} {row[name_column]}'
                     name_file = re.sub(r'[<> :"?*|\\/]',' ',name_file)
+                    # проверяем файл на наличие, если файл с таким названием уже существует то добавляем окончание
+                    if os.path.exists(f'{path_to_end_folder_doc}/{name_file}.docx'):
+                        doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
 
                     doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
             else:
