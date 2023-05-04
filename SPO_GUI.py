@@ -58,6 +58,12 @@ class ShapeDiffierence(Exception):
     """
     pass
 
+class ColumnsDifference(Exception):
+    """
+    Класс для обозначения того что названия колонок не совпадают
+    """
+    pass
+
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -1973,6 +1979,11 @@ def processing_diffrence():
         if df1.shape != df2.shape:
             raise ShapeDiffierence
 
+        # Проверям на соответсвие колонок
+        if list(df1.columns) != list(df2.columns):
+            diff_columns = set(df1.columns).difference(set(df2.columns)) # получаем отличающиеся элементы
+            raise ColumnsDifference
+
         df_cols = df1.compare(df2,result_names=('Первая таблица','Вторая таблица')) # датафрейм с разницей по колонкам
         df_cols.index = list(map(lambda x: x + 2, df_cols.index)) # добавляем к индексу +2 чтобы соответствовать нумерации в экселе
         df_cols.index.name = '№ строки' # переименовываем индекс
@@ -1993,6 +2004,13 @@ def processing_diffrence():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
                              f'Не совпадают размеры таблиц, В первой таблице {df1.shape[0]}-стр. и {df1.shape[1]}-кол.\n'
                              f'Во второй таблице {df2.shape[0]}-стр. и {df2.shape[1]}-кол.')
+
+    except ColumnsDifference:
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
+                             f'Названия колонок в сравниваемых таблицах отличаются\n'
+                             f'Колонок:{diff_columns}  нет во второй таблице !!!\n'
+                             f'Сделайте названия колонок одинаковыми.')
+
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
@@ -2006,10 +2024,10 @@ def processing_diffrence():
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    # except:
+    #     logging.exception('AN ERROR HAS OCCURRED')
+    #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.31',
+    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.31', 'Таблицы успешно обработаны')
 
@@ -2567,7 +2585,8 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_diffrence,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Количество строк и столбцов в колонках должно совпадать'
+                           'Количество строк и колонок в таблицах должно совпадать\n'
+                           'Названия колонок в таблицах должны совпадать'
                            '\nДля корректной работы программмы уберите из таблицы объединенные ячейки')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
