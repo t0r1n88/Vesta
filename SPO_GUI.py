@@ -1474,6 +1474,8 @@ def processing_comparison():
         convert_columns_to_str(first_df, int_params_first_columns)
         convert_columns_to_str(second_df, int_params_second_columns)
 
+
+
         # Проверяем наличие колонок с датами в списке колонок для объединения чтобы привести их в нормальный вид
         for number_column_params in int_params_first_columns:
             if 'дата' in first_df.columns[number_column_params].lower():
@@ -1504,9 +1506,17 @@ def processing_comparison():
         if 'ID_объединения' in second_df.columns:
             second_df.drop(columns=['ID_объединения'], inplace=True)
 
+        # создаем датафреймы из колонок выбранных для объединения, такой способо связан с тем, что
+        # при использовании sum числа в строковом виде превращаются в числа
+        key_first_df = first_df.iloc[:,int_params_first_columns]
+        key_second_df = second_df.iloc[:,int_params_second_columns]
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
-        first_df['ID_объединения'] = first_df.iloc[:, int_params_first_columns].sum(axis=1)
-        second_df['ID_объединения'] = second_df.iloc[:, int_params_second_columns].sum(axis=1)
+        first_df['ID_объединения'] = key_first_df.apply(lambda x:''.join(x),axis=1)
+        second_df['ID_объединения'] = key_second_df.apply(lambda x: ''.join(x), axis=1)
+
+        # first_df['ID_объединения'] = first_df['ID_объединения'].astype(str)
+        # second_df['ID_объединения'] = second_df['ID_объединения'].astype(str)
+
 
         first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
         second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
@@ -1647,11 +1657,6 @@ def processing_comparison():
                              f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
         logging.exception('AN ERROR HAS OCCURRED')
 
-    except AttributeError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.33',
-                             f'В колонке(ах) по которым производится объединение таблиц найдены пустые ячейки\n'
-                             f'Заполните пустые ячейки в колонках указанных в файле параметров слияния!!!')
-        logging.exception('AN ERROR HAS OCCURRED')
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.33',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
