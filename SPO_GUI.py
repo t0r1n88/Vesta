@@ -2753,6 +2753,6 @@ if __name__ == '__main__':
                                    command=processing_diffrence
                                    )
     btn_data_do_diffrence.grid(column=0, row=11, padx=10, pady=10)
-window.bind_class("Entry", "<Button-3><ButtonRelease-3>", show_textmenu)
-window.bind_class("Entry", "<Control-a>", callback_select_all)
-window.mainloop()
+    window.bind_class("Entry", "<Button-3><ButtonRelease-3>", show_textmenu)
+    window.bind_class("Entry", "<Control-a>", callback_select_all)
+    window.mainloop()
