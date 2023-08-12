@@ -6,6 +6,7 @@ from decl_case import declension_fio_by_case  # Функция для склон
 from comparsion_two_tables import merging_two_tables # Функция для сравнения, слияния 2 таблиц
 from table_stat import counting_by_category # Функция для подсчета категориальных переменныъ
 from table_stat import counting_quantitative_stat # функция для подсчета количественных статистик
+from processing_date import proccessing_date
 
 import pandas as pd
 import numpy as np
@@ -121,30 +122,6 @@ def select_end_folder_doc():
     """
     global path_to_end_folder_doc
     path_to_end_folder_doc = filedialog.askdirectory()
-
-
-def select_file_data_date():
-    """
-    Функция для выбора файла с данными для которого нужно разбить по категориям
-    :return: Путь к файлу с данными
-    """
-    global name_file_data_date
-    # Получаем путь к файлу
-    name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
-
-
-
-
-def select_end_folder_date():
-    """
-    Функция для выбора папки куда будет генерироваться итоговый файл
-    :return:
-    """
-    global path_to_end_folder_date
-    path_to_end_folder_date = filedialog.askdirectory()
-
-
-
 
 
 # Функции для вкладки извлечение данных
@@ -908,27 +885,6 @@ def combine_all_docx(filename_master, files_lst):
                 f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.pdf", keep_active=True)
 
 
-def calculate_age(born):
-    """
-    Функция для расчета текущего возраста взято с https://stackoverflow.com/questions/2217488/age-from-birthdate-in-python/9754466#9754466
-    :param born: дата рождения
-    :return: возраст
-    """
-
-    try:
-
-        # today = date.today()
-        selected_date = pd.to_datetime(raw_selected_date, dayfirst=True)
-        # return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
-        return selected_date.year - born.year - ((selected_date.month, selected_date.day) < (born.month, born.day))
-
-    except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Введена некорректная дата относительно которой нужно провести обработку\nПример корректной даты 01.09.2022')
-        logging.exception('AN ERROR HAS OCCURRED')
-        quit()
-
-
 def convert_date(cell):
     """
     Функция для конвертации даты в формате 1957-05-10 в формат 10.05.1957(строковый)
@@ -984,27 +940,25 @@ def processing_date_column(df, lst_columns):
         df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
 
 
-def extract_number_month(cell):
+"""
+Функции для получения параметров обработки даты рождения
+"""
+def select_file_data_date():
     """
-    Функция для извлечения номера месяца
+    Функция для выбора файла с данными для которого нужно разбить по категориям
+    :return: Путь к файлу с данными
     """
-    return cell.month
+    global name_file_data_date
+    # Получаем путь к файлу
+    name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
-
-def extract_name_month(cell):
+def select_end_folder_date():
     """
-    Функция для извлечения названия месяца
-    Взято отсюда https://ru.stackoverflow.com/questions/1045154/Вывод-русских-символов-из-pd-timestamp-month-name
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
     """
-    return cell.month_name(locale='Russian')
-
-
-def extract_year(cell):
-    """
-    Функция для извлечения года рождения
-    """
-    return cell.year
-
+    global path_to_end_folder_date
+    path_to_end_folder_date = filedialog.askdirectory()
 
 def calculate_date():
     """
@@ -1012,202 +966,15 @@ def calculate_date():
     :return:
     """
     try:
-        # делаем глобальным значение даты.Дада я знаю что это костыль
-        global raw_selected_date
         raw_selected_date = entry_date.get()
-
         name_column = entry_name_column.get()
         # Устанавливаем русскую локаль
         set_rus_locale()
-
-        # Считываем файл
-        df = pd.read_excel(name_file_data_date)
-        # Конвертируем его в формат даты
-        # В случае ошибок заменяем значение NaN
-        df[name_column] = pd.to_datetime(df[name_column], dayfirst=True, errors='coerce')
-        # Создаем шрифт которым будем выделять названия таблиц
-        font_name_table = Font(name='Arial Black', size=15, italic=True)
-
-        # Создаем файл excel
-        wb = openpyxl.Workbook()
-        # Создаем листы
-        # Переименовываем лист чтобы в итоговом файле не было пустого листа
-        ren_sheet = wb['Sheet']
-        ren_sheet.title = 'Итоговая таблица'
-
-        # wb.create_sheet(title='Итоговая таблица', index=0)
-        wb.create_sheet(title='Свод по возрастам', index=1)
-        wb.create_sheet(title='Свод по месяцам', index=2)
-        wb.create_sheet(title='Свод по годам', index=3)
-        wb.create_sheet(title='Свод по 1-ПК', index=4)
-        wb.create_sheet(title='Свод по 1-ПО', index=5)
-        wb.create_sheet(title='Свод по СПО-1', index=6)
-        wb.create_sheet(title='Свод по категориям Росстата', index=7)
-
-        # Подсчитываем текущий возраст
-        df['Текущий возраст'] = df[name_column].apply(calculate_age)
-
-        # Получаем номер месяца
-        df['Порядковый номер месяца рождения'] = df[name_column].apply(extract_number_month)
-
-        # Получаем название месяца
-        df['Название месяца рождения'] = df[name_column].apply(extract_name_month)
-
-        # Получаем год рождения
-        df['Год рождения'] = df[name_column].apply(extract_year)
-
-        # Присваиваем категорию по 1-ПК
-        df['1-ПК Категория'] = pd.cut(df['Текущий возраст'], [0, 24, 29, 34, 39, 44, 49, 54, 59, 64, 101, 10000],
-                                      labels=['моложе 25 лет', '25-29', '30-34', '35-39',
-                                              '40-44', '45-49', '50-54', '55-59', '60-64',
-                                              '65 и более',
-                                              'Возраст  больше 101'])
-        # Приводим к строковому виду, иначе не запишется на лист
-        df['1-ПК Категория'] = df['1-ПК Категория'].astype(str)
-
-        # Присваиваем категорию по 1-ПО
-        df['1-ПО Категория'] = pd.cut(df['Текущий возраст'],
-                                      [0, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-                                       26, 27, 28,
-                                       29, 34, 39, 44, 49, 54, 59, 64, 101],
-                                      labels=['моложе 14 лет', '14 лет', '15 лет',
-                                              '16 лет',
-                                              '17 лет', '18 лет', '19 лет', '20 лет',
-                                              '21 год', '22 года',
-                                              '23 года', '24 года', '25 лет',
-                                              '26 лет', '27 лет', '28 лет', '29 лет',
-                                              '30-34 лет',
-                                              '35-39 лет', '40-44 лет', '45-49 лет',
-                                              '50-54 лет',
-                                              '55-59 лет',
-                                              '60-64 лет',
-                                              '65 лет и старше'])
-        # Приводим к строковому виду, иначе не запишется на лист
-        df['1-ПО Категория'] = df['1-ПО Категория'].astype(str)
-
-        # Присваиваем категорию по 1-СПО
-        df['СПО-1 Категория'] = pd.cut(df['Текущий возраст'],
-                                       [0, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 34,
-                                        39,
-                                        101],
-                                       labels=['моложе 13 лет', '13 лет', '14 лет', '15 лет', '16 лет', '17 лет',
-                                               '18 лет',
-                                               '19 лет', '20 лет'
-                                           , '21 год', '22 года', '23 года', '24 года', '25 лет', '26 лет', '27 лет',
-                                               '28 лет',
-                                               '29 лет',
-                                               '30-34 лет', '35-39 лет', '40 лет и старше'])
-        ## Приводим к строковому виду, иначе не запишется на лист
-        df['СПО-1 Категория'] = df['СПО-1 Категория'].astype(str)
-
-        # Присваиваем категорию по Росстату
-        df['Росстат Категория'] = pd.cut(df['Текущий возраст'],
-                                         [0, 4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 200],
-                                         labels=['0-4', '5-9', '10-14', '15-19', '20-24', '25-29', '30-34',
-                                                 '35-39', '40-44', '45-49', '50-54', '55-59', '60-64', '65-69',
-                                                 '70 лет и старше'])
-        ## Приводим к строковому виду, иначе не запишется на лист
-        df['Росстат Категория'] = df['Росстат Категория'].astype(str)
-
-        # Заполняем пустые строки
-        df.fillna('Не заполнено!!!', inplace=True)
-
-        # заполняем сводные таблицы
-        # Сводная по возрастам
-
-        df_svod_by_age = df.groupby(['Текущий возраст']).agg({name_column: 'count'})
-        df_svod_by_age.columns = ['Количество']
-
-        for r in dataframe_to_rows(df_svod_by_age, index=True, header=True):
-            wb['Свод по возрастам'].append(r)
-
-        # Сводная по месяцам
-        df_svod_by_month = df.groupby(['Название месяца рождения']).agg({name_column: 'count'})
-        df_svod_by_month.columns = ['Количество']
-
-        # Сортируем индекс чтобы месяцы шли в хоронологическом порядке
-        # Взял отсюда https://stackoverflow.com/questions/40816144/pandas-series-sort-by-month-index
-        df_svod_by_month.index = pd.CategoricalIndex(df_svod_by_month.index,
-                                                     categories=['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
-                                                                 'Июль',
-                                                                 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
-                                                     ordered=True)
-        df_svod_by_month.sort_index(inplace=True)
-
-        for r in dataframe_to_rows(df_svod_by_month, index=True, header=True):
-            wb['Свод по месяцам'].append(r)
-
-        # Сводная по годам
-        df_svod_by_year = df.groupby(['Год рождения']).agg({name_column: 'count'})
-        df_svod_by_year.columns = ['Количество']
-
-        for r in dataframe_to_rows(df_svod_by_year, index=True, header=True):
-            wb['Свод по годам'].append(r)
-
-        # Сводная по 1-ПК
-        df_svod_by_1PK = df.groupby(['1-ПК Категория']).agg({name_column: 'count'})
-        df_svod_by_1PK.columns = ['Количество']
-
-        for r in dataframe_to_rows(df_svod_by_1PK, index=True, header=True):
-            wb['Свод по 1-ПК'].append(r)
-
-        # Сводная по 1-ПО
-        df_svod_by_1PO = df.groupby(['1-ПО Категория']).agg({name_column: 'count'})
-        df_svod_by_1PO.columns = ['Количество']
-
-        for r in dataframe_to_rows(df_svod_by_1PO, index=True, header=True):
-            wb['Свод по 1-ПО'].append(r)
-
-        # Сводная по СПО-1
-        df_svod_by_SPO1 = df.groupby(['СПО-1 Категория']).agg({name_column: 'count'})
-        df_svod_by_SPO1.columns = ['Количество']
-
-        for r in dataframe_to_rows(df_svod_by_SPO1, index=True, header=True):
-            wb['Свод по СПО-1'].append(r)
-
-        # Сводная по Росстату
-        df_svod_by_Ros = df.groupby(['Росстат Категория']).agg({name_column: 'count'})
-        df_svod_by_Ros.columns = ['Количество']
-
-        # Сортируем индекс
-        df_svod_by_Ros.index = pd.CategoricalIndex(df_svod_by_Ros.index,
-                                                   categories=['0-4', '5-9', '10-14', '15-19', '20-24', '25-29',
-                                                               '30-34',
-                                                               '35-39', '40-44', '45-49', '50-54', '55-59', '60-64',
-                                                               '65-69',
-                                                               '70 лет и старше', 'nan'],
-                                                   ordered=True)
-        df_svod_by_Ros.sort_index(inplace=True)
-
-        for r in dataframe_to_rows(df_svod_by_Ros, index=True, header=True):
-            wb['Свод по категориям Росстата'].append(r)
-
-        for r in dataframe_to_rows(df, index=False, header=True):
-            wb['Итоговая таблица'].append(r)
-
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
+        proccessing_date(raw_selected_date,name_column,name_file_data_date,path_to_end_folder_date)
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
 
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
 """
 Функции для подсчета статистик по таблице

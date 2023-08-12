@@ -168,8 +168,6 @@ def counting_quantitative_stat(name_file_data_groupby,path_to_end_folder_groupby
         wb.save(
             f'{path_to_end_folder_groupby}/Подсчет базовых статистик для всех колонок таблицы от {current_time}.xlsx')
 
-
-
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
