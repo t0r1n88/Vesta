@@ -4,6 +4,8 @@
 from diff_tables import find_diffrence # Функции для нахождения разницы 2 таблиц
 from decl_case import declension_fio_by_case  # Функция для склонения ФИО по падежам
 from comparsion_two_tables import merging_two_tables # Функция для сравнения, слияния 2 таблиц
+from table_stat import counting_by_category # Функция для подсчета категориальных переменныъ
+from table_stat import counting_quantitative_stat # функция для подсчета количественных статистик
 
 import pandas as pd
 import numpy as np
@@ -142,23 +144,7 @@ def select_end_folder_date():
     path_to_end_folder_date = filedialog.askdirectory()
 
 
-def select_file_data_groupby():
-    """
-    Функция для выбора файла с данными
-    :return:
-    """
-    global name_file_data_groupby
-    # Получаем путь к файлу
-    name_file_data_groupby = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
-
-def select_end_folder_groupby():
-    """
-    Функция для выбора папки куда будет генерироваться итоговый файл
-    :return:
-    """
-    global path_to_end_folder_groupby
-    path_to_end_folder_groupby = filedialog.askdirectory()
 
 
 # Функции для вкладки извлечение данных
@@ -1223,172 +1209,46 @@ def calculate_date():
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
+"""
+Функции для подсчета статистик по таблице
+"""
+def select_file_data_groupby():
+    """
+    Функция для выбора файла с данными
+    :return:
+    """
+    global name_file_data_groupby
+    # Получаем путь к файлу
+    name_file_data_groupby = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_end_folder_groupby():
+    """
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
+    """
+    global path_to_end_folder_groupby
+    path_to_end_folder_groupby = filedialog.askdirectory()
 
 def groupby_category():
     """
-    Функция для подсчета выбранной колонки по категориям
-    :return:
+    Подсчет категорий по всем колонкам таблицы
     """
     try:
-        df = pd.read_excel(name_file_data_groupby)
-        df.columns = list(map(str, list(df.columns)))
-        # Создаем шрифт которым будем выделять названия таблиц
-        font_name_table = Font(name='Arial Black', size=15, italic=True)
-        # Создаем файл excel
-        wb = openpyxl.Workbook()
-
-        # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
-        lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = [k for k, v in Counter(lst_length_column).items() if v > 1]
-
-        # проверяем наличие объединенных ячеек
-        check_merge = [column for column in df.columns if 'Unnamed' in column]
-        # если есть хоть один Unnamed то просто заменяем названия колонок на Колонка №цифра
-        if check_merge or check_dupl_length:
-            df.columns = [f'Колонка №{i}' for i in range(1, df.shape[1] + 1)]
-        # очищаем названия колонок от символов */\ []''
-        # Создаем регулярное выражение
-        pattern_symbols = re.compile(r"[/*'\[\]/\\]")
-        clean_df_columns = [re.sub(pattern_symbols, '', column) for column in df.columns]
-        df.columns = clean_df_columns
-
-        # Добавляем столбец для облегчения подсчета по категориям
-        df['Для подсчета'] = 1
-
-        # Создаем листы
-        for idx, name_column in enumerate(df.columns):
-            # Делаем короткое название не более 30 символов
-            wb.create_sheet(title=name_column[:30], index=idx)
-
-        for idx, name_column in enumerate(df.columns):
-            group_df = df.groupby([name_column]).agg({'Для подсчета': 'sum'})
-            group_df.columns = ['Количество']
-
-            # Сортируем по убыванию
-            group_df.sort_values(by=['Количество'], inplace=True, ascending=False)
-
-            for r in dataframe_to_rows(group_df, index=True, header=True):
-                if len(r) != 1:
-                    wb[name_column[:30]].append(r)
-            wb[name_column[:30]].column_dimensions['A'].width = 50
-
-        # генерируем текущее время
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # Удаляем листы
-        del wb['Sheet']
-        del wb['Для подсчета']
-        # Сохраняем итоговый файл
-        wb.save(
-            f'{path_to_end_folder_groupby}/Подсчет частоты значений для всех колонок таблицы от {current_time}.xlsx')
-
+        counting_by_category(name_file_data_groupby,path_to_end_folder_groupby)
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
-
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
-
 
 def groupby_stat():
     """
-    Функция для подсчета выбранной колонки по количественным показателям(сумма,среднее,медиана,мин,макс)
-    :return:
+    Подсчет категорий по всем колонкам таблицы
     """
-
     try:
-        df = pd.read_excel(name_file_data_groupby)
-        # Делаем названия колонок строковыми
-        df.columns = list(map(str, list(df.columns)))
-
-        # Создаем шрифт которым будем выделять названия таблиц
-        font_name_table = Font(name='Arial Black', size=15, italic=True)
-        # Создаем файл excel
-        wb = openpyxl.Workbook()
-
-        # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
-        lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = [k for k, v in Counter(lst_length_column).items() if v > 1]
-
-        # проверяем наличие объединенных ячеек
-        check_merge = [column for column in df.columns if 'Unnamed' in column]
-        # если есть хоть один Unnamed или дубликат то просто заменяем названия колонок на Колонка №цифра
-        if check_merge or check_dupl_length:
-            df.columns = [f'Колонка №{i}' for i in range(1, df.shape[1] + 1)]
-
-        # очищаем названия колонок от символов */\ []''
-        # Создаем регулярное выражение
-        pattern_symbols = re.compile(r"[/*'\[\]/\\]")
-        clean_df_columns = [re.sub(pattern_symbols, '', column) for column in df.columns]
-        df.columns = clean_df_columns
-
-        # Добавляем столбец для облегчения подсчета по категориям
-        df['Итого'] = 1
-
-        # Создаем листы
-        for idx, name_column in enumerate(df.columns):
-            # Делаем короткое название не более 30 символов
-            wb.create_sheet(title=name_column[:30], index=idx)
-
-        for idx, name_column in enumerate(df.columns):
-            group_df = df[name_column].describe().to_frame()
-            if group_df.shape[0] == 8:
-                # подсчитаем сумму
-                all_sum = df[name_column].sum()
-                dct_row = {name_column: all_sum}
-                row = pd.DataFrame(data=dct_row, index=['Сумма'])
-                # Добавим в датафрейм
-                group_df = pd.concat([group_df, row], axis=0)
-
-                # Обновим названия индексов
-                group_df.index = ['Количество значений', 'Среднее', 'Стандартное отклонение', 'Минимальное значение',
-                                  '25%(Первый квартиль)', 'Медиана', '75%(Третий квартиль)', 'Максимальное значение',
-                                  'Сумма']
-
-            elif group_df.shape[0] == 4:
-                group_df.index = ['Количество значений', 'Количество уникальных значений', 'Самое частое значение',
-                                  'Количество повторений самого частого значения', ]
-            for r in dataframe_to_rows(group_df, index=True, header=True):
-                if len(r) != 1:
-                    wb[name_column[:30]].append(r)
-            wb[name_column[:30]].column_dimensions['A'].width = 50
-
-        # генерируем текущее время
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # Удаляем лист
-        del wb['Sheet']
-        del wb['Итого']
-        # Сохраняем итоговый файл
-        wb.save(
-            f'{path_to_end_folder_groupby}/Подсчет базовых статистик для всех колонок таблицы от {current_time}.xlsx')
-
-
-
+        counting_quantitative_stat(name_file_data_groupby,path_to_end_folder_groupby)
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
-        logging.exception('AN ERROR HAS OCCURRED')
-
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
-
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
 # Функциия для слияния 2 таблиц
 def select_file_params_comparsion():
