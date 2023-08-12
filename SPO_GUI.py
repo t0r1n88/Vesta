@@ -3,6 +3,7 @@
 """
 from diff_tables import find_diffrence # Функции для нахождения разницы 2 таблиц
 from decl_case import declension_fio_by_case  # Функция для склонения ФИО по падежам
+from comparsion_two_tables import merging_two_tables # Функция для сравнения, слияния 2 таблиц
 
 import pandas as pd
 import numpy as np
@@ -130,79 +131,6 @@ def select_file_data_date():
     name_file_data_date = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
 
-# Функциия для слияния таблиц
-
-def convert_columns_to_str(df, number_columns):
-    """
-    Функция для конвертации указанных столбцов в строковый тип и очистки от пробельных символов в начале и конце
-    """
-
-    for column in number_columns:  # Перебираем список нужных колонок
-        try:
-            df.iloc[:, column] = df.iloc[:, column].astype(str)
-            # Очищаем колонку от пробельных символов с начала и конца
-            df.iloc[:, column] = df.iloc[:, column].apply(lambda x: x.strip())
-        except IndexError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                                 'Проверьте порядковые номера колонок которые вы хотите обработать.')
-
-
-def convert_params_columns_to_int(lst):
-    """
-    Функция для конвератации значений колонок которые нужно обработать.
-    Очищает от пустых строк, чтобы в итоге остался список из чисел в формате int
-    """
-    out_lst = []  # Создаем список в который будем добавлять только числа
-    for value in lst:  # Перебираем список
-        try:
-            # Обрабатываем случай с нулем, для того чтобы после приведения к питоновскому отсчету от нуля не получилась колонка с номером -1
-            number = int(value)
-            if number != 0:
-                out_lst.append(value)  # Если конвертирования прошло без ошибок то добавляем
-            else:
-                continue
-        except:  # Иначе пропускаем
-            continue
-    return out_lst
-
-
-def select_file_params_comparsion():
-    """
-    Функция для выбора файла с параметрами колонок т.е. кокие колонки нужно обрабатывать
-    :return:
-    """
-    global file_params
-    file_params = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
-
-
-def select_first_comparison():
-    """
-    Функция для выбора  первого файла с данными которые нужно сравнить
-    :return: Путь к файлу с данными
-    """
-    global name_first_file_comparison
-    # Получаем путь к файлу
-    name_first_file_comparison = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
-
-
-def select_second_comparison():
-    """
-    Функция для выбора  второго файла с данными которые нужно сравнить
-    :return: Путь к файлу с данными
-    """
-    global name_second_file_comparison
-    # Получаем путь к файлу
-    name_second_file_comparison = filedialog.askopenfilename(
-        filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
-
-
-def select_end_folder_comparison():
-    """
-    Функция для выбора папки куда будет генерироваться итоговый файл
-    :return:
-    """
-    global path_to_end_folder_comparison
-    path_to_end_folder_comparison = filedialog.askdirectory()
 
 
 def select_end_folder_date():
@@ -1462,263 +1390,61 @@ def groupby_stat():
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
+# Функциия для слияния 2 таблиц
+def select_file_params_comparsion():
+    """
+    Функция для выбора файла с параметрами колонок т.е. кокие колонки нужно обрабатывать
+    :return:
+    """
+    global file_params
+    file_params = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_first_comparison():
+    """
+    Функция для выбора  первого файла с данными которые нужно сравнить
+    :return: Путь к файлу с данными
+    """
+    global name_first_file_comparison
+    # Получаем путь к файлу
+    name_first_file_comparison = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_second_comparison():
+    """
+    Функция для выбора  второго файла с данными которые нужно сравнить
+    :return: Путь к файлу с данными
+    """
+    global name_second_file_comparison
+    # Получаем путь к файлу
+    name_second_file_comparison = filedialog.askopenfilename(
+        filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_end_folder_comparison():
+    """
+    Функция для выбора папки куда будет генерироваться итоговый файл
+    :return:
+    """
+    global path_to_end_folder_comparison
+    path_to_end_folder_comparison = filedialog.askdirectory()
+
 
 def processing_comparison():
     """
-    Функция для сравнения 2 колонок
+    Функция для сравнения,слияния 2 таблиц
     :return:
     """
+    # получаем названия листов
     try:
-        # Получаем значения текстовых полей
-        first_sheet_name = str(entry_first_sheet_name.get())
-        second_sheet_name = str(entry_second_sheet_name.get())
-        # загружаем файлы
-        first_df = pd.read_excel(name_first_file_comparison, sheet_name=first_sheet_name, dtype=str,
-                                 keep_default_na=False)
-        # получаем имя файла
-        name_first_df = name_first_file_comparison.split('/')[-1]
-        name_first_df = name_first_df.split('.xlsx')[0]
+        first_sheet = entry_first_sheet_name.get()
+        second_sheet = entry_second_sheet_name.get()
 
-        second_df = pd.read_excel(name_second_file_comparison, sheet_name=second_sheet_name, dtype=str,
-                                  keep_default_na=False)
-        # получаем имя файла
-        name_second_df = name_second_file_comparison.split('/')[-1]
-        name_second_df = name_second_df.split('.xlsx')[0]
-
-        params = pd.read_excel(file_params, header=None, keep_default_na=False)
-
-        # Преврашаем каждую колонку в список
-        params_first_columns = params[0].tolist()
-        params_second_columns = params[1].tolist()
-
-        # Конвертируем в инт заодно проверяя корректность введенных данных
-        int_params_first_columns = convert_params_columns_to_int(params_first_columns)
-        int_params_second_columns = convert_params_columns_to_int(params_second_columns)
-
-        # Отнимаем 1 от каждого значения чтобы привести к питоновским индексам
-        int_params_first_columns = list(map(lambda x: x - 1, int_params_first_columns))
-        int_params_second_columns = list(map(lambda x: x - 1, int_params_second_columns))
-
-        # Конвертируем нужные нам колонки в str
-        convert_columns_to_str(first_df, int_params_first_columns)
-        convert_columns_to_str(second_df, int_params_second_columns)
-
-        # Проверяем наличие колонок с датами в списке колонок для объединения чтобы привести их в нормальный вид
-        for number_column_params in int_params_first_columns:
-            if 'дата' in first_df.columns[number_column_params].lower():
-                first_df.iloc[:, number_column_params] = pd.to_datetime(first_df.iloc[:, number_column_params],
-                                                                        errors='coerce', dayfirst=True)
-                first_df.iloc[:, number_column_params] = first_df.iloc[:, number_column_params].apply(
-                    create_doc_convert_date)
-
-        for number_column_params in int_params_second_columns:
-            if 'дата' in second_df.columns[number_column_params].lower():
-                second_df.iloc[:, number_column_params] = pd.to_datetime(second_df.iloc[:, number_column_params],
-                                                                         errors='coerce', dayfirst=True)
-                second_df.iloc[:, number_column_params] = second_df.iloc[:, number_column_params].apply(
-                    create_doc_convert_date)
-
-        # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
-        # processing_date_column(first_df, int_params_first_columns)
-        # processing_date_column(second_df, int_params_second_columns)
-
-        # Проверяем наличие колонки _merge
-        if '_merge' in first_df.columns:
-            first_df.drop(columns=['_merge'], inplace=True)
-        if '_merge' in second_df.columns:
-            second_df.drop(columns=['_merge'], inplace=True)
-        # Проверяем наличие колонки ID
-        if 'ID_объединения' in first_df.columns:
-            first_df.drop(columns=['ID_объединения'], inplace=True)
-        if 'ID_объединения' in second_df.columns:
-            second_df.drop(columns=['ID_объединения'], inplace=True)
-
-        # создаем датафреймы из колонок выбранных для объединения, такой способо связан с тем, что
-        # при использовании sum числа в строковом виде превращаются в числа
-        key_first_df = first_df.iloc[:, int_params_first_columns]
-        key_second_df = second_df.iloc[:, int_params_second_columns]
-        # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
-        first_df['ID_объединения'] = key_first_df.apply(lambda x: ''.join(x), axis=1)
-        second_df['ID_объединения'] = key_second_df.apply(lambda x: ''.join(x), axis=1)
-
-        first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
-        second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
-
-        # делаем прописными айди значения по которым будет вестись объединение
-        first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.upper())
-        second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.upper())
-
-        # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
-
-        # Создаем документ
-        wb = openpyxl.Workbook()
-        # создаем листы
-        ren_sheet = wb['Sheet']
-        ren_sheet.title = 'Таблица 1'
-        wb.create_sheet(title='Таблица 2', index=1)
-        wb.create_sheet(title='Совпадающие данные', index=2)
-        wb.create_sheet(title='Обновленная таблица', index=3)
-        wb.create_sheet(title='Объединённая таблица', index=4)
-
-        # Создаем переменные содержащие в себе количество колонок в базовых датареймах
-        first_df_quantity_cols = len(first_df.columns)  # не забываем что там добавилась колонка ID
-
-        # Проводим слияние
-        itog_df = pd.merge(first_df, second_df, how='outer', left_on=['ID_объединения'], right_on=['ID_объединения'],
-                           indicator=True)
-
-        # копируем в отдельный датафрейм для создания таблицы с обновлениями
-        update_df = itog_df.copy()
-
-        # Записываем каждый датафрейм в соответсвующий лист
-        # Левая таблица
-        left_df = itog_df[itog_df['_merge'] == 'left_only']
-        left_df.drop(['_merge'], axis=1, inplace=True)
-
-        # Удаляем колонки второй таблицы чтобы не мешались
-        left_df.drop(left_df.iloc[:, first_df_quantity_cols:], axis=1, inplace=True)
-
-        # Переименовываем колонки у которых были совпадение во второй таблице, в таких колонках есть добавление _x
-        clean_left_columns = list(map(lambda x: x[:-2] if '_x' in x else x, list(left_df.columns)))
-        left_df.columns = clean_left_columns
-        for r in dataframe_to_rows(left_df, index=False, header=True):
-            wb['Таблица 1'].append(r)
-
-        right_df = itog_df[itog_df['_merge'] == 'right_only']
-        right_df.drop(['_merge'], axis=1, inplace=True)
-
-        # Удаляем колонки первой таблицы таблицы чтобы не мешались
-        right_df.drop(right_df.iloc[:, :first_df_quantity_cols - 1], axis=1, inplace=True)
-
-        # Переименовываем колонки у которых были совпадение во второй таблице, в таких колонках есть добавление _x
-        clean_right_columns = list(map(lambda x: x[:-2] if '_y' in x else x, list(right_df.columns)))
-        right_df.columns = clean_right_columns
-
-        for r in dataframe_to_rows(right_df, index=False, header=True):
-            wb['Таблица 2'].append(r)
-
-        both_df = itog_df[itog_df['_merge'] == 'both']
-        both_df.drop(['_merge'], axis=1, inplace=True)
-        # Очищаем от _x  и _y
-        clean_both_columns = clean_ending_columns(list(both_df.columns), name_first_df, name_second_df)
-        both_df.columns = clean_both_columns
-
-        for r in dataframe_to_rows(both_df, index=False, header=True):
-            wb['Совпадающие данные'].append(r)
-
-        # Сохраняем общую таблицу
-        # Заменяем названия индикаторов на более понятные
-        itog_df['_merge'] = itog_df['_merge'].apply(lambda x: 'Данные из первой таблицы' if x == 'left_only' else
-        ('Данные из второй таблицы' if x == 'right_only' else 'Совпадающие данные'))
-        itog_df['_merge'] = itog_df['_merge'].astype(str)
-
-        clean_itog_df = clean_ending_columns(list(itog_df.columns), name_first_df, name_second_df)
-        itog_df.columns = clean_itog_df
-        for r in dataframe_to_rows(itog_df, index=False, header=True):
-            wb['Объединённая таблица'].append(r)
-
-        # получаем список с совпадающими колонками первой таблицы
-        first_df_columns = [column for column in list(update_df.columns) if str(column).endswith('_x')]
-        # получаем список с совпадающими колонками второй таблицы
-        second_df_columns = [column for column in list(update_df.columns) if str(column).endswith('_y')]
-        # Создаем из списка совпадающих колонок второй таблицы словарь, чтобы было легче обрабатывать
-        # да конечно можно было сделать в одном выражении но как я буду читать это через 2 недели?
-        dct_second_columns = {column.split('_y')[0]: column for column in second_df_columns}
-
-        for column in first_df_columns:
-            # очищаем от _x
-            name_column = column.split('_x')[0]
-            # Обновляем значение в случае если в колонке _merge стоит both, иначе оставляем старое значение,
-            # Чтобы обновить значение в ячейке, во второй таблице не должно быть пустого значения или пробела в аналогичной колонке
-
-            update_df[column] = np.where(
-                (update_df['_merge'] == 'both') & (update_df[dct_second_columns[name_column]]) & (
-                        update_df[dct_second_columns[name_column]] != ' '),
-                update_df[dct_second_columns[name_column]], update_df[column])
-
-            # Удаляем колонки с _y
-        update_df.drop(columns=[column for column in update_df.columns if column.endswith('_y')], inplace=True)
-
-        # Переименовываем колонки с _x
-        update_df.columns = list(map(lambda x: x[:-2] if x.endswith('_x') else x, update_df.columns))
-
-        # удаляем строки с _merge == right_only
-        update_df = update_df[update_df['_merge'] != 'right_only']
-
-        # Удаляем служебные колонки
-        update_df.drop(columns=['ID_объединения', '_merge'], inplace=True)
-
-        # используем уже созданный датафрейм right_df Удаляем лишнюю колонку в right_df
-        right_df.drop(columns=['ID_объединения'], inplace=True)
-
-        # Добавляем нехватающие колонки
-        new_right_df = right_df.reindex(columns=update_df.columns, fill_value=None)
-
-        update_df = pd.concat([update_df, new_right_df])
-
-        for r in dataframe_to_rows(update_df, index=False, header=True):
-            wb['Обновленная таблица'].append(r)
-
-        # генерируем текущее время
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_comparison}/Результат слияния 2 таблиц от {current_time}.xlsx')
-        # Сохраняем отдельно обновленную таблицу
-        update_df.to_excel(
-            f'{path_to_end_folder_comparison}/Таблица с обновленными данными и колонками от {current_time}.xlsx',
-            index=False)
-
+        merging_two_tables(file_params,first_sheet,second_sheet,name_first_file_comparison,name_second_file_comparison, path_to_end_folder_comparison)
     except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
-    except KeyError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'В таблице нет такой колонки!\nПроверьте написание названия колонки')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'В таблице нет листа с таким названием!\nПроверьте написание названия листа')
-        logging.exception('AN ERROR HAS OCCURRED')
-
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
-
-
-def clean_ending_columns(lst_columns: list, name_first_df, name_second_df):
-    """
-    Функция для очистки колонок таблицы с совпадающими данными от окончаний _x _y
-
-    :param lst_columns:
-    :param time_generate
-    :param name_first_df
-    :param name_second_df
-    :return:
-    """
-    out_columns = []  # список для очищенных названий
-    for name_column in lst_columns:
-        if '_x' in name_column:
-            # если они есть то проводим очистку и добавление времени
-            cut_name_column = name_column[:-2]  # обрезаем
-            temp_name = f'{cut_name_column}_{name_first_df}'  # соединяем
-            out_columns.append(temp_name)  # добавляем
-        elif '_y' in name_column:
-            cut_name_column = name_column[:-2]  # обрезаем
-            temp_name = f'{cut_name_column}_{name_second_df}'  # соединяем
-            out_columns.append(temp_name)  # добавляем
-        else:
-            out_columns.append(name_column)
-    return out_columns
-
 
 """
 Функции для склонения ФИО по падежам
@@ -1754,24 +1480,6 @@ def process_decl_case():
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
-    except KeyError as e:
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'В таблице не найдена указанная колонка {e.args}')
-    except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'В таблице нет колонки с таким названием!\nПроверьте написание названия колонки')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
-
 
 """
 Нахождения разницы 2 таблиц
