@@ -1,3 +1,8 @@
+"""
+Функции для нахождения разницы 2 таблиц
+"""
+from diff_tables import find_diffrence
+
 import pandas as pd
 import numpy as np
 import os
@@ -23,6 +28,7 @@ import time
 import datetime
 import warnings
 from collections import Counter
+
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
@@ -32,6 +38,7 @@ import locale
 import logging
 import tempfile
 import re
+
 logging.basicConfig(
     level=logging.WARNING,
     filename="error.log",
@@ -41,6 +48,7 @@ logging.basicConfig(
     datefmt='%H:%M:%S',
 )
 
+
 # Классы для исключений
 
 class CheckBoxException(Exception):
@@ -49,11 +57,13 @@ class CheckBoxException(Exception):
     """
     pass
 
+
 class NotFoundValue(Exception):
     """
     Класс для обозначения того что значение не найдено
     """
     pass
+
 
 class ShapeDiffierence(Exception):
     """
@@ -61,11 +71,13 @@ class ShapeDiffierence(Exception):
     """
     pass
 
+
 class ColumnsDifference(Exception):
     """
     Класс для обозначения того что названия колонок не совпадают
     """
     pass
+
 
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -76,10 +88,6 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     return os.path.join(base_path, relative_path)
-
-
-
-
 
 
 def select_file_template_doc():
@@ -143,16 +151,16 @@ def convert_params_columns_to_int(lst):
     Функция для конвератации значений колонок которые нужно обработать.
     Очищает от пустых строк, чтобы в итоге остался список из чисел в формате int
     """
-    out_lst = [] # Создаем список в который будем добавлять только числа
-    for value in lst: # Перебираем список
+    out_lst = []  # Создаем список в который будем добавлять только числа
+    for value in lst:  # Перебираем список
         try:
             # Обрабатываем случай с нулем, для того чтобы после приведения к питоновскому отсчету от нуля не получилась колонка с номером -1
             number = int(value)
             if number != 0:
-                out_lst.append(value) # Если конвертирования прошло без ошибок то добавляем
+                out_lst.append(value)  # Если конвертирования прошло без ошибок то добавляем
             else:
                 continue
-        except: # Иначе пропускаем
+        except:  # Иначе пропускаем
             continue
     return out_lst
 
@@ -390,6 +398,7 @@ def select_folder_data_merger():
     global dir_name
     dir_name = filedialog.askdirectory()
 
+
 def select_params_file_merger():
     """
     Функция для выбора файла c ячейками которые нужно подсчитать
@@ -400,8 +409,8 @@ def select_params_file_merger():
         params_harvest = filedialog.askopenfilename(
             filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
     else:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35','Выберите вариант слияния В и попробуйте снова ')
-
+        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+                             'Выберите вариант слияния В и попробуйте снова ')
 
 
 def select_standard_file_merger():
@@ -493,9 +502,10 @@ def merge_tables():
                                 # если нет то начинаем обрабатывать листы
                                 for name_sheet, df in dct_df.items():
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
-                                                            dtype=str, skiprows=skip_rows,header=None)  # загружаем датафрейм
+                                                            dtype=str, skiprows=skip_rows,
+                                                            header=None)  # загружаем датафрейм
                                     if temp_df.shape[1] > 3:
-                                        temp_df = temp_df.dropna(axis=0,thresh=2)
+                                        temp_df = temp_df.dropna(axis=0, thresh=2)
 
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
                                     temp_df['Откуда взяты данные'] = name_file
@@ -583,7 +593,8 @@ def merge_tables():
                                 for name_sheet, df in dct_df.items():
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}',
                                                             sheet_name=dct_name_sheet[name_sheet],
-                                                            dtype=str, skiprows=skip_rows,header=None)  # загружаем датафрейм
+                                                            dtype=str, skiprows=skip_rows,
+                                                            header=None)  # загружаем датафрейм
                                     if temp_df.shape[1] > 3:
                                         temp_df = temp_df.dropna(axis=0, thresh=2)
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
@@ -668,7 +679,7 @@ def merge_tables():
                                                             dtype=str, header=None)  # загружаем датафрейм
 
                                     if temp_df.shape[1] > 3:
-                                        temp_df = temp_df.dropna(axis=0,thresh=2)
+                                        temp_df = temp_df.dropna(axis=0, thresh=2)
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
                                     temp_df['Откуда взяты данные'] = name_file
                                     for row in dataframe_to_rows(temp_df, index=False, header=False):
@@ -795,10 +806,10 @@ def generate_docs_other():
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
         df = pd.read_excel(name_file_data_doc, dtype=str)
         # Заполняем Nan
-        df.fillna(' ',inplace=True)
+        df.fillna(' ', inplace=True)
         lst_date_columns = []
 
-        for idx,column in enumerate(df.columns):
+        for idx, column in enumerate(df.columns):
             if 'дата' in column.lower():
                 lst_date_columns.append(idx)
 
@@ -806,7 +817,6 @@ def generate_docs_other():
         for i in lst_date_columns:
             df.iloc[:, i] = pd.to_datetime(df.iloc[:, i], errors='coerce', dayfirst=True)
             df.iloc[:, i] = df.iloc[:, i].apply(create_doc_convert_date)
-
 
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
@@ -820,7 +830,7 @@ def generate_docs_other():
         if mode_combine == 'No':
             if mode_group == 'No':
                 # Создаем в цикле документы
-                for idx,row in enumerate(data):
+                for idx, row in enumerate(data):
                     doc = DocxTemplate(name_file_template_doc)
                     context = row
                     # print(context)
@@ -828,14 +838,15 @@ def generate_docs_other():
                     # Сохраняенм файл
                     # получаем название файла и убираем недопустимые символы < > : " /\ | ? *
                     name_file = f'{name_type_file} {row[name_column]}'
-                    name_file = re.sub(r'[<> :"?*|\\/]',' ',name_file)
+                    name_file = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
                     # проверяем файл на наличие, если файл с таким названием уже существует то добавляем окончание
                     if os.path.exists(f'{path_to_end_folder_doc}/{name_file}.docx'):
                         doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
 
                     doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
                     if mode_pdf == 'Yes':
-                        convert(f'{path_to_end_folder_doc}/{name_file}.docx',f'{path_to_end_folder_doc}/{name_file}.pdf',keep_active=True)
+                        convert(f'{path_to_end_folder_doc}/{name_file}.docx',
+                                f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
             else:
                 # Отбираем по значению строку
 
@@ -853,16 +864,18 @@ def generate_docs_other():
                         # Сохраняенм файл
                         doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
                         if mode_pdf == 'Yes':
-                            convert(f'{path_to_end_folder_doc}/{name_file}.docx',f'{path_to_end_folder_doc}/{name_file}.pdf',keep_active=True)
+                            convert(f'{path_to_end_folder_doc}/{name_file}.docx',
+                                    f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
                 elif len(single_data) > 1:
-                    for idx,row in enumerate(single_data):
+                    for idx, row in enumerate(single_data):
                         doc = DocxTemplate(name_file_template_doc)
                         doc.render(row)
                         # Сохраняем файл
 
                         doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
                         if mode_pdf == 'Yes':
-                            convert(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx',f'{path_to_end_folder_doc}/{name_file}_{idx}.pdf',keep_active=True)
+                            convert(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx',
+                                    f'{path_to_end_folder_doc}/{name_file}_{idx}.pdf', keep_active=True)
                 else:
                     raise NotFoundValue
 
@@ -881,7 +894,7 @@ def generate_docs_other():
                         context = row
                         doc.render(context)
                         # Сохраняем файл
-                        #очищаем от запрещенных символов
+                        # очищаем от запрещенных символов
                         name_file = f'{row[name_column]}'
                         name_file = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
 
@@ -976,7 +989,8 @@ def combine_all_docx(filename_master, files_lst):
     # Сохраняем файл
     composer.save(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx")
     if mode_pdf == 'Yes':
-        convert(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx",f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.pdf",keep_active=True)
+        convert(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx",
+                f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.pdf", keep_active=True)
 
 
 def calculate_age(born):
@@ -1030,7 +1044,6 @@ def create_doc_convert_date(cell):
         return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
     except TypeError:
         return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
-
 
 
 def processing_date_column(df, lst_columns):
@@ -1297,7 +1310,7 @@ def groupby_category():
 
         # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
         lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = [k for k,v in Counter(lst_length_column).items() if v>1]
+        check_dupl_length = [k for k, v in Counter(lst_length_column).items() if v > 1]
 
         # проверяем наличие объединенных ячеек
         check_merge = [column for column in df.columns if 'Unnamed' in column]
@@ -1307,7 +1320,7 @@ def groupby_category():
         # очищаем названия колонок от символов */\ []''
         # Создаем регулярное выражение
         pattern_symbols = re.compile(r"[/*'\[\]/\\]")
-        clean_df_columns = [re.sub(pattern_symbols,'',column) for column in df.columns]
+        clean_df_columns = [re.sub(pattern_symbols, '', column) for column in df.columns]
         df.columns = clean_df_columns
 
         # Добавляем столбец для облегчения подсчета по категориям
@@ -1374,7 +1387,7 @@ def groupby_stat():
 
         # Проверяем наличие возможных дубликатов ,котороые могут получиться если обрезать по 30 символов
         lst_length_column = [column[:30] for column in df.columns]
-        check_dupl_length = [k for k,v in Counter(lst_length_column).items() if v>1]
+        check_dupl_length = [k for k, v in Counter(lst_length_column).items() if v > 1]
 
         # проверяем наличие объединенных ячеек
         check_merge = [column for column in df.columns if 'Unnamed' in column]
@@ -1385,9 +1398,8 @@ def groupby_stat():
         # очищаем названия колонок от символов */\ []''
         # Создаем регулярное выражение
         pattern_symbols = re.compile(r"[/*'\[\]/\\]")
-        clean_df_columns = [re.sub(pattern_symbols,'',column) for column in df.columns]
+        clean_df_columns = [re.sub(pattern_symbols, '', column) for column in df.columns]
         df.columns = clean_df_columns
-
 
         # Добавляем столбец для облегчения подсчета по категориям
         df['Итого'] = 1
@@ -1490,8 +1502,6 @@ def processing_comparison():
         convert_columns_to_str(first_df, int_params_first_columns)
         convert_columns_to_str(second_df, int_params_second_columns)
 
-
-
         # Проверяем наличие колонок с датами в списке колонок для объединения чтобы привести их в нормальный вид
         for number_column_params in int_params_first_columns:
             if 'дата' in first_df.columns[number_column_params].lower():
@@ -1524,12 +1534,11 @@ def processing_comparison():
 
         # создаем датафреймы из колонок выбранных для объединения, такой способо связан с тем, что
         # при использовании sum числа в строковом виде превращаются в числа
-        key_first_df = first_df.iloc[:,int_params_first_columns]
-        key_second_df = second_df.iloc[:,int_params_second_columns]
+        key_first_df = first_df.iloc[:, int_params_first_columns]
+        key_second_df = second_df.iloc[:, int_params_second_columns]
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
-        first_df['ID_объединения'] = key_first_df.apply(lambda x:''.join(x),axis=1)
+        first_df['ID_объединения'] = key_first_df.apply(lambda x: ''.join(x), axis=1)
         second_df['ID_объединения'] = key_second_df.apply(lambda x: ''.join(x), axis=1)
-
 
         first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
         second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.replace(' ', ''))
@@ -1549,7 +1558,6 @@ def processing_comparison():
         wb.create_sheet(title='Совпадающие данные', index=2)
         wb.create_sheet(title='Обновленная таблица', index=3)
         wb.create_sheet(title='Объединённая таблица', index=4)
-
 
         # Создаем переменные содержащие в себе количество колонок в базовых датареймах
         first_df_quantity_cols = len(first_df.columns)  # не забываем что там добавилась колонка ID
@@ -1624,7 +1632,7 @@ def processing_comparison():
 
             update_df[column] = np.where(
                 (update_df['_merge'] == 'both') & (update_df[dct_second_columns[name_column]]) & (
-                            update_df[dct_second_columns[name_column]] != ' '),
+                        update_df[dct_second_columns[name_column]] != ' '),
                 update_df[dct_second_columns[name_column]], update_df[column])
 
             # Удаляем колонки с _y
@@ -1684,7 +1692,8 @@ def processing_comparison():
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
-def clean_ending_columns(lst_columns:list,name_first_df,name_second_df):
+
+def clean_ending_columns(lst_columns: list, name_first_df, name_second_df):
     """
     Функция для очистки колонок таблицы с совпадающими данными от окончаний _x _y
 
@@ -1694,13 +1703,13 @@ def clean_ending_columns(lst_columns:list,name_first_df,name_second_df):
     :param name_second_df
     :return:
     """
-    out_columns = [] # список для очищенных названий
+    out_columns = []  # список для очищенных названий
     for name_column in lst_columns:
         if '_x' in name_column:
             # если они есть то проводим очистку и добавление времени
-            cut_name_column = name_column[:-2] # обрезаем
-            temp_name = f'{cut_name_column}_{name_first_df}' # соединяем
-            out_columns.append(temp_name) # добавляем
+            cut_name_column = name_column[:-2]  # обрезаем
+            temp_name = f'{cut_name_column}_{name_first_df}'  # соединяем
+            out_columns.append(temp_name)  # добавляем
         elif '_y' in name_column:
             cut_name_column = name_column[:-2]  # обрезаем
             temp_name = f'{cut_name_column}_{name_second_df}'  # соединяем
@@ -1713,6 +1722,8 @@ def clean_ending_columns(lst_columns:list,name_first_df,name_second_df):
 """
 Функции для склонения ФИО по падежам
 """
+
+
 def select_data_decl_case():
     """
     Функция для файла с данными
@@ -1721,6 +1732,7 @@ def select_data_decl_case():
     global data_decl_case
     # Получаем путь к файлу
     data_decl_case = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
 
 def select_end_folder_decl_case():
     """
@@ -1808,12 +1820,13 @@ def decl_on_case(fio: str, case: Case) -> str:
     else:
         return 'Проверьте количество слов, должно быть 3 разделенных пробелами слова'
 
-def create_initials(cell,checkbox,space):
+
+def create_initials(cell, checkbox, space):
     """
     Функция для создания инициалов
     """
-    lst_fio = cell.split(' ') # сплитим по пробелу
-    if len(lst_fio) == 3: # проверяем на стандартный размер в 3 слова иначе ничего не меняем
+    lst_fio = cell.split(' ')  # сплитим по пробелу
+    if len(lst_fio) == 3:  # проверяем на стандартный размер в 3 слова иначе ничего не меняем
         if checkbox == 'ФИ':
             if space == 'без пробела':
                 # возвращаем строку вида Иванов И.И.
@@ -1834,6 +1847,7 @@ def create_initials(cell,checkbox,space):
 
     else:
         return cell
+
 
 def process_decl_case():
     """
@@ -1862,39 +1876,59 @@ def process_decl_case():
         temp_df['Винительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.ACCUSATIVE))
         temp_df['Творительный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.INSTRUMENTAL))
         temp_df['Предложный_падеж'] = df[fio_column].apply(lambda x: decl_on_case(x, Case.PREPOSITIONAL))
-        temp_df['Фамилия_инициалы'] = df[fio_column].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Инициалы_фамилия'] = df[fio_column].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Фамилия_инициалы_пробел'] = df[fio_column].apply(lambda x: create_initials(x,'ФИ','пробел'))
-        temp_df['Инициалы_фамилия_пробел'] = df[fio_column].apply(lambda x: create_initials(x,'ИФ','пробел'))
+        temp_df['Фамилия_инициалы'] = df[fio_column].apply(lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Инициалы_фамилия'] = df[fio_column].apply(lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Фамилия_инициалы_пробел'] = df[fio_column].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_пробел'] = df[fio_column].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Создаем колонки для склонения фамилий с иницалами родительный падеж
-        temp_df['Фамилия_инициалы_род_падеж'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Фамилия_инициалы_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
-        temp_df['Инициалы_фамилия_род_падеж'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Инициалы_фамилия_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        temp_df['Фамилия_инициалы_род_падеж'] = temp_df['Родительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Фамилия_инициалы_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_род_падеж'] = temp_df['Родительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Инициалы_фамилия_род_падеж_пробел'] = temp_df['Родительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Создаем колонки для склонения фамилий с иницалами дательный падеж
-        temp_df['Фамилия_инициалы_дат_падеж'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Фамилия_инициалы_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
-        temp_df['Инициалы_фамилия_дат_падеж'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Инициалы_фамилия_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        temp_df['Фамилия_инициалы_дат_падеж'] = temp_df['Дательный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Фамилия_инициалы_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_дат_падеж'] = temp_df['Дательный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Инициалы_фамилия_дат_падеж_пробел'] = temp_df['Дательный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Создаем колонки для склонения фамилий с иницалами винительный падеж
-        temp_df['Фамилия_инициалы_вин_падеж'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Фамилия_инициалы_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
-        temp_df['Инициалы_фамилия_вин_падеж'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Инициалы_фамилия_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        temp_df['Фамилия_инициалы_вин_падеж'] = temp_df['Винительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Фамилия_инициалы_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_вин_падеж'] = temp_df['Винительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Инициалы_фамилия_вин_падеж_пробел'] = temp_df['Винительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Создаем колонки для склонения фамилий с иницалами творительный падеж
-        temp_df['Фамилия_инициалы_твор_падеж'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Фамилия_инициалы_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
-        temp_df['Инициалы_фамилия_твор_падеж'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Инициалы_фамилия_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        temp_df['Фамилия_инициалы_твор_падеж'] = temp_df['Творительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Фамилия_инициалы_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_твор_падеж'] = temp_df['Творительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Инициалы_фамилия_твор_падеж_пробел'] = temp_df['Творительный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'пробел'))
         # Создаем колонки для склонения фамилий с иницалами предложный падеж
-        temp_df['Фамилия_инициалы_пред_падеж'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x,'ФИ','без пробела'))
-        temp_df['Фамилия_инициалы_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x, 'ФИ', 'пробел'))
-        temp_df['Инициалы_фамилия_пред_падеж'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x,'ИФ','без пробела'))
-        temp_df['Инициалы_фамилия_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(lambda x: create_initials(x, 'ИФ', 'пробел'))
+        temp_df['Фамилия_инициалы_пред_падеж'] = temp_df['Предложный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'без пробела'))
+        temp_df['Фамилия_инициалы_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(
+            lambda x: create_initials(x, 'ФИ', 'пробел'))
+        temp_df['Инициалы_фамилия_пред_падеж'] = temp_df['Предложный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'без пробела'))
+        temp_df['Инициалы_фамилия_пред_падеж_пробел'] = temp_df['Предложный_падеж'].apply(
+            lambda x: create_initials(x, 'ИФ', 'пробел'))
 
         # Вставляем получившиеся колонки после базовой колонки с фио
         df.insert(index_fio_column + 1, 'Родительный_падеж', temp_df['Родительный_падеж'])
@@ -1908,31 +1942,39 @@ def process_decl_case():
         df.insert(index_fio_column + 9, 'Инициалы_фамилия_пробел', temp_df['Инициалы_фамилия_пробел'])
         # Добавляем колонки с склонениями инициалов родительный падеж
         df.insert(index_fio_column + 10, 'Фамилия_инициалы_род_падеж', temp_df['Фамилия_инициалы_род_падеж'])
-        df.insert(index_fio_column + 11, 'Фамилия_инициалы_род_падеж_пробел', temp_df['Фамилия_инициалы_род_падеж_пробел'])
+        df.insert(index_fio_column + 11, 'Фамилия_инициалы_род_падеж_пробел',
+                  temp_df['Фамилия_инициалы_род_падеж_пробел'])
         df.insert(index_fio_column + 12, 'Инициалы_фамилия_род_падеж', temp_df['Инициалы_фамилия_род_падеж'])
-        df.insert(index_fio_column + 13, 'Инициалы_фамилия_род_падеж_пробел', temp_df['Инициалы_фамилия_род_падеж_пробел'])
+        df.insert(index_fio_column + 13, 'Инициалы_фамилия_род_падеж_пробел',
+                  temp_df['Инициалы_фамилия_род_падеж_пробел'])
         # Добавляем колонки с склонениями инициалов дательный падеж
         df.insert(index_fio_column + 14, 'Фамилия_инициалы_дат_падеж', temp_df['Фамилия_инициалы_дат_падеж'])
-        df.insert(index_fio_column + 15, 'Фамилия_инициалы_дат_падеж_пробел', temp_df['Фамилия_инициалы_дат_падеж_пробел'])
+        df.insert(index_fio_column + 15, 'Фамилия_инициалы_дат_падеж_пробел',
+                  temp_df['Фамилия_инициалы_дат_падеж_пробел'])
         df.insert(index_fio_column + 16, 'Инициалы_фамилия_дат_падеж', temp_df['Инициалы_фамилия_дат_падеж'])
-        df.insert(index_fio_column + 17, 'Инициалы_фамилия_дат_падеж_пробел', temp_df['Инициалы_фамилия_дат_падеж_пробел'])
+        df.insert(index_fio_column + 17, 'Инициалы_фамилия_дат_падеж_пробел',
+                  temp_df['Инициалы_фамилия_дат_падеж_пробел'])
         # Добавляем колонки с склонениями инициалов винительный падеж
         df.insert(index_fio_column + 18, 'Фамилия_инициалы_вин_падеж', temp_df['Фамилия_инициалы_вин_падеж'])
-        df.insert(index_fio_column + 19, 'Фамилия_инициалы_вин_падеж_пробел', temp_df['Фамилия_инициалы_вин_падеж_пробел'])
+        df.insert(index_fio_column + 19, 'Фамилия_инициалы_вин_падеж_пробел',
+                  temp_df['Фамилия_инициалы_вин_падеж_пробел'])
         df.insert(index_fio_column + 20, 'Инициалы_фамилия_вин_падеж', temp_df['Инициалы_фамилия_вин_падеж'])
-        df.insert(index_fio_column + 21, 'Инициалы_фамилия_вин_падеж_пробел', temp_df['Инициалы_фамилия_вин_падеж_пробел'])
+        df.insert(index_fio_column + 21, 'Инициалы_фамилия_вин_падеж_пробел',
+                  temp_df['Инициалы_фамилия_вин_падеж_пробел'])
         # Добавляем колонки с склонениями инициалов творительный падеж
         df.insert(index_fio_column + 22, 'Фамилия_инициалы_твор_падеж', temp_df['Фамилия_инициалы_твор_падеж'])
-        df.insert(index_fio_column + 23, 'Фамилия_инициалы_твор_падеж_пробел', temp_df['Фамилия_инициалы_твор_падеж_пробел'])
+        df.insert(index_fio_column + 23, 'Фамилия_инициалы_твор_падеж_пробел',
+                  temp_df['Фамилия_инициалы_твор_падеж_пробел'])
         df.insert(index_fio_column + 24, 'Инициалы_фамилия_твор_падеж', temp_df['Инициалы_фамилия_твор_падеж'])
-        df.insert(index_fio_column + 25, 'Инициалы_фамилия_твор_падеж_пробел', temp_df['Инициалы_фамилия_твор_падеж_пробел'])
+        df.insert(index_fio_column + 25, 'Инициалы_фамилия_твор_падеж_пробел',
+                  temp_df['Инициалы_фамилия_твор_падеж_пробел'])
         # Добавляем колонки с склонениями инициалов предложный падеж
         df.insert(index_fio_column + 26, 'Фамилия_инициалы_пред_падеж', temp_df['Фамилия_инициалы_пред_падеж'])
-        df.insert(index_fio_column + 27, 'Фамилия_инициалы_пред_падеж_пробел', temp_df['Фамилия_инициалы_пред_падеж_пробел'])
+        df.insert(index_fio_column + 27, 'Фамилия_инициалы_пред_падеж_пробел',
+                  temp_df['Фамилия_инициалы_пред_падеж_пробел'])
         df.insert(index_fio_column + 28, 'Инициалы_фамилия_пред_падеж', temp_df['Инициалы_фамилия_пред_падеж'])
-        df.insert(index_fio_column + 29, 'Инициалы_фамилия_пред_падеж_пробел', temp_df['Инициалы_фамилия_пред_падеж_пробел'])
-
-
+        df.insert(index_fio_column + 29, 'Инициалы_фамилия_пред_падеж_пробел',
+                  temp_df['Инициалы_фамилия_пред_падеж_пробел'])
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
@@ -1959,9 +2001,13 @@ def process_decl_case():
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Данные успешно обработаны')
 
+
 """
-Функции для нахождения разницы между 2 таблицами
+Нахождения разницы 2 таблиц
+Функции  получения параметров для find_diffrenece 
 """
+
+
 def select_first_diffrence():
     """
     Функция для файла с данными
@@ -1970,6 +2016,7 @@ def select_first_diffrence():
     global data_first_diffrence
     # Получаем путь к файлу
     data_first_diffrence = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
 
 def select_second_diffrence():
     """
@@ -1990,144 +2037,22 @@ def select_end_folder_diffrence():
     path_to_end_folder_diffrence = filedialog.askdirectory()
 
 
-def abs_diff(first_value, second_value):
-    """
-    Функция для подсчета абсолютной разницы между 2 значениями
-    """
-    try:
-        return abs(float(first_value) - float(second_value))
-    except:
-        return None
-
-
-def percent_diff(first_value, second_value):
-    """
-    функция для подсчета относительной разницы значений
-    """
-    try:
-        # округляем до трех
-        value = round(float(second_value) / float(first_value), 4) * 100
-        return value
-    except:
-        return None
-
-
-def change_perc_diff(first_value, second_value):
-    """
-    функция для подсчета процентного ихменения значений
-    """
-    try:
-        value = (float(second_value) - float(first_value)) / float(first_value)
-        return round(value, 4) * 100
-    except:
-        return None
-
-
 def processing_diffrence():
     """
-    Функция для вычисления разницы между двумя таблицами
+    Функция для получения названий листов и путей к файлам которые нужно сравнить
+    :return:
     """
-    # загружаем датафреймы
-    try:
-        dif_first_sheet_name = entry_first_sheet_name_diffrence.get()
-        dif_second_sheet_name = entry_second_sheet_name_diffrence.get()
-
-        df1 = pd.read_excel(data_first_diffrence,sheet_name=dif_first_sheet_name,dtype=str)
-        df2 = pd.read_excel(data_second_diffrence,sheet_name=dif_second_sheet_name,dtype=str)
-
-        # проверяем на соответсвие размеров
-        if df1.shape != df2.shape:
-            raise ShapeDiffierence
-
-        # Проверям на соответсвие колонок
-        if list(df1.columns) != list(df2.columns):
-            diff_columns = set(df1.columns).difference(set(df2.columns)) # получаем отличающиеся элементы
-            raise ColumnsDifference
-
-        df_cols = df1.compare(df2,result_names=('Первая таблица','Вторая таблица')) # датафрейм с разницей по колонкам
-        df_cols.index = list(map(lambda x: x + 2, df_cols.index)) # добавляем к индексу +2 чтобы соответствовать нумерации в экселе
-        df_cols.index.name = '№ строки' # переименовываем индекс
-
-        df_rows = df1.compare(df2, align_axis=0, result_names=('Первая таблица', 'Вторая таблица')) # датафрейм с разницей по строкам
-        lst_mul_ind = list(map(lambda x: (x[0] + 2, x[1]), df_rows.index)) # добавляем к индексу +2 чтобы соответствовать нумерации в экселе
-        index = pd.MultiIndex.from_tuples(lst_mul_ind, names=['№ строки', 'Таблица']) # создаем мультиндекс
-        df_rows.index = index
-
-        # Создаем датафрейм с подсчетом разниц
-        df_diff_cols = df_cols.copy()
-
-        # получаем список колонок первого уровня
-        temp_first_level_column = list(map(lambda x: x[0], df_diff_cols.columns))
-        first_level_column = []
-        [first_level_column.append(value) for value in temp_first_level_column if value not in first_level_column]
-
-        # Добавляем колонки с абсолютной и относительной разницей
-        count_columns = 2
-        for name_column in first_level_column:
-            # высчитываем абсолютную разницу
-            df_diff_cols.insert(count_columns, (name_column, 'Разница между первым и вторым значением'),
-                                df_diff_cols.apply(lambda x: abs_diff(x[name_column]['Первая таблица'],
-                                                                      x[name_column]['Вторая таблица']), axis=1))
-
-
-            # высчитываем отношение второго значения от первого
-            df_diff_cols.insert(count_columns + 1, (name_column, '% второго от первого значения'),
-                                df_diff_cols.apply(lambda x: percent_diff(x[name_column]['Первая таблица'],
-                                                                          x[name_column]['Вторая таблица']), axis=1))
-
-            # высчитываем процентное изменение
-            df_diff_cols.insert(count_columns + 2, (name_column, 'Изменение в процентах'),
-                                df_diff_cols.apply(lambda x: change_perc_diff(x[name_column]['Первая таблица'],
-                                                                              x[name_column]['Вторая таблица']),
-                                                   axis=1))
-
-            count_columns += 5
-
-        # записываем
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
-        # делаем так чтобы записать на разные листы
-        with pd.ExcelWriter(f'{path_to_end_folder_diffrence}/Разница между 2 таблицами {current_time}.xlsx') as writer:
-            df_cols.to_excel(writer,sheet_name='По колонкам')
-            df_rows.to_excel(writer,sheet_name='По строкам')
-            df_diff_cols.to_excel(writer,sheet_name='Значение разницы')
-    except ShapeDiffierence:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Не совпадают размеры таблиц, В первой таблице {df1.shape[0]}-стр. и {df1.shape[1]}-кол.\n'
-                             f'Во второй таблице {df2.shape[0]}-стр. и {df2.shape[1]}-кол.')
-
-    except ColumnsDifference:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Названия колонок в сравниваемых таблицах отличаются\n'
-                             f'Колонок:{diff_columns}  нет во второй таблице !!!\n'
-                             f'Сделайте названия колонок одинаковыми.')
-
-    except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'В файлах нет листа с таким названием!\n'
-                             f'Проверьте написание названия листа')
-        logging.exception('AN ERROR HAS OCCURRED')
-    except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
-    # except:
-    #     logging.exception('AN ERROR HAS OCCURRED')
-    #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
-    else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Таблицы успешно обработаны')
-
-
-
+    # названия листов в таблицах
+    first_sheet = entry_first_sheet_name_diffrence.get()
+    second_sheet = entry_second_sheet_name_diffrence.get()
+    # находим разницу
+    find_diffrence(first_sheet, second_sheet, data_first_diffrence, data_second_diffrence, path_to_end_folder_diffrence)
 
 """
 Функции для создания контекстного меню(Копировать,вставить,вырезать)
 """
+
+
 def make_textmenu(root):
     """
     Функции для контекстного меню( вырезать,копировать,вставить)
@@ -2142,6 +2067,7 @@ def make_textmenu(root):
     the_menu.add_separator()
     the_menu.add_command(label="Выбрать все")
 
+
 def callback_select_all(event):
     """
     Функции для контекстного меню( вырезать,копировать,вставить)
@@ -2149,6 +2075,7 @@ def callback_select_all(event):
     """
     # select text after 50ms
     window.after(50, lambda: event.widget.select_range(0, 'end'))
+
 
 def show_textmenu(event):
     """
@@ -2161,7 +2088,6 @@ def show_textmenu(event):
     the_menu.entryconfigure("Вставить", command=lambda: e_widget.event_generate("<<Paste>>"))
     the_menu.entryconfigure("Выбрать все", command=lambda: e_widget.select_range(0, 'end'))
     the_menu.tk.call("tk_popup", the_menu, event.x_root, event.y_root)
-
 
 
 if __name__ == '__main__':
@@ -2273,7 +2199,6 @@ if __name__ == '__main__':
                                  onvalue='Yes')
     chbox_mode_pdf.grid(column=0, row=12, padx=1, pady=1)
 
-
     # создаем чекбокс для единичного документа
 
     # Создаем переменную для хранения результа переключения чекбокса
@@ -2283,16 +2208,17 @@ if __name__ == '__main__':
     mode_group_doc.set('No')
     # Создаем чекбокс для выбора режима подсчета
     chbox_mode_group = Checkbutton(frame_data_for_options,
-                                       text='Поставьте галочку, если вам нужно создать один документ\nдля конкретного значения (например для определенного ФИО)',
-                                       variable=mode_group_doc,
-                                       offvalue='No',
-                                       onvalue='Yes')
+                                   text='Поставьте галочку, если вам нужно создать один документ\nдля конкретного значения (например для определенного ФИО)',
+                                   variable=mode_group_doc,
+                                   offvalue='No',
+                                   onvalue='Yes')
     chbox_mode_group.grid(column=0, row=13, padx=1, pady=1)
     # Создаем поле для ввода значения по которому будет создаваться единичный документ
     # Определяем текстовую переменную
     entry_value_column = StringVar()
     # Описание поля
-    label_name_column_group = Label(frame_data_for_options, text='Введите значение из колонки\nуказанной на шаге 3 для которого нужно создать один документ,\nнапример конкретное ФИО')
+    label_name_column_group = Label(frame_data_for_options,
+                                    text='Введите значение из колонки\nуказанной на шаге 3 для которого нужно создать один документ,\nнапример конкретное ФИО')
     label_name_column_group.grid(column=0, row=14, padx=1, pady=1)
     # поле ввода
     type_file_group_entry = Entry(frame_data_for_options, textvariable=entry_value_column, width=30)
@@ -2395,7 +2321,7 @@ if __name__ == '__main__':
                                            )
     btn_choose_end_folder_groupby.grid(column=0, row=4, padx=10, pady=10)
 
-       # Создаем кнопки подсчета
+    # Создаем кнопки подсчета
 
     btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество по категориям\nдля всех колонок',
                                   font=('Arial Bold', 20),
@@ -2571,15 +2497,18 @@ if __name__ == '__main__':
     frame_rb_type_harvest = LabelFrame(tab_merger_tables, text='1) Выберите вариант слияния')
     frame_rb_type_harvest.grid(column=0, row=1, padx=10)
     #
-    Radiobutton(frame_rb_type_harvest, text='А) Простое слияние по названию листов', variable=group_rb_type_harvest, value=0).pack()
-    Radiobutton(frame_rb_type_harvest, text='Б) Слияние по порядку листов', variable=group_rb_type_harvest, value=1).pack()
-    Radiobutton(frame_rb_type_harvest, text='В) Сложное слияние по названию листов', variable=group_rb_type_harvest, value=2).pack()
+    Radiobutton(frame_rb_type_harvest, text='А) Простое слияние по названию листов', variable=group_rb_type_harvest,
+                value=0).pack()
+    Radiobutton(frame_rb_type_harvest, text='Б) Слияние по порядку листов', variable=group_rb_type_harvest,
+                value=1).pack()
+    Radiobutton(frame_rb_type_harvest, text='В) Сложное слияние по названию листов', variable=group_rb_type_harvest,
+                value=2).pack()
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
     frame_data_for_merger = LabelFrame(tab_merger_tables, text='Подготовка')
     frame_data_for_merger.grid(column=0, row=2, padx=10)
 
-    #Создаем кнопку Выбрать папку с данными
+    # Создаем кнопку Выбрать папку с данными
 
     btn_data_merger = Button(frame_data_for_merger, text='2) Выберите папку с данными', font=('Arial Bold', 14),
                              command=select_folder_data_merger
@@ -2598,7 +2527,6 @@ if __name__ == '__main__':
                                           )
     btn_choose_end_folder_merger.grid(column=0, row=5, padx=5, pady=5)
 
-
     # Определяем переменную в которой будем хранить количество пропускаемых строк
     merger_entry_skip_rows = StringVar()
     # Описание поля
@@ -2613,15 +2541,14 @@ if __name__ == '__main__':
     # Создаем кнопку выбора файла с параметрами
     btn_params_merger = Button(frame_data_for_merger, text='Выберите файл с параметрами слияния\n'
                                                            'ТОЛЬКО для варианта В', font=('Arial Bold', 14),
-                                command=select_params_file_merger)
+                               command=select_params_file_merger)
     btn_params_merger.grid(column=0, row=10, padx=5, pady=5)
-     # Создаем кнопку слияния
+    # Создаем кнопку слияния
 
     btn_merger_process = Button(tab_merger_tables, text='6) Произвести слияние \nфайлов',
                                 font=('Arial Bold', 20),
                                 command=merge_tables)
     btn_merger_process.grid(column=0, row=11, padx=10, pady=10)
-
 
     """
     Создание вкладки для склонения ФИО по падежам
@@ -2650,7 +2577,7 @@ if __name__ == '__main__':
     frame_data_for_decl_case = LabelFrame(tab_decl_by_cases, text='Подготовка')
     frame_data_for_decl_case.grid(column=0, row=2, padx=10)
 
-   # выбрать файл с данными
+    # выбрать файл с данными
     btn_data_decl_case = Button(frame_data_for_decl_case, text='1) Выберите файл с данными', font=('Arial Bold', 20),
                                 command=select_data_decl_case)
     btn_data_decl_case.grid(column=0, row=3, padx=10, pady=10)
@@ -2660,25 +2587,24 @@ if __name__ == '__main__':
     decl_case_fio_col = StringVar()
     # Описание поля ввода
     decl_case_label_fio = Label(frame_data_for_decl_case,
-                                    text='2) Введите название колонки\n с ФИО в им.падеже')
+                                text='2) Введите название колонки\n с ФИО в им.падеже')
     decl_case_label_fio.grid(column=0, row=4, padx=10, pady=10)
     # поле ввода
     decl_case_entry_fio = Entry(frame_data_for_decl_case, textvariable=decl_case_fio_col, width=25)
     decl_case_entry_fio.grid(column=0, row=5, padx=5, pady=5, ipadx=10, ipady=7)
     #
     btn_choose_end_folder_decl_case = Button(frame_data_for_decl_case, text='3) Выберите конечную папку',
-                                          font=('Arial Bold', 20),
-                                          command=select_end_folder_decl_case
-                                          )
+                                             font=('Arial Bold', 20),
+                                             command=select_end_folder_decl_case
+                                             )
     btn_choose_end_folder_decl_case.grid(column=0, row=6, padx=10, pady=10)
 
     # Создаем кнопку склонения по падежам
 
     btn_decl_case_process = Button(tab_decl_by_cases, text='4) Произвести склонение \nпо падежам',
-                                font=('Arial Bold', 20),
-                                command=process_decl_case)
+                                   font=('Arial Bold', 20),
+                                   command=process_decl_case)
     btn_decl_case_process.grid(column=0, row=7, padx=10, pady=10)
-
 
     """
     Разница двух таблиц
@@ -2718,10 +2644,11 @@ if __name__ == '__main__':
     entry_first_sheet_name_diffrence = StringVar()
     # Описание поля
     label_first_sheet_name_diffrence = Label(frame_data_for_diffrence,
-                                   text='2) Введите название листа, где находится первая таблица')
+                                             text='2) Введите название листа, где находится первая таблица')
     label_first_sheet_name_diffrence.grid(column=0, row=4, padx=10, pady=10)
     # поле ввода имени листа
-    first_sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_first_sheet_name_diffrence, width=30)
+    first_sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_first_sheet_name_diffrence,
+                                             width=30)
     first_sheet_name_entry_diffrence.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
 
     # Создаем кнопку Выбрать  второй файл с данными
@@ -2735,10 +2662,11 @@ if __name__ == '__main__':
     entry_second_sheet_name_diffrence = StringVar()
     # Описание поля
     label_second_sheet_name_diffrence = Label(frame_data_for_diffrence,
-                                    text='4) Введите название листа, где находится вторая таблица')
+                                              text='4) Введите название листа, где находится вторая таблица')
     label_second_sheet_name_diffrence.grid(column=0, row=7, padx=10, pady=10)
     # поле ввода
-    second__sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_second_sheet_name_diffrence, width=30)
+    second__sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_second_sheet_name_diffrence,
+                                               width=30)
     second__sheet_name_entry_diffrence.grid(column=0, row=8, padx=5, pady=5, ipadx=15, ipady=10)
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
