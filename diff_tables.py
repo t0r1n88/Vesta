@@ -175,32 +175,28 @@ def find_diffrence(first_sheet, second_sheet, first_df, second_df,path_to_end_fo
             df_rows.to_excel(writer, sheet_name='По строкам')
             df_diff_cols.to_excel(writer, sheet_name='Значение разницы')
     except ShapeDiffierence:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Не совпадают размеры таблиц, В первой таблице {df1.shape[0]}-стр. и {df1.shape[1]}-кол.\n'
                              f'Во второй таблице {df2.shape[0]}-стр. и {df2.shape[1]}-кол.')
 
     except ColumnsDifference:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Названия колонок в сравниваемых таблицах отличаются\n'
                              f'Колонок:{diff_columns}  нет во второй таблице !!!\n'
                              f'Сделайте названия колонок одинаковыми.')
 
-    except NameError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
-        logging.exception('AN ERROR HAS OCCURRED')
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'В файлах нет листа с таким названием!\n'
                              f'Проверьте написание названия листа')
         logging.exception('AN ERROR HAS OCCURRED')
     except FileNotFoundError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам')
-    # except:
-    #     logging.exception('AN ERROR HAS OCCURRED')
-    #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    except:
+        logging.exception('AN ERROR HAS OCCURRED')
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
-        messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35', 'Таблицы успешно обработаны')
+        messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Таблицы успешно обработаны')
