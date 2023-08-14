@@ -73,15 +73,12 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
     :return:
     """
     try:
-        # делаем глобальным значение даты.Дада я знаю что это костыль
 
         # Считываем файл
         df = pd.read_excel(name_file_data_date)
         # Конвертируем его в формат даты
         # В случае ошибок заменяем значение NaN
         df[name_column] = pd.to_datetime(df[name_column], dayfirst=True, errors='coerce')
-        # Создаем шрифт которым будем выделять названия таблиц
-        font_name_table = Font(name='Arial Black', size=15, italic=True)
 
         # Создаем файл excel
         wb = openpyxl.Workbook()
