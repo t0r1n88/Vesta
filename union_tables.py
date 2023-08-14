@@ -2,41 +2,18 @@
 Функция для объединения нескольких таблиц в одну
 """
 import pandas as pd
-import numpy as np
 import os
-from dateutil.parser import ParserError
-from docxtpl import DocxTemplate
-from docxcompose.composer import Composer
-from docx import Document
-from docx2pdf import convert
-from tkinter import *
-from tkinter import filedialog
 from tkinter import messagebox
-from tkinter import ttk
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font
-from openpyxl.styles import Alignment
 from openpyxl import load_workbook
-import pytrovich
-from pytrovich.detector import PetrovichGenderDetector
-from pytrovich.enums import NamePart, Gender, Case
-from pytrovich.maker import PetrovichDeclinationMaker
 import time
-import datetime
 import warnings
-from collections import Counter
-
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
-import sys
-import locale
 import logging
-import tempfile
-import re
-
 logging.basicConfig(
     level=logging.WARNING,
     filename="error.log",
