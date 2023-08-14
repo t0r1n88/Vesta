@@ -52,7 +52,7 @@ class NotParamsHarvest(BaseException):
     """
     pass
 
-def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,dir_name,path_to_end_folder_merger,params_harvest=None):
+def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,dir_name,path_to_end_folder_merger,params_harvest):
     """
     Функция для слияния таблиц с одинаковой структурой в одну большую таблицу
     """
@@ -61,7 +61,7 @@ def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,di
         if checkbox_harvest != 2:
             skip_rows = int(merger_entry_skip_rows)
     except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
                              'Введите целое число в поле для ввода количества пропускаемых строк!!!')
     else:
         # Оборачиваем в try
@@ -255,8 +255,6 @@ def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,di
 
             # Если выбран управляемый сбор данных
             elif checkbox_harvest == 2:
-                if not params_harvest:
-                    raise NotParamsHarvest
                 df_params = pd.read_excel(params_harvest, header=None)  # загружаем параметры
                 df_params[0] = df_params[0].astype(
                     str)  # делаем данные строковыми чтобы корректно работало обращение по названию листов
@@ -338,24 +336,24 @@ def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,di
                 err_out_wb.save(f'{path_to_end_folder_merger}/Слияние по варианту В Ошибки от {current_time}.xlsx')
 
         except NameError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
                                  f'Выберите папку с файлами,эталонный файл и папку куда будут генерироваться файлы')
         except PermissionError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
                                  f'Закройте файл выбранный эталонным или файлы из обрабатываемой папки')
         except NotParamsHarvest:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
                                  f'Выберите файл с параметрами объединения таблиц')
         except FileNotFoundError:
-            messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
                                  f'Выберите файл с параметрами!\n'
                                  f'Если вы выбрали файл с параметрами, а ошибка повторяется,то перенесите папку \n'
                                  f'с файлами которые вы хотите обработать в корень диска. Проблема может быть в \n '
                                  f'в слишком длинном пути к обрабатываемым файлам')
-        # except:
-        #     logging.exception('AN ERROR HAS OCCURRED')
-        #     messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
-        #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
+        except:
+            logging.exception('AN ERROR HAS OCCURRED')
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
+                                 'Возникла ошибка!!! Подробности ошибки в файле error.log')
         else:
-            messagebox.showinfo('Веста Обработка таблиц и создание документов ver 1.35',
+            messagebox.showinfo('Веста Обработка таблиц и создание документов',
                                 'Создание общей таблицы успешно завершено!!!')
