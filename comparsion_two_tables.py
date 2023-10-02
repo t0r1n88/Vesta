@@ -126,6 +126,9 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
     :return:
     """
     try:
+        # генерируем текущее время
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
         # загружаем файлы
         first_df = pd.read_excel(first_file, sheet_name=first_sheet_name, dtype=str,
                                  keep_default_na=False)
@@ -206,6 +209,12 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         # делаем прописными айди значения по которым будет вестись объединение
         first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.upper())
         second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.upper())
+
+        # сохраняем дубликаты
+        dupl_first_df = first_df[first_df.duplicated(subset=['ID_объединения'], keep=False)]
+        dupl_first_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 1 без учета регистра и пробелов {current_time}.xlsx')
+        dupl_second_df = second_df[second_df.duplicated(subset=['ID_объединения'], keep=False)]
+        dupl_second_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 2 без учета регистра и пробелов {current_time}.xlsx')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
 
@@ -318,9 +327,7 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         for r in dataframe_to_rows(update_df, index=False, header=True):
             wb['Обновленная таблица'].append(r)
 
-        # генерируем текущее время
-        t = time.localtime()
-        current_time = time.strftime('%H_%M_%S', t)
+
         # Сохраняем итоговый файл
         wb.save(f'{path_to_end_folder_comparison}/Соединение БЕЗ учета регистра и пробелов {current_time}.xlsx')
         # Сохраняем отдельно обновленную таблицу
@@ -389,6 +396,12 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
         precise_first_df['ID_объединения'] = key_precise_first_df.apply(lambda x: ' '.join(x), axis=1)
         precise_second_df['ID_объединения'] = key_precise_second_df.apply(lambda x: ' '.join(x), axis=1)
+
+        # сохраняем дубликаты
+        dupl_precise_first_df = precise_first_df[precise_first_df.duplicated(subset=['ID_объединения'], keep=False)]
+        dupl_precise_first_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 1 с учетом регистра и пробелов {current_time}.xlsx')
+        dupl_precise_second_df = precise_second_df[precise_second_df.duplicated(subset=['ID_объединения'], keep=False)]
+        dupl_precise_second_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 2 с учетом регистра и пробелов {current_time}.xlsx')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
 
