@@ -41,6 +41,18 @@ def convert_columns_to_str(df, number_columns):
             messagebox.showerror('Веста Обработка таблиц и создание документов',
                                  'Проверьте порядковые номера колонок которые вы хотите обработать.')
 
+def convert_columns_to_str_precise(df, number_columns):
+    """
+    Функция для конвертации указанных столбцов в строковый тип для генерации айди с учетом пробельных символов
+    """
+
+    for column in number_columns:  # Перебираем список нужных колонок
+        try:
+            df.iloc[:, column] = df.iloc[:, column].astype(str)
+        except IndexError:
+            messagebox.showerror('Веста Обработка таблиц и создание документов',
+                                 'Проверьте порядковые номера колонок которые вы хотите обработать.')
+
 
 def convert_params_columns_to_int(lst):
     """
@@ -127,7 +139,12 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         name_second_df = second_file.split('/')[-1]
         name_second_df = name_second_df.split('.xlsx')[0]
 
+        # создаем копию датафреймов для объединения с учетом пробельных символов
+        precise_first_df = first_df.copy()
+        precise_second_df = second_df.copy()
+
         params = pd.read_excel(file_params, header=None, keep_default_na=False)
+
 
         # Преврашаем каждую колонку в список
         params_first_columns = params[0].tolist()
@@ -305,11 +322,196 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
         # Сохраняем итоговый файл
-        wb.save(f'{path_to_end_folder_comparison}/Результат слияния 2 таблиц от {current_time}.xlsx')
+        wb.save(f'{path_to_end_folder_comparison}/Соединение БЕЗ учета регистра и пробелов {current_time}.xlsx')
         # Сохраняем отдельно обновленную таблицу
         update_df.to_excel(
-            f'{path_to_end_folder_comparison}/Таблица с обновленными данными и колонками от {current_time}.xlsx',
+            f'{path_to_end_folder_comparison}/Обновленная таблица БЕЗ учета регистра и пробелов от {current_time}.xlsx',
             index=False)
+
+
+        """
+        Создаем файлы со сравнением ID как есть (точно и не взирая на пробелы)
+        """
+        params = pd.read_excel(file_params, header=None, keep_default_na=False)
+
+        # Преврашаем каждую колонку в список
+        params_first_columns = params[0].tolist()
+        params_second_columns = params[1].tolist()
+
+        # Конвертируем в инт заодно проверяя корректность введенных данных
+        int_params_first_columns = convert_params_columns_to_int(params_first_columns)
+        int_params_second_columns = convert_params_columns_to_int(params_second_columns)
+
+        # Отнимаем 1 от каждого значения чтобы привести к питоновским индексам
+        int_params_first_columns = list(map(lambda x: x - 1, int_params_first_columns))
+        int_params_second_columns = list(map(lambda x: x - 1, int_params_second_columns))
+
+        # Конвертируем нужные нам колонки в str
+        convert_columns_to_str_precise(precise_first_df, int_params_first_columns)
+        convert_columns_to_str_precise(precise_second_df, int_params_second_columns)
+
+        # Проверяем наличие колонок с датами в списке колонок для объединения чтобы привести их в нормальный вид
+        for number_column_params in int_params_first_columns:
+            if 'дата' in precise_first_df.columns[number_column_params].lower():
+                precise_first_df.iloc[:, number_column_params] = pd.to_datetime(
+                    precise_first_df.iloc[:, number_column_params],
+                    errors='coerce', dayfirst=True)
+                precise_first_df.iloc[:, number_column_params] = precise_first_df.iloc[:, number_column_params].apply(
+                    create_doc_convert_date)
+
+        for number_column_params in int_params_second_columns:
+            if 'дата' in precise_second_df.columns[number_column_params].lower():
+                precise_second_df.iloc[:, number_column_params] = pd.to_datetime(
+                    precise_second_df.iloc[:, number_column_params],
+                    errors='coerce', dayfirst=True)
+                precise_second_df.iloc[:, number_column_params] = precise_second_df.iloc[:, number_column_params].apply(
+                    create_doc_convert_date)
+
+        # в этом месте конвертируем даты в формат ДД.ММ.ГГГГ
+        # processing_date_column(precise_first_df, int_params_first_columns)
+        # processing_date_column(precise_second_df, int_params_second_columns)
+
+        # Проверяем наличие колонки _merge
+        if '_merge' in precise_first_df.columns:
+            precise_first_df.drop(columns=['_merge'], inplace=True)
+        if '_merge' in precise_second_df.columns:
+            precise_second_df.drop(columns=['_merge'], inplace=True)
+        # Проверяем наличие колонки ID
+        if 'ID_объединения' in precise_first_df.columns:
+            precise_first_df.drop(columns=['ID_объединения'], inplace=True)
+        if 'ID_объединения' in precise_second_df.columns:
+            precise_second_df.drop(columns=['ID_объединения'], inplace=True)
+
+        # создаем датафреймы из колонок выбранных для объединения, такой способо связан с тем, что
+        # при использовании sum числа в строковом виде превращаются в числа
+        key_precise_first_df = precise_first_df.iloc[:, int_params_first_columns]
+        key_precise_second_df = precise_second_df.iloc[:, int_params_second_columns]
+        # Создаем в каждом датафрейме колонку с айди путем склеивания всех нужных колонок в одну строку
+        precise_first_df['ID_объединения'] = key_precise_first_df.apply(lambda x: ' '.join(x), axis=1)
+        precise_second_df['ID_объединения'] = key_precise_second_df.apply(lambda x: ' '.join(x), axis=1)
+
+        # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
+
+        # Создаем документ
+        wb = openpyxl.Workbook()
+        # создаем листы
+        ren_sheet = wb['Sheet']
+        ren_sheet.title = 'Таблица 1'
+        wb.create_sheet(title='Таблица 2', index=1)
+        wb.create_sheet(title='Совпадающие данные', index=2)
+        wb.create_sheet(title='Обновленная таблица', index=3)
+        wb.create_sheet(title='Объединённая таблица', index=4)
+
+        # Создаем переменные содержащие в себе количество колонок в базовых датареймах
+        precise_first_df_quantity_cols = len(precise_first_df.columns)  # не забываем что там добавилась колонка ID
+
+        # Проводим слияние
+        itog_df = pd.merge(precise_first_df, precise_second_df, how='outer', left_on=['ID_объединения'],
+                           right_on=['ID_объединения'],
+                           indicator=True)
+
+        # копируем в отдельный датафрейм для создания таблицы с обновлениями
+        update_df = itog_df.copy()
+
+        # Записываем каждый датафрейм в соответсвующий лист
+        # Левая таблица
+        left_df = itog_df[itog_df['_merge'] == 'left_only']
+        left_df.drop(['_merge'], axis=1, inplace=True)
+
+        # Удаляем колонки второй таблицы чтобы не мешались
+        left_df.drop(left_df.iloc[:, precise_first_df_quantity_cols:], axis=1, inplace=True)
+
+        # Переименовываем колонки у которых были совпадение во второй таблице, в таких колонках есть добавление _x
+        clean_left_columns = list(map(lambda x: x[:-2] if '_x' in x else x, list(left_df.columns)))
+        left_df.columns = clean_left_columns
+        for r in dataframe_to_rows(left_df, index=False, header=True):
+            wb['Таблица 1'].append(r)
+
+        right_df = itog_df[itog_df['_merge'] == 'right_only']
+        right_df.drop(['_merge'], axis=1, inplace=True)
+
+        # Удаляем колонки первой таблицы таблицы чтобы не мешались
+        right_df.drop(right_df.iloc[:, :precise_first_df_quantity_cols - 1], axis=1, inplace=True)
+
+        # Переименовываем колонки у которых были совпадение во второй таблице, в таких колонках есть добавление _x
+        clean_right_columns = list(map(lambda x: x[:-2] if '_y' in x else x, list(right_df.columns)))
+        right_df.columns = clean_right_columns
+
+        for r in dataframe_to_rows(right_df, index=False, header=True):
+            wb['Таблица 2'].append(r)
+
+        both_df = itog_df[itog_df['_merge'] == 'both']
+        both_df.drop(['_merge'], axis=1, inplace=True)
+        # Очищаем от _x  и _y
+        clean_both_columns = clean_ending_columns(list(both_df.columns), name_first_df, name_second_df)
+        both_df.columns = clean_both_columns
+
+        for r in dataframe_to_rows(both_df, index=False, header=True):
+            wb['Совпадающие данные'].append(r)
+
+        # Сохраняем общую таблицу
+        # Заменяем названия индикаторов на более понятные
+        itog_df['_merge'] = itog_df['_merge'].apply(lambda x: 'Данные из первой таблицы' if x == 'left_only' else
+        ('Данные из второй таблицы' if x == 'right_only' else 'Совпадающие данные'))
+        itog_df['_merge'] = itog_df['_merge'].astype(str)
+
+        clean_itog_df = clean_ending_columns(list(itog_df.columns), name_first_df, name_second_df)
+        itog_df.columns = clean_itog_df
+        for r in dataframe_to_rows(itog_df, index=False, header=True):
+            wb['Объединённая таблица'].append(r)
+
+        # получаем список с совпадающими колонками первой таблицы
+        precise_first_df_columns = [column for column in list(update_df.columns) if str(column).endswith('_x')]
+        # получаем список с совпадающими колонками второй таблицы
+        precise_second_df_columns = [column for column in list(update_df.columns) if str(column).endswith('_y')]
+        # Создаем из списка совпадающих колонок второй таблицы словарь, чтобы было легче обрабатывать
+        # да конечно можно было сделать в одном выражении но как я буду читать это через 2 недели?
+        dct_second_columns = {column.split('_y')[0]: column for column in precise_second_df_columns}
+
+        for column in precise_first_df_columns:
+            # очищаем от _x
+            name_column = column.split('_x')[0]
+            # Обновляем значение в случае если в колонке _merge стоит both, иначе оставляем старое значение,
+            # Чтобы обновить значение в ячейке, во второй таблице не должно быть пустого значения или пробела в аналогичной колонке
+
+            update_df[column] = np.where(
+                (update_df['_merge'] == 'both') & (update_df[dct_second_columns[name_column]]) & (
+                        update_df[dct_second_columns[name_column]] != ' '),
+                update_df[dct_second_columns[name_column]], update_df[column])
+
+            # Удаляем колонки с _y
+        update_df.drop(columns=[column for column in update_df.columns if column.endswith('_y')], inplace=True)
+
+        # Переименовываем колонки с _x
+        update_df.columns = list(map(lambda x: x[:-2] if x.endswith('_x') else x, update_df.columns))
+
+        # удаляем строки с _merge == right_only
+        update_df = update_df[update_df['_merge'] != 'right_only']
+
+        # Удаляем служебные колонки
+        update_df.drop(columns=['ID_объединения', '_merge'], inplace=True)
+
+        # используем уже созданный датафрейм right_df Удаляем лишнюю колонку в right_df
+        right_df.drop(columns=['ID_объединения'], inplace=True)
+
+        # Добавляем нехватающие колонки
+        new_right_df = right_df.reindex(columns=update_df.columns, fill_value=None)
+
+        update_df = pd.concat([update_df, new_right_df])
+
+        for r in dataframe_to_rows(update_df, index=False, header=True):
+            wb['Обновленная таблица'].append(r)
+
+        # генерируем текущее время
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        # Сохраняем итоговый файл
+        wb.save(f'{path_to_end_folder_comparison}/Соединение С учетом регистра и пробелов {current_time}.xlsx')
+        # Сохраняем отдельно обновленную таблицу
+        update_df.to_excel(
+            f'{path_to_end_folder_comparison}/Обновленная таблица С учетом регистра и пробелов {current_time}.xlsx',
+            index=False)
+
 
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',

@@ -13,6 +13,7 @@ warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
+from jinja2 import exceptions
 import logging
 logging.basicConfig(
     level=logging.WARNING,
@@ -327,6 +328,7 @@ def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,di
                                  f'Если вы выбрали файл с параметрами, а ошибка повторяется,то перенесите папку \n'
                                  f'с файлами которые вы хотите обработать в корень диска. Проблема может быть в \n '
                                  f'в слишком длинном пути к обрабатываемым файлам')
+
         except:
             logging.exception('AN ERROR HAS OCCURRED')
             messagebox.showerror('Веста Обработка таблиц и создание документов',

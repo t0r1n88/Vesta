@@ -23,6 +23,7 @@ import pytrovich
 from pytrovich.detector import PetrovichGenderDetector
 from pytrovich.enums import NamePart, Gender, Case
 from pytrovich.maker import PetrovichDeclinationMaker
+from jinja2 import exceptions
 import time
 import datetime
 import warnings
@@ -263,6 +264,15 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам')
+    except exceptions.TemplateSyntaxError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Ошибка в оформлении вставляемых значений в шаблоне\n'
+                             f'Проверьте свой шаблон на наличие следующих ошибок:\n'
+                             f'1) Вставляемые значения должны быть оформлены двойными фигурными скобками\n'
+                             f'{{{{Вставляемое_значение}}}}\n'
+                             f'2) В названии колонки в таблице откуда берутся данные - есть пробелы,цифры,знаки пунктуации и т.п.\n'
+                             f'в названии колонки должны быть только буквы и нижнее подчеркивание.\n'
+                             f'{{{{Дата_рождения}}}}')
     except CheckBoxException:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Уберите галочку из чекбокса Поставьте галочку, если вам нужно создать один документ\nдля конкретного значения (например для определенного ФИО)'

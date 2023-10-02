@@ -216,7 +216,6 @@ def generate_docs_other():
                                     mode_combine,mode_group)
 
 
-
     except NameError as e:
         messagebox.showerror('Веста Обработка таблиц и создание документов ver 1.35',
                              f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
@@ -509,7 +508,7 @@ def show_textmenu(event):
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.36')
+    window.title('Веста Обработка таблиц и создание документов ver 1.37')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
     # Добавляем контекстное меню в поля ввода
