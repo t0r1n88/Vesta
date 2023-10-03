@@ -210,11 +210,15 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         first_df['ID_объединения'] = first_df['ID_объединения'].apply(lambda x: x.upper())
         second_df['ID_объединения'] = second_df['ID_объединения'].apply(lambda x: x.upper())
 
+
         # сохраняем дубликаты
         dupl_first_df = first_df[first_df.duplicated(subset=['ID_объединения'], keep=False)]
-        dupl_first_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 1 без учета регистра и пробелов {current_time}.xlsx')
+        dupl_first_df.index = list(map(lambda x:x+2,list(dupl_first_df.index))) # прибавляем к индексу 2 чтобы получить реальные номера строк
         dupl_second_df = second_df[second_df.duplicated(subset=['ID_объединения'], keep=False)]
-        dupl_second_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 2 без учета регистра и пробелов {current_time}.xlsx')
+        dupl_second_df.index = list(map(lambda x: x + 2, list(dupl_second_df.index)))  # прибавляем к индексу 2 чтобы получить реальные номера строк
+        with pd.ExcelWriter(f'{path_to_end_folder_comparison}/Дубликаты без учета пробелов и регистра {current_time}.xlsx') as writer:
+            dupl_first_df.to_excel(writer,sheet_name='1 таблица Дубликаты')
+            dupl_second_df.to_excel(writer,sheet_name='2 таблица Дубликаты')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
 
@@ -398,10 +402,13 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         precise_second_df['ID_объединения'] = key_precise_second_df.apply(lambda x: ' '.join(x), axis=1)
 
         # сохраняем дубликаты
-        dupl_precise_first_df = precise_first_df[precise_first_df.duplicated(subset=['ID_объединения'], keep=False)]
-        dupl_precise_first_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 1 с учетом регистра и пробелов {current_time}.xlsx')
-        dupl_precise_second_df = precise_second_df[precise_second_df.duplicated(subset=['ID_объединения'], keep=False)]
-        dupl_precise_second_df.to_excel(f'{path_to_end_folder_comparison}/Дубликаты 2 с учетом регистра и пробелов {current_time}.xlsx')
+        precise_dupl_first_df = precise_first_df[precise_first_df.duplicated(subset=['ID_объединения'], keep=False)]
+        precise_dupl_first_df.index = list(map(lambda x:x+2,list(precise_dupl_first_df.index))) # прибавляем к индексу 2 чтобы получить реальные номера строк
+        precise_dupl_second_df = precise_second_df[precise_second_df.duplicated(subset=['ID_объединения'], keep=False)]
+        precise_dupl_second_df.index = list(map(lambda x: x + 2, list(precise_dupl_second_df.index)))  # прибавляем к индексу 2 чтобы получить реальные номера строк
+        with pd.ExcelWriter(f'{path_to_end_folder_comparison}/Дубликаты с учетом пробелов и регистра {current_time}.xlsx') as writer:
+            precise_dupl_first_df.to_excel(writer,sheet_name='1 таблица Дубликаты')
+            precise_dupl_second_df.to_excel(writer,sheet_name='2 таблица Дубликаты')
 
         # В результат объединения попадают совпадающие по ключу записи обеих таблиц и все строки из этих двух таблиц, для которых пар не нашлось. Порядок таблиц в запросе не
 
