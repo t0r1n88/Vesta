@@ -131,7 +131,7 @@ def declension_fio_by_case(fio_column,data_decl_case,path_to_end_folder_decl_cas
     :param fio_column: название колонки с ФИО
     :param data_decl_case: Путь к файлу
     :param path_to_end_folder_decl_case: Путь  к итоговой папке
-    :return:
+    :return: файл Excel в котором после колонки fio_column добавляется 29 колонок с падежами
     """
 
     try:
@@ -278,3 +278,11 @@ def declension_fio_by_case(fio_column,data_decl_case,path_to_end_folder_decl_cas
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
+
+if __name__ == '__main__':
+    fio_column_main = 'ФИО'
+    data_decl_case_main = 'data\Склонение по падежам\Пример для склонения по падежам.xlsx'
+    path_to_end_folder_decl_case_main = 'data'
+
+    declension_fio_by_case(fio_column_main, data_decl_case_main, path_to_end_folder_decl_case_main)
+    print('Lindy Booth')

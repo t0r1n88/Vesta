@@ -69,9 +69,14 @@ def calculate_age(born, raw_selected_date):
 
 def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_to_end_folder_date):
     """
-    Функция для разбиения по категориям, подсчета текущего возраста и выделения месяца,года
-    :return:
+   Функция для разбиения по категориям 1-ПК 1-ПО СПО-1, подсчета текущего возраста и выделения месяца,года
+    :param raw_selected_date: дата на момент которой нужно подсчитать текущий возраст в формате DD.MM.YYYY
+    :param name_column: название колонки с датами рождения
+    :param name_file_data_date: путь к файлу Excel с данными
+    :param path_to_end_folder_date: папка куда будет сохранен итоговый файл
+    :return: файл Excel  содержащий исходный файл с добавленными колонками категорий и т.п.
     """
+
     try:
 
         # Считываем файл
@@ -260,3 +265,12 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
+
+if __name__ == '__main__':
+    raw_selected_date_main = '01.10.2023'
+    name_column_main = 'Дата рождения'
+    name_file_data_date_main = 'data\Обработка дат\Сгенерированный массив данных для дат.xlsx'
+    path_to_end_folder_date_main = 'data'
+
+    proccessing_date(raw_selected_date_main, name_column_main, name_file_data_date_main, path_to_end_folder_date_main)
+    print('Lindy Booth')

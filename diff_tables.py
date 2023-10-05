@@ -107,7 +107,10 @@ def find_diffrence(first_sheet, second_sheet, first_df, second_df,path_to_end_fo
     :param first_df: Путь к первой таблице
     :param second_df: Путь ко второй таблице
     :param path_to_end_folder_diffrence : Путь к папке куда будут сохранятся файлы
-    :return:
+    :return: разница между двумия таблица файл Excel в котором 3 листа:
+    По колонкам - в котором указаны те ячейки в которых найдена разница
+    По строкам - тоже самое только отображение по строкам
+    Значение разницы - таблица с указанием абсолютной и процентной разницы между измененными значениями
     """
 
     # загружаем датафреймы
@@ -200,3 +203,14 @@ def find_diffrence(first_sheet, second_sheet, first_df, second_df,path_to_end_fo
                              'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Таблицы успешно обработаны')
+
+if __name__ == '__main__':
+    first_sheet_main = 'Основное'
+    second_sheet_main = 'Основное'
+    data_first_diffrence_main = 'data\Разница между 2 таблицами\Отчет 2021.xlsx'
+    data_second_diffrence_main = 'data\Разница между 2 таблицами\Отчет 2022.xlsx'
+    path_to_end_folder_diffrence_main = 'data'
+
+    find_diffrence(first_sheet_main, second_sheet_main, data_first_diffrence_main, data_second_diffrence_main, path_to_end_folder_diffrence_main)
+
+    print('Lindy Booth')

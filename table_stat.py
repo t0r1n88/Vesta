@@ -184,3 +184,10 @@ def counting_quantitative_stat(name_file_data_groupby,path_to_end_folder_groupby
 
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
+
+if __name__ == '__main__':
+    name_file_data_groupby_main = 'data\Подсчет данных\Пример таблицы для подсчета.xlsx'
+    path_to_end_folder_groupby_main = 'data'
+    counting_by_category(name_file_data_groupby_main, path_to_end_folder_groupby_main)
+    counting_quantitative_stat(name_file_data_groupby_main, path_to_end_folder_groupby_main)
+    print('Lindy Booth')
