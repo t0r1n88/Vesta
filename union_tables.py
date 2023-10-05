@@ -30,10 +30,20 @@ class NotParamsHarvest(BaseException):
     """
     pass
 
-def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,dir_name,path_to_end_folder_merger,params_harvest):
+
+def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standard_merger:str,dir_name: str,path_to_end_folder_merger:str,params_harvest:str):
     """
     Функция для слияния таблиц с одинаковой структурой в одну большую таблицу
+    :param checkbox_harvest: Чекбокс отвечающий за вариант слияния. Допустимые значения 0,1,2
+    :param merger_entry_skip_rows: Количество строк в таблице которое занимает заголовок
+    :param file_standard_merger:Путь к файлу эталону на основе которого будет создаваться общая таблица
+    :param dir_name: Папка где лежат файлы которые нужно объединить
+    :param path_to_end_folder_merger: Папка куда будут сохранены результаты
+    :param params_harvest: Путь к файлу Excel  в котором указаны названия листов и размер заголовков на каждом листе.
+     Используется при слиянии по варианту 2 (Сложное)
+    :return:Сохраняет 2 файла: Общий файл с данными из всех файлов, Файл с ошибками в которых указаны те файлы Excel которые отличаются от эталонного
     """
+
     # Получаем значения из полей ввода и проверяем их на тип
     try:
         if checkbox_harvest != 2:
@@ -336,3 +346,18 @@ def union_tables(checkbox_harvest,merger_entry_skip_rows,file_standard_merger,di
         else:
             messagebox.showinfo('Веста Обработка таблиц и создание документов',
                                 'Создание общей таблицы успешно завершено!!!')
+
+if __name__=='__main__':
+    checkbox_harvest_main = 0
+    merger_entry_skip_rows_main = 1
+    file_standard_merger_main = 'data\Слияние данных\Списки\Список 28.03.02 Наноинженерия.xlsx'
+    dir_name_main = 'data\Слияние данных\Списки'
+    path_to_end_folder_merger_main = 'data'
+    file_params_main = ''
+
+
+
+    union_tables(checkbox_harvest_main, merger_entry_skip_rows_main, file_standard_merger_main, dir_name_main, path_to_end_folder_merger_main,
+                 file_params_main)
+
+    print('Lindy Booth')

@@ -203,8 +203,9 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
 if __name__ == '__main__':
     mode_text = 'Yes'
     name_file_params_calculate_data = 'data\Извлечение данных\Анкеты мониторинг профориентации\Параметры для подсчета анкет.xlsx'
-    names_files_calculate_data = ['data/Извлечение данных\Анкеты мониторинг профориентации\Усть-Кяхтинская СОШ.xlsx',
-                                  'data/Извлечение данных\Анкеты мониторинг профориентации\МБОУ Ацульская СОШ.xlsx']
+    # names_files_calculate_data = ['data/Извлечение данных\Анкеты мониторинг профориентации\Усть-Кяхтинская СОШ.xlsx',
+    #                               'data/Извлечение данных\Анкеты мониторинг профориентации\МБОУ Ацульская СОШ.xlsx']
+    names_files_calculate_data = ''
     path_to_end_folder_calculate_data = 'data'
 
 
