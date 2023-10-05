@@ -34,7 +34,8 @@ class NotParamsHarvest(BaseException):
 def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standard_merger:str,dir_name: str,path_to_end_folder_merger:str,params_harvest:str):
     """
     Функция для слияния таблиц с одинаковой структурой в одну большую таблицу
-    :param checkbox_harvest: Чекбокс отвечающий за вариант слияния. Допустимые значения 0,1,2
+    :param checkbox_harvest: Чекбокс отвечающий за вариант слияния. Допустимые значения 0 - слияние по названию листов,
+    1 - слияние по порядковому номеру листов,2 - сложное слияние листов с разным размеров заголовков
     :param merger_entry_skip_rows: Количество строк в таблице которое занимает заголовок
     :param file_standard_merger:Путь к файлу эталону на основе которого будет создаваться общая таблица
     :param dir_name: Папка где лежат файлы которые нужно объединить
