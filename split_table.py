@@ -36,7 +36,34 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     :param path_to_end_folder: путь к итоговой папке
     :return: один файл в котором много листов либо много файлов в зависимости от режима
     """
-    pass
+    df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
+    lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
+    name_column = df.columns[number_column-1] # получаем название колонки
+    print(name_column)
+    t = time.localtime()
+    current_time = time.strftime('%H_%M_%S')
+    if checkbox_split == 0:
+        wb = openpyxl.Workbook() # создаем файл
+        for idx,value in enumerate(lst_value_column):
+            temp_df = df[df[name_column] == value] # отфильтровываем по значению
+            wb.create_sheet(value[:20],index=idx)
+            for row in dataframe_to_rows(temp_df,index=False,header=True):
+                wb[value[:20]].append(row)
+        wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
+
+
+
+
+
+if __name__ == '__main__':
+    file_data = 'data/Разделение таблицы/Базовая таблица 1000 человек.xlsx'
+    name_sheet_main = 'Sheet1'
+    number_column_main = 16
+    checkbox_split_main = 0
+    path_to_end_folder_main = 'data/Разделение таблицы/result'
+
+    split_table(file_data,name_sheet_main, number_column_main, checkbox_split_main, path_to_end_folder_main)
+    print('Lindy Booth')
 
 
 
