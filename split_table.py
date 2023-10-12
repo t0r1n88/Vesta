@@ -38,10 +38,14 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     """
     df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
     lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
+    prepared_lst_column = [value[:20] for value in lst_value_column]
+    # проверяем наличие дубликатов
+    if len(prepared_lst_column) != set(prepared_lst_column):
+        print('fd')
+    print(prepared_lst_column)
     name_column = df.columns[number_column-1] # получаем название колонки
-    print(name_column)
     t = time.localtime()
-    current_time = time.strftime('%H_%M_%S')
+    current_time = time.strftime('%H_%M_%S',t)
     if checkbox_split == 0:
         wb = openpyxl.Workbook() # создаем файл
         for idx,value in enumerate(lst_value_column):
