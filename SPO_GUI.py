@@ -10,6 +10,7 @@ from processing_date import proccessing_date # Функция для объед�
 from union_tables import union_tables # Функция для объедения множества таблиц
 from extract_data_from_xlsx import extract_data_from_hard_xlsx # Функция для извлечения данных из таблиц со сложной структурой
 from generate_docs import generate_docs_from_template # Функция для создания документов Word из шаблона
+from split_table import split_table # Функция для разделения таблицы по отдельным листам и файлам
 import pandas as pd
 import os
 # from dateutil.parser import ParserError
@@ -462,6 +463,54 @@ def processing_diffrence():
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
+
+
+"""
+Функции для разделения таблицы
+"""
+def select_file_split():
+    """
+    Функция для выбора файла с таблицей которую нужно разделить
+    :return: Путь к файлу с данными
+    """
+    global file_data_split
+    # Получаем путь к файлу
+    file_data_split = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+
+def select_end_folder_split():
+    """
+    Функия для выбора папки.Определенно вот это когда нибудь я перепишу на ООП
+    :return:
+    """
+    global path_to_end_folder_split
+    path_to_end_folder_split = filedialog.askdirectory()
+
+def processing_split_table():
+    """
+    Функция для получения разделения таблицы по значениям
+    :return:
+    """
+    # названия листов в таблицах
+    try:
+        name_sheet = str(entry_sheet_name_split.get()) # получаем имя листа
+        number_column = entry_number_column_split.get() #  получаем порядковый номер колонки
+        number_column = int(number_column) # конвертируем в инт
+        checkbox_split = group_rb_type_split.get() # получаем значения переключиталея
+        # находим разницу
+        split_table(file_data_split,name_sheet,number_column,checkbox_split,path_to_end_folder_split)
+    except ValueError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Порядковый номер колонки должен быть целым числом!')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except NameError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
+
+
+
+
 
 
 """
@@ -1097,6 +1146,93 @@ if __name__ == '__main__':
                                    command=processing_diffrence
                                    )
     btn_data_do_diffrence.grid(column=0, row=11, padx=10, pady=10)
+
+    """
+    Создание вкладки для разбиения таблицы на несколько штук по значениям в определенной колонке
+    """
+    # Создаем вкладку для подсчета данных по категориям
+    tab_split_tables = ttk.Frame(tab_control)
+    tab_control.add(tab_split_tables, text='Разделение\n таблицы')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Подсчет данных  по категориям
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_split_tables,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
+                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                      )
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_to_img = resource_path('logo.png')
+    img_split = PhotoImage(file=path_to_img)
+    Label(tab_split_tables,
+          image=img_split
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Переключатель:вариант слияния файлов
+    # Создаем переключатель
+    group_rb_type_split = IntVar()
+    # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
+    frame_rb_type_split = LabelFrame(tab_split_tables, text='1) Выберите вариант разделения')
+    frame_rb_type_split.grid(column=0, row=1, padx=10)
+    #
+    Radiobutton(frame_rb_type_split, text='А) По листам в одном файле', variable=group_rb_type_split,
+                value=0).pack()
+    Radiobutton(frame_rb_type_split, text='Б) По отдельным файлам', variable=group_rb_type_split,
+                value=1).pack()
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
+    frame_data_for_split.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать файл
+
+    btn_example_split = Button(frame_data_for_split, text='3) Выберите файл с таблицей', font=('Arial Bold', 14),
+                               command=select_file_split)
+    btn_example_split.grid(column=0, row=3, padx=5, pady=5)
+
+    # Определяем текстовую переменную для названия листа
+    entry_sheet_name_split = StringVar()
+    # Описание поля
+    label_sheet_name_split = Label(frame_data_for_split,
+                                             text='4) Введите имя листа где находится таблица')
+    label_sheet_name_split.grid(column=0, row=4, padx=10, pady=10)
+    # поле ввода имени листа
+    entry_sheet_name_split = Entry(frame_data_for_split, textvariable=entry_sheet_name_split,
+                                             width=30)
+    entry_sheet_name_split.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Определяем числовую переменную для порядкового номера
+    entry_number_column_split = IntVar()
+    # Описание поля
+    label_number_column_split = Label(frame_data_for_split,
+                                             text='5) Введите порядковый номер колонки\nпо значениям которой нужно разделить таблицу')
+    label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
+    # поле ввода имени листа
+    entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
+                                             width=30)
+    entry_number_column_split.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
+
+
+    btn_choose_end_folder_split = Button(frame_data_for_split, text='6) Выберите конечную папку',
+                                         font=('Arial Bold', 14),
+                                         command=select_end_folder_split
+                                         )
+    btn_choose_end_folder_split.grid(column=0, row=8, padx=5, pady=5)
+
+    # Создаем кнопку слияния
+
+    btn_split_process = Button(tab_split_tables, text='7) Разделить таблицу',
+                               font=('Arial Bold', 20),
+                               command=processing_split_table)
+    btn_split_process.grid(column=0, row=11, padx=10, pady=10)
+
+
+
+
+
+
     window.bind_class("Entry", "<Button-3><ButtonRelease-3>", show_textmenu)
     window.bind_class("Entry", "<Control-a>", callback_select_all)
     window.mainloop()
