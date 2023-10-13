@@ -214,8 +214,6 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     if name_file in used_name_file:
                         name_file = f'{name_file}_{idx}'
 
-                    # if os.path.exists(f'{path_to_end_folder_doc}/{name_file}.docx'):
-                    #     doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
                     doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
                     used_name_file.add(name_file)
                     if mode_pdf == 'Yes':
@@ -330,7 +328,7 @@ if __name__ == '__main__':
     name_file_template_doc_main = 'data\Создание документов\Пример Шаблон согласия.docx'
     name_file_data_doc_main = 'data\Создание документов\Таблица для заполнения согласия.xlsx'
     path_to_end_folder_doc_main = 'data\Создание документов\\temp'
-    mode_combine_main = 'Yes'
+    mode_combine_main = 'No'
     mode_group_main = 'No'
 
     generate_docs_from_template(name_column_main, name_type_file_main, name_value_column_main, mode_pdf_main, name_file_template_doc_main,
