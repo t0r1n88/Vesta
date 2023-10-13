@@ -111,6 +111,22 @@ def check_date_columns(i, value):
     else:
         return i
 
+def clean_value(value):
+    """
+    Функция для обработки значений колонки от  пустых пробелов,нан
+    :param value: значение ячейки
+    :return: очищенное значение
+    """
+    if value is np.nan:
+        return 'Не заполнено'
+    str_value = str(value)
+    if str_value == '':
+        return 'Не заполнено'
+    elif str_value ==' ':
+        return 'Не заполнено'
+
+    return str_value
+
 
 
 def combine_all_docx(filename_master, files_lst,mode_pdf,path_to_end_folder_doc):
@@ -163,6 +179,8 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
         # Считываем данные
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
         df = pd.read_excel(name_file_data_doc, dtype=str)
+        df[name_column] = df[name_column].apply(clean_value) # преобразовываем колонку меняя пустые значения и пустые пробелы на Не заполнено
+        used_name_file = set()  # множество для уже использованных имен файлов
         # Заполняем Nan
         df.fillna(' ', inplace=True)
         lst_date_columns = []
@@ -179,9 +197,6 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
         # Конвертируем датафрейм в список словарей
         data = df.to_dict('records')
 
-
-
-
         # В зависимости от состояния чекбоксов обрабатываем файлы
         if mode_combine == 'No':
             if mode_group == 'No':
@@ -194,12 +209,15 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     # Сохраняенм файл
                     # получаем название файла и убираем недопустимые символы < > : " /\ | ? *
                     name_file = f'{name_type_file} {row[name_column]}'
-                    name_file = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
+                    name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
                     # проверяем файл на наличие, если файл с таким названием уже существует то добавляем окончание
-                    if os.path.exists(f'{path_to_end_folder_doc}/{name_file}.docx'):
-                        doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
+                    if name_file in used_name_file:
+                        name_file = f'{name_file}_{idx}'
 
+                    # if os.path.exists(f'{path_to_end_folder_doc}/{name_file}.docx'):
+                    #     doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
                     doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
+                    used_name_file.add(name_file)
                     if mode_pdf == 'Yes':
                         convert(f'{path_to_end_folder_doc}/{name_file}.docx',
                                 f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
@@ -212,7 +230,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                 # Проверяем количество найденных совпадений
                 # очищаем от запрещенных символов
                 name_file = f'{name_type_file} {name_value_column}'
-                name_file = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
+                name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
                 if len(single_data) == 1:
                     for row in single_data:
                         doc = DocxTemplate(name_file_template_doc)
@@ -245,18 +263,18 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                 with tempfile.TemporaryDirectory() as tmpdirname:
                     print('created temporary directory', tmpdirname)
                     # Создаем и сохраняем во временную папку созданные документы Word
-                    for row in data:
+                    for idx,row in enumerate(data):
                         doc = DocxTemplate(name_file_template_doc)
                         context = row
                         doc.render(context)
                         # Сохраняем файл
                         # очищаем от запрещенных символов
                         name_file = f'{row[name_column]}'
-                        name_file = re.sub(r'[<> :"?*|\\/]', ' ', name_file)
+                        name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
 
-                        doc.save(f'{tmpdirname}/{name_file}.docx')
+                        doc.save(f'{tmpdirname}/{name_file}_{idx}.docx')
                         # Добавляем путь к файлу в список
-                        files_lst.append(f'{tmpdirname}/{name_file}.docx')
+                        files_lst.append(f'{tmpdirname}/{name_file}_{idx}.docx')
                     # Получаем базовый файл
                     main_doc = files_lst.pop(0)
                     # Запускаем функцию
@@ -312,7 +330,7 @@ if __name__ == '__main__':
     name_file_template_doc_main = 'data\Создание документов\Пример Шаблон согласия.docx'
     name_file_data_doc_main = 'data\Создание документов\Таблица для заполнения согласия.xlsx'
     path_to_end_folder_doc_main = 'data\Создание документов\\temp'
-    mode_combine_main = 'No'
+    mode_combine_main = 'Yes'
     mode_group_main = 'No'
 
     generate_docs_from_template(name_column_main, name_type_file_main, name_value_column_main, mode_pdf_main, name_file_template_doc_main,
