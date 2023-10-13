@@ -8,7 +8,7 @@ import re
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
-from collections import Counter
+from tkinter import messagebox
 import time
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -24,6 +24,14 @@ logging.basicConfig(
     format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
     datefmt='%H:%M:%S',
 )
+
+class Zero_Number_Column(Exception):
+    """
+    Исключение если будет введен ноль в поле ввода номера колонки
+    """
+    pass
+
+
 
 def clean_value(value):
     """
@@ -54,74 +62,103 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     :param path_to_end_folder: путь к итоговой папке
     :return: один файл в котором много листов либо много файлов в зависимости от режима
     """
-    df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
-    name_column = df.columns[number_column - 1]  # получаем название колонки
-    df[name_column] = df[name_column].apply(clean_value)
 
-    lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
-    lst_value_column = list(map(str,lst_value_column))
-    used_name_sheet = set() # множество для хранения значений которые уже были использованы
-    t = time.localtime()
-    current_time = time.strftime('%H_%M_%S',t)
+    try:
+        if number_column == 0: # если кто нажал
+            raise Zero_Number_Column
+        df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
+        name_column = df.columns[number_column - 1]  # получаем название колонки
+        df[name_column] = df[name_column].apply(clean_value)
 
-    if checkbox_split == 0:
-        wb = openpyxl.Workbook() # создаем файл
-        for idx,value in enumerate(lst_value_column):
-            temp_df = df[df[name_column] == value] # отфильтровываем по значению
-            short_value = value[:20] # получаем обрезанное значение
-            short_value = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_value)
+        lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
+        lst_value_column = list(map(str,lst_value_column))
+        used_name_sheet = set() # множество для хранения значений которые уже были использованы
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S',t)
 
-            if short_value in used_name_sheet:
-                short_value = f'{short_value}_{idx}' # добавляем окончание
-            wb.create_sheet(short_value,index=idx) # создаем лист
-            used_name_sheet.add(short_value)
-            for row in dataframe_to_rows(temp_df,index=False,header=True):
-                wb[short_value].append(row)
+        if checkbox_split == 0:
+            wb = openpyxl.Workbook() # создаем файл
+            for idx,value in enumerate(lst_value_column):
+                temp_df = df[df[name_column] == value] # отфильтровываем по значению
+                short_value = value[:20] # получаем обрезанное значение
+                short_value = re.sub(r'[\[\]\'+()<> :"?*|\\/]', '_', short_value)
 
-            # Устанавливаем автоширину для каждой колонки
-            for column in wb[short_value].columns:
-                max_length = 0
-                column_name = get_column_letter(column[0].column)
-                for cell in column:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(cell.value)
-                    except:
-                        pass
-                adjusted_width = (max_length + 2)
-                wb[short_value].column_dimensions[column_name].width = adjusted_width
-        wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
-        wb.close()
+                if short_value in used_name_sheet:
+                    short_value = f'{short_value}_{idx}' # добавляем окончание
+                wb.create_sheet(short_value,index=idx) # создаем лист
+                used_name_sheet.add(short_value)
+                for row in dataframe_to_rows(temp_df,index=False,header=True):
+                    wb[short_value].append(row)
 
-
-    else:
-        used_name_file = set() # множество для уже использованных имен файлов
-        for idx,value in enumerate(lst_value_column):
-            wb = openpyxl.Workbook()  # создаем файл
-            temp_df = df[df[name_column] == value] # отфильтровываем по значению
-            short_name = value[:40] # получаем обрезанное значение
-            short_name = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_name)
-            if short_name in used_name_file:
-                short_name = f'{short_name}_{idx}' # добавляем окончание
-            for row in dataframe_to_rows(temp_df,index=False,header=True):
-                wb['Sheet'].append(row)
-
-            # Устанавливаем автоширину для каждой колонки
-            for column in wb['Sheet'].columns:
-                max_length = 0
-                column_name = get_column_letter(column[0].column)
-                for cell in column:
-                    try:
-                        if len(str(cell.value)) > max_length:
-                            max_length = len(cell.value)
-                    except:
-                        pass
-                adjusted_width = (max_length + 2)
-                wb['Sheet'].column_dimensions[column_name].width = adjusted_width
-
-            wb.save(f'{path_to_end_folder}\{short_name}.xlsx')
-            used_name_file.add(short_name)
+                # Устанавливаем автоширину для каждой колонки
+                for column in wb[short_value].columns:
+                    max_length = 0
+                    column_name = get_column_letter(column[0].column)
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    wb[short_value].column_dimensions[column_name].width = adjusted_width
+            wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
             wb.close()
+
+
+        else:
+            used_name_file = set() # множество для уже использованных имен файлов
+            for idx,value in enumerate(lst_value_column):
+                wb = openpyxl.Workbook()  # создаем файл
+                temp_df = df[df[name_column] == value] # отфильтровываем по значению
+                short_name = value[:40] # получаем обрезанное значение
+                short_name = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_name)
+                if short_name in used_name_file:
+                    short_name = f'{short_name}_{idx}' # добавляем окончание
+                for row in dataframe_to_rows(temp_df,index=False,header=True):
+                    wb['Sheet'].append(row)
+
+                # Устанавливаем автоширину для каждой колонки
+                for column in wb['Sheet'].columns:
+                    max_length = 0
+                    column_name = get_column_letter(column[0].column)
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    wb['Sheet'].column_dimensions[column_name].width = adjusted_width
+
+                wb.save(f'{path_to_end_folder}\{short_name}.xlsx')
+                used_name_file.add(short_name)
+                wb.close()
+    except NameError as e:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except ValueError as e:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'В таблице не найден указанный лист {e.args}')
+    except Zero_Number_Column:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Порядковые номера колонок начинаются с 1 !!!')
+
+
+    except IndexError as e:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'В таблице нет колонки с таким порядковым номером')
+    except PermissionError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Закройте все файлы Word созданные Вестой')
+        logging.exception('AN ERROR HAS OCCURRED')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам')
+    else:
+        messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Разделение таблицы завершено!')
 
 
 if __name__ == '__main__':

@@ -496,12 +496,14 @@ def processing_split_table():
         name_sheet = str(entry_sheet_name_split.get()) # получаем имя листа
         number_column = entry_number_column_split.get() #  получаем порядковый номер колонки
         number_column = int(number_column) # конвертируем в инт
+
         checkbox_split = group_rb_type_split.get() # получаем значения переключиталея
+
         # находим разницу
         split_table(file_data_split,name_sheet,number_column,checkbox_split,path_to_end_folder_split)
     except ValueError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Порядковый номер колонки должен быть целым числом!')
+                             f'Введите целое числа начиная с 1 !!!')
         logging.exception('AN ERROR HAS OCCURRED')
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
@@ -557,7 +559,7 @@ def show_textmenu(event):
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.37')
+    window.title('Веста Обработка таблиц и создание документов ver 1.38')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
     # Добавляем контекстное меню в поля ввода
@@ -1188,7 +1190,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку Выбрать файл
 
-    btn_example_split = Button(frame_data_for_split, text='3) Выберите файл с таблицей', font=('Arial Bold', 14),
+    btn_example_split = Button(frame_data_for_split, text='2) Выберите файл с таблицей', font=('Arial Bold', 14),
                                command=select_file_split)
     btn_example_split.grid(column=0, row=3, padx=5, pady=5)
 
@@ -1196,7 +1198,7 @@ if __name__ == '__main__':
     entry_sheet_name_split = StringVar()
     # Описание поля
     label_sheet_name_split = Label(frame_data_for_split,
-                                             text='4) Введите имя листа где находится таблица')
+                                             text='3) Введите имя листа где находится таблица')
     label_sheet_name_split.grid(column=0, row=4, padx=10, pady=10)
     # поле ввода имени листа
     entry_sheet_name_split = Entry(frame_data_for_split, textvariable=entry_sheet_name_split,
@@ -1207,7 +1209,7 @@ if __name__ == '__main__':
     entry_number_column_split = IntVar()
     # Описание поля
     label_number_column_split = Label(frame_data_for_split,
-                                             text='5) Введите порядковый номер колонки\nпо значениям которой нужно разделить таблицу')
+                                             text='4) Введите порядковый номер колонки\nпо значениям которой нужно разделить таблицу')
     label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
     # поле ввода имени листа
     entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
@@ -1215,7 +1217,7 @@ if __name__ == '__main__':
     entry_number_column_split.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
 
 
-    btn_choose_end_folder_split = Button(frame_data_for_split, text='6) Выберите конечную папку',
+    btn_choose_end_folder_split = Button(frame_data_for_split, text='5) Выберите конечную папку',
                                          font=('Arial Bold', 14),
                                          command=select_end_folder_split
                                          )
@@ -1223,7 +1225,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку слияния
 
-    btn_split_process = Button(tab_split_tables, text='7) Разделить таблицу',
+    btn_split_process = Button(tab_split_tables, text='6) Разделить таблицу',
                                font=('Arial Bold', 20),
                                command=processing_split_table)
     btn_split_process.grid(column=0, row=11, padx=10, pady=10)
