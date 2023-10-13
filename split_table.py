@@ -7,14 +7,14 @@ import os
 from tkinter import messagebox
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl import load_workbook
+from openpyxl.utils import get_column_letter
+from collections import Counter
 import time
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
-from jinja2 import exceptions
 import logging
 logging.basicConfig(
     level=logging.WARNING,
@@ -38,21 +38,41 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     """
     df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
     lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
-    prepared_lst_column = [value[:20] for value in lst_value_column]
-    # проверяем наличие дубликатов
-    if len(prepared_lst_column) != set(prepared_lst_column):
-        print('fd')
-    print(prepared_lst_column)
+    used_name_sheet = set() # множество для хранения значений которые уже были использованы
+
     name_column = df.columns[number_column-1] # получаем название колонки
     t = time.localtime()
     current_time = time.strftime('%H_%M_%S',t)
+
     if checkbox_split == 0:
         wb = openpyxl.Workbook() # создаем файл
         for idx,value in enumerate(lst_value_column):
             temp_df = df[df[name_column] == value] # отфильтровываем по значению
-            wb.create_sheet(value[:20],index=idx)
+            short_value = value[:20] # получаем обрезанное значение
+            if short_value in used_name_sheet:
+                short_value = f'{short_value}_{idx}' # добавляем окончание
+            wb.create_sheet(short_value,index=idx) # создаем лист
+            used_name_sheet.add(short_value)
             for row in dataframe_to_rows(temp_df,index=False,header=True):
-                wb[value[:20]].append(row)
+                wb[short_value].append(row)
+
+            # Устанавливаем автоширину для каждой колонки
+            for column in wb[short_value].columns:
+                max_length = 0
+                column_name = get_column_letter(column[0].column)
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = (max_length + 2)
+                wb[short_value].column_dimensions[column_name].width = adjusted_width
+
+
+
+
+
         wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
 
 
