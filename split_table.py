@@ -68,12 +68,36 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
                         pass
                 adjusted_width = (max_length + 2)
                 wb[short_value].column_dimensions[column_name].width = adjusted_width
-
-
-
-
-
         wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
+        wb.close()
+    else:
+        used_name_file = set() # множество для уже использованных имен файлов
+        for idx,value in enumerate(lst_value_column):
+            wb = openpyxl.Workbook()  # создаем файл
+            temp_df = df[df[name_column] == value] # отфильтровываем по значению
+            short_name = value[:40] # получаем обрезанное значение
+            if short_name in used_name_file:
+                short_name = f'{short_name}_{idx}' # добавляем окончание
+            for row in dataframe_to_rows(temp_df,index=False,header=True):
+                wb['Sheet'].append(row)
+
+            # Устанавливаем автоширину для каждой колонки
+            for column in wb['Sheet'].columns:
+                max_length = 0
+                column_name = get_column_letter(column[0].column)
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = (max_length + 2)
+                wb['Sheet'].column_dimensions[column_name].width = adjusted_width
+
+            wb.save(f'{path_to_end_folder}\{short_name}.xlsx')
+            used_name_file.add(short_name)
+            wb.close()
+
 
 
 
@@ -83,7 +107,7 @@ if __name__ == '__main__':
     file_data = 'data/Разделение таблицы/Базовая таблица 1000 человек.xlsx'
     name_sheet_main = 'Sheet1'
     number_column_main = 16
-    checkbox_split_main = 0
+    checkbox_split_main = 1
     path_to_end_folder_main = 'data/Разделение таблицы/result'
 
     split_table(file_data,name_sheet_main, number_column_main, checkbox_split_main, path_to_end_folder_main)
