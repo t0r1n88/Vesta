@@ -2,9 +2,9 @@
 Скрипт для разделения списка по значениям выбранной колонки.Результаты сохраняются либо в листы одного файла либо
 в отдельные файлы. Например разделить большой список по полу или по группам
 """
+import numpy as np
 import pandas as pd
-import os
-from tkinter import messagebox
+import re
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
@@ -25,6 +25,24 @@ logging.basicConfig(
     datefmt='%H:%M:%S',
 )
 
+def clean_value(value):
+    """
+    Функция для обработки значений колонки от  пустых пробелов,нан
+    :param value: значение ячейки
+    :return: очищенное значение
+    """
+    if value is np.nan:
+        return 'Не заполнено'
+    str_value = str(value)
+    if str_value == '':
+        return 'Не заполнено'
+    elif str_value ==' ':
+        return 'Не заполнено'
+
+    return str_value
+
+
+
 def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_split:int,path_to_end_folder):
     """
     Функция для разделения таблицы по значениям в определенном листе и колонке. Разделение по файлам и листам с сохранением названий
@@ -37,10 +55,12 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     :return: один файл в котором много листов либо много файлов в зависимости от режима
     """
     df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
-    lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
-    used_name_sheet = set() # множество для хранения значений которые уже были использованы
+    name_column = df.columns[number_column - 1]  # получаем название колонки
+    df[name_column] = df[name_column].apply(clean_value)
 
-    name_column = df.columns[number_column-1] # получаем название колонки
+    lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
+    lst_value_column = list(map(str,lst_value_column))
+    used_name_sheet = set() # множество для хранения значений которые уже были использованы
     t = time.localtime()
     current_time = time.strftime('%H_%M_%S',t)
 
@@ -49,6 +69,8 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
         for idx,value in enumerate(lst_value_column):
             temp_df = df[df[name_column] == value] # отфильтровываем по значению
             short_value = value[:20] # получаем обрезанное значение
+            short_value = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_value)
+
             if short_value in used_name_sheet:
                 short_value = f'{short_value}_{idx}' # добавляем окончание
             wb.create_sheet(short_value,index=idx) # создаем лист
@@ -70,12 +92,15 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
                 wb[short_value].column_dimensions[column_name].width = adjusted_width
         wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
         wb.close()
+
+
     else:
         used_name_file = set() # множество для уже использованных имен файлов
         for idx,value in enumerate(lst_value_column):
             wb = openpyxl.Workbook()  # создаем файл
             temp_df = df[df[name_column] == value] # отфильтровываем по значению
             short_name = value[:40] # получаем обрезанное значение
+            short_name = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_name)
             if short_name in used_name_file:
                 short_name = f'{short_name}_{idx}' # добавляем окончание
             for row in dataframe_to_rows(temp_df,index=False,header=True):
@@ -99,15 +124,11 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
             wb.close()
 
 
-
-
-
-
 if __name__ == '__main__':
     file_data = 'data/Разделение таблицы/Базовая таблица 1000 человек.xlsx'
     name_sheet_main = 'Sheet1'
     number_column_main = 16
-    checkbox_split_main = 1
+    checkbox_split_main = 0
     path_to_end_folder_main = 'data/Разделение таблицы/result'
 
     split_table(file_data,name_sheet_main, number_column_main, checkbox_split_main, path_to_end_folder_main)
