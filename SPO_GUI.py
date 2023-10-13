@@ -1209,7 +1209,7 @@ if __name__ == '__main__':
     entry_number_column_split = IntVar()
     # Описание поля
     label_number_column_split = Label(frame_data_for_split,
-                                             text='4) Введите порядковый номер колонки\nпо значениям которой нужно разделить таблицу')
+                                             text='4) Введите порядковый номер колонки начиная с 1\nпо значениям которой нужно разделить таблицу')
     label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
     # поле ввода имени листа
     entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
