@@ -195,8 +195,8 @@ def find_diffrence(first_sheet, second_sheet, first_df, second_df,path_to_end_fo
         logging.exception('AN ERROR HAS OCCURRED')
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов',

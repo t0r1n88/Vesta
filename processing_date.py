@@ -256,8 +256,8 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
         logging.exception('AN ERROR HAS OCCURRED')
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
 
     except:
         logging.exception('AN ERROR HAS OCCURRED')

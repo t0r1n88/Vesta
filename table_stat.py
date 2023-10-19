@@ -175,8 +175,8 @@ def counting_quantitative_stat(name_file_data_groupby,path_to_end_folder_groupby
 
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов',

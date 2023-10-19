@@ -12,6 +12,15 @@ from openpyxl.utils import get_column_letter
 import datetime
 import re
 from tkinter import messagebox
+import logging
+logging.basicConfig(
+    level=logging.WARNING,
+    filename="error.log",
+    filemode='w',
+    # чтобы файл лога перезаписывался  при каждом запуске.Чтобы избежать больших простыней. По умолчанию идет 'a'
+    format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
+    datefmt='%H:%M:%S',
+)
 
 def create_doc_convert_date(cell):
     """
@@ -94,8 +103,7 @@ def prepare_snils(df:pd.DataFrame,snils:str)->pd.DataFrame:
         return df
 
     df[prepared_columns_lst] = df[prepared_columns_lst].applymap(check_snils)
-    print(df[prepared_columns_lst].columns)
-    print(df[prepared_columns_lst])
+
     return df
 
 def prepare_snils_copp(df:pd.DataFrame,snils:str)->pd.DataFrame:
@@ -293,77 +301,79 @@ def prepare_email_columns(df:pd.DataFrame,second_option:str)->pd.DataFrame:
     return df
 
 
-
-
-
 def prepare_list(file_data:str,path_end_folder:str):
     """
     file_data : путь к файлу который нужно преобразовать
     path_end_folder :  путь к конечной папке
     """
-    df = pd.read_excel(file_data,dtype=str) # считываем датафрейм
-    df.columns = list(map(str,list(df.columns))) # делаем названия колонок строкововыми
-    # обрабатываем колонки с фио
-    part_fio_columns = ['фамилия','имя','отчество','фио'] # колонки с типичными названиями
-    df = prepare_fio_text_columns(df,part_fio_columns) # очищаем колонки с фио
+    try:
+        df = pd.read_excel(file_data,dtype=str) # считываем датафрейм
+        df.columns = list(map(str,list(df.columns))) # делаем названия колонок строкововыми
+        # обрабатываем колонки с фио
+        part_fio_columns = ['фамилия','имя','отчество','фио'] # колонки с типичными названиями
+        df = prepare_fio_text_columns(df,part_fio_columns) # очищаем колонки с фио
 
-    # обрабатываем колонки содержащими слово дата
-    part_date_columns = ['дата']
-    df = prepare_date_column(df,part_date_columns)
+        # обрабатываем колонки содержащими слово дата
+        part_date_columns = ['дата']
+        df = prepare_date_column(df,part_date_columns)
 
-    # обрабатываем колонки со снилс
-    snils = 'СНИЛС'
-    df = prepare_snils_copp(df, snils)
+        # обрабатываем колонки со снилс
+        snils = 'снилс'
+        df = prepare_snils(df, snils)
 
-    # обрабатываем колонки с ИНН
-    part_inn_columns = ['инн']
-    df = prepare_inn_column(df,part_inn_columns)
+        # обрабатываем колонки с ИНН
+        part_inn_columns = ['инн']
+        df = prepare_inn_column(df,part_inn_columns)
 
-    # обрабатываем данные паспорта
-    df = prepare_passport_column(df)
+        # обрабатываем колонки данные паспорта
+        df = prepare_passport_column(df)
 
-    # обрабатываем номера телефонов
-    phone = 'телефон'
-    df = prepare_phone_columns(df, phone)
+        # обрабатываем  колонки с номера телефонов
+        phone = 'телефон'
+        df = prepare_phone_columns(df, phone)
 
-    # очищаем email от пробельных символов
-    second_option = 'e-mail' # слова электрон и почта используются внутри функции
-    df = prepare_email_columns(df,second_option)
+        # очищаем email от пробельных символов
+        second_option = 'e-mail' # слова электрон и почта используются внутри функции
+        df = prepare_email_columns(df,second_option)
 
+        # сохраняем
+        t = time.localtime()
+        current_time = time.strftime('%H_%M_%S', t)
+        wb = openpyxl.Workbook() # создаем файл
+        #записываем в файл
+        for row in dataframe_to_rows(df,index=False,header=True):
+            wb['Sheet'].append(row)
+        #сохраняем по ширине колонок
+        for column in wb['Sheet'].columns:
+            max_length = 0
+            column_name = get_column_letter(column[0].column)
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            wb['Sheet'].column_dimensions[column_name].width = adjusted_width
+        name_file = file_data.split('.xlsx')[0] # получаем путь без расширения
+        name_file = name_file.split('/')[-1]
+        wb.save(f'{path_end_folder}/Обработанный {name_file} {current_time}.xlsx')
+    except NameError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
 
+    except ValueError as e:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Ошибка при обработке значения {e.args}')
+        logging.exception('AN ERROR HAS OCCURRED')
 
-
-
-    # сохраняем
-    t = time.localtime()
-    current_time = time.strftime('%H_%M_%S', t)
-    wb = openpyxl.Workbook() # создаем файл
-    #записываем в файл
-    for row in dataframe_to_rows(df,index=False,header=True):
-        wb['Sheet'].append(row)
-    #сохраняем по ширине колонок
-    for column in wb['Sheet'].columns:
-        max_length = 0
-        column_name = get_column_letter(column[0].column)
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2)
-        wb['Sheet'].column_dimensions[column_name].width = adjusted_width
-    wb.save(f'{path_end_folder}/Датафрейм {current_time}.xlsx')
-
-
-
-
-
-
-
-
-
-
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
+    else:
+        messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
 
 
 if __name__ == '__main__':

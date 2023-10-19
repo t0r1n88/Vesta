@@ -11,6 +11,7 @@ from union_tables import union_tables # Функция для объедения
 from extract_data_from_xlsx import extract_data_from_hard_xlsx # Функция для извлечения данных из таблиц со сложной структурой
 from generate_docs import generate_docs_from_template # Функция для создания документов Word из шаблона
 from split_table import split_table # Функция для разделения таблицы по отдельным листам и файлам
+from preparation_list import prepare_list # Функция для очистки и обработки списка
 import pandas as pd
 import os
 # from dateutil.parser import ParserError
@@ -511,9 +512,39 @@ def processing_split_table():
         logging.exception('AN ERROR HAS OCCURRED')
 
 
+"""
+Функции для вкладки подготовка файлов
+"""
+def select_prep_file():
+    """
+    Функция для выбора файла который нужно преобразовать
+    :return:
+    """
+    global glob_prep_file
+    # Получаем путь к файлу
+    glob_prep_file = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
 
 
+def select_end_folder_prep():
+    """
+    Функция для выбора папки куда будет сохранен преобразованный файл
+    :return:
+    """
+    global glob_path_to_end_folder_prep
+    glob_path_to_end_folder_prep = filedialog.askdirectory()
 
+
+def processing_preparation_file():
+    """
+    Функция для генерации документов
+    """
+    try:
+        prepare_list(glob_prep_file,glob_path_to_end_folder_prep)
+
+    except NameError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Выберите файл с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
 
 """
 Функции для создания контекстного меню(Копировать,вставить,вырезать)
@@ -1229,6 +1260,46 @@ if __name__ == '__main__':
                                font=('Arial Bold', 20),
                                command=processing_split_table)
     btn_split_process.grid(column=0, row=11, padx=10, pady=10)
+
+    """
+    Создаем вкладку для предварительной обработки списка
+    """
+    # Создаем вкладку создания документов по шаблону
+    tab_preparation= ttk.Frame(tab_control)
+    tab_control.add(tab_preparation, text='Обработка\nсписка')
+    tab_control.pack(expand=1, fill='both')
+
+    # размещаем виджеты на вкладке Подготовка файла
+    lbl_hello = Label(tab_preparation,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                           'Очистка от некорректных данных, поиск пропущенных значений,\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.')
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка . Пришлось переименовывать переменную, иначе картинка не отображалась
+    path_to_img_prep = resource_path('logo.png')
+    img_prep = PhotoImage(file=path_to_img_prep)
+    Label(tab_preparation,
+          image=img_prep
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_prep = LabelFrame(tab_preparation, text='Подготовка')
+    frame_data_prep.grid(column=0, row=1, padx=10)
+
+    # Создаем кнопку выбора файла с данными
+    btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 20),
+                                       command=select_prep_file)
+    btn_choose_prep_file.grid(column=0, row=2, padx=10, pady=10)
+
+    # Создаем кнопку выбора конечной папки
+    btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+                                       command=select_end_folder_prep)
+    btn_choose_end_folder_prep.grid(column=0, row=3, padx=10, pady=10)
+
+    # Создаем кнопку очистки
+    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить подготовку', font=('Arial Bold', 20),
+                                       command=processing_preparation_file)
+    btn_choose_processing_prep.grid(column=0, row=4, padx=10, pady=10)
 
 
 

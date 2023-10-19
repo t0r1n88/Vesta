@@ -195,6 +195,10 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите шаблон,файл с данными и папку куда будут генерироваться файлы')
+    except FileNotFoundError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
     except:
         logging.exception('AN ERROR HAS OCCURRED')
         messagebox.showerror('Веста Обработка таблиц и создание документов',

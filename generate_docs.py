@@ -293,8 +293,8 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
         logging.exception('AN ERROR HAS OCCURRED')
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'Перенесите файлы которые вы хотите обработать в корень диска. Проблема может быть\n '
-                             f'в слишком длинном пути к обрабатываемым файлам')
+                             f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
+                             f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
     except exceptions.TemplateSyntaxError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Ошибка в оформлении вставляемых значений в шаблоне\n'
