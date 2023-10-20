@@ -21,6 +21,11 @@ logging.basicConfig(
     format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
     datefmt='%H:%M:%S',
 )
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
+warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=UserWarning)
+pd.options.mode.chained_assignment = None
 
 def create_doc_convert_date(cell):
     """
@@ -29,12 +34,14 @@ def create_doc_convert_date(cell):
     :return:
     """
     try:
+        if cell is np.nan:
+            return 'Не заполнено'
         string_date = datetime.datetime.strftime(cell, '%d.%m.%Y')
         return string_date
     except ValueError:
-        return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
+        return f'Неправильное значение - {cell}'
     except TypeError:
-        return 'Не удалось конвертировать дату.Проверьте значение ячейки!!!'
+        return f'Неправильное значение - {cell}'
 
 
 def capitalize_fio(value:str)->str:
@@ -82,9 +89,9 @@ def prepare_date_column(df:pd.DataFrame,lst_columns:list)->pd.DataFrame:
                 prepared_columns_lst.append(name_column)
     if len(prepared_columns_lst) == 0: # проверка на случай не найденных значений
         return df
-
-    df[prepared_columns_lst] = df[prepared_columns_lst].applymap(lambda x:pd.to_datetime(x,errors='coerce',dayfirst=True)) # приводим к типу дата
-    df[prepared_columns_lst] = df[prepared_columns_lst].applymap(create_doc_convert_date) # приводим к виду ДД.ММ.ГГГГ
+    df[prepared_columns_lst] = df[prepared_columns_lst].fillna('Не заполнено')
+    df[prepared_columns_lst] = df[prepared_columns_lst].applymap(lambda x:pd.to_datetime(x,errors='ignore',dayfirst=True)) # приводим к типу дата
+    df[prepared_columns_lst] = df[prepared_columns_lst].applymap(create_doc_convert_date)  # приводим к виду ДД.ММ.ГГГГ
     return df
 
 def prepare_snils(df:pd.DataFrame,snils:str)->pd.DataFrame:
@@ -254,7 +261,8 @@ def prepare_phone_columns(df:pd.DataFrame,phone_text:str) ->pd.DataFrame:
     """
     Функция для очистки номеров телефонов от пробельных символов и букв
     """
-    pattern = r'[a-zA-Zа-яА-Я\s.]'
+    # pattern = r'[a-zA-Zа-яА-Я\s.]'
+    pattern = r'\D' # удаляем  все кроме цифр
     prepared_phone_columns = [] # лист для колонок с телефонами
     # собираем названия колонок содержащих слово телефон
     for name_column in df.columns:
@@ -377,8 +385,8 @@ def prepare_list(file_data:str,path_end_folder:str):
 
 
 if __name__ == '__main__':
-    file_data_main = 'data/example/файл с яндекса.xlsx'
-    path_end_main = 'data/example'
+    file_data_main = 'data/Обработка списка/Список студентов военкомат.xlsx'
+    path_end_main = 'data'
     prepare_list(file_data_main,path_end_main)
 
     print('Lindy Booth')
