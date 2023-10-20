@@ -539,7 +539,8 @@ def processing_preparation_file():
     Функция для генерации документов
     """
     try:
-        prepare_list(glob_prep_file,glob_path_to_end_folder_prep)
+        name_sheet = var_name_sheet_prep.get() # получаем название листа
+        prepare_list(glob_prep_file,glob_path_to_end_folder_prep,name_sheet)
 
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
@@ -1291,15 +1292,27 @@ if __name__ == '__main__':
                                        command=select_prep_file)
     btn_choose_prep_file.grid(column=0, row=2, padx=10, pady=10)
 
+    # Определяем строковую переменную для названия листа с которого будет вестись обработка
+    var_name_sheet_prep = StringVar()
+    # Описание поля
+    label_name_sheet_prep = Label(frame_data_prep,
+                                             text='2) Введите название листа на котором находится список')
+    label_name_sheet_prep.grid(column=0, row=3, padx=10, pady=10)
+    # поле ввода имени листа
+    entry_name_sheet_prep = Entry(frame_data_prep, textvariable=var_name_sheet_prep,
+                                             width=30)
+    entry_name_sheet_prep.grid(column=0, row=4, padx=5, pady=5, ipadx=15, ipady=10)
+
+
     # Создаем кнопку выбора конечной папки
-    btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_prep= Button(frame_data_prep, text='3) Выберите конечную папку', font=('Arial Bold', 20),
                                        command=select_end_folder_prep)
-    btn_choose_end_folder_prep.grid(column=0, row=3, padx=10, pady=10)
+    btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
 
     # Создаем кнопку очистки
-    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить подготовку', font=('Arial Bold', 20),
+    btn_choose_processing_prep= Button(frame_data_prep, text='4) Выполнить подготовку', font=('Arial Bold', 20),
                                        command=processing_preparation_file)
-    btn_choose_processing_prep.grid(column=0, row=4, padx=10, pady=10)
+    btn_choose_processing_prep.grid(column=0, row=6, padx=10, pady=10)
 
 
 
