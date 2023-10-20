@@ -317,7 +317,7 @@ def prepare_list(file_data:str,path_end_folder:str):
     try:
         df = pd.read_excel(file_data,dtype=str) # считываем датафрейм
         df.columns = list(map(str,list(df.columns))) # делаем названия колонок строкововыми
-        # очищаем все строковые колонки от пробелов в начале и конце
+        # очищаем все строковые значения от пробелов в начале и конце
         df = df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
         # обрабатываем колонки с фио
         part_fio_columns = ['фамилия','имя','отчество','фио'] # колонки с типичными названиями

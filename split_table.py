@@ -25,12 +25,18 @@ logging.basicConfig(
     datefmt='%H:%M:%S',
 )
 
-class Zero_Number_Column(Exception):
+class ZeroNumberColumn(Exception):
     """
     Исключение если будет введен ноль в поле ввода номера колонки
     """
     pass
 
+
+class ExceedingQuantity(Exception):
+    """
+    Исключение для случаев когда числа уникальных значений больше 255
+    """
+    pass
 
 
 def clean_value(value):
@@ -65,18 +71,21 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
 
     try:
         if number_column == 0: # если кто нажал
-            raise Zero_Number_Column
+            raise ZeroNumberColumn
         df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
         name_column = df.columns[number_column - 1]  # получаем название колонки
         df[name_column] = df[name_column].apply(clean_value)
 
         lst_value_column = df.iloc[:,number_column-1].unique() # получаем все значения нужной колонки, -1 отнимаем поскольку в экселе нумерация с 1
+
         lst_value_column = list(map(str,lst_value_column))
         used_name_sheet = set() # множество для хранения значений которые уже были использованы
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S',t)
 
         if checkbox_split == 0:
+            if len(lst_value_column) >= 253:
+                raise ExceedingQuantity
             wb = openpyxl.Workbook() # создаем файл
             for idx,value in enumerate(lst_value_column):
                 temp_df = df[df[name_column] == value] # отфильтровываем по значению
@@ -141,9 +150,13 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     except ValueError as e:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'В таблице не найден указанный лист {e.args}')
-    except Zero_Number_Column:
+    except ZeroNumberColumn:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Порядковые номера колонок начинаются с 1 !!!')
+    except ExceedingQuantity:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Количество уникальных значений в выбранной колонке больше 253!!!\n'
+                             f'Выберите вариант Б для создания отдельных файлов или уменьшите количество уникальных значений')
 
 
     except IndexError as e:
