@@ -1,6 +1,7 @@
 """
 Извлечение данных из файлов Excel со сложной структурой
 """
+from support_functions import write_df_to_excel # импорт функции по записи в файл с автошириной колонок
 import pandas as pd
 from tkinter import messagebox
 import openpyxl
@@ -8,6 +9,7 @@ import time
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
 import logging
@@ -47,6 +49,7 @@ def count_text_value(df):
             data[(row[1], count_row[1])] = count_row[2]
     # Создаем на основе получившегося словаря таблицу
     out_df = pd.Series(data).to_frame().reset_index()
+    #TODO обработка пустых датафрейма
     out_df = out_df.set_index(['level_0', 'level_1'])
     out_df.index.names = ['Название показателя', 'Вариант показателя']
     out_df.rename(columns={0: 'Количество'}, inplace=True)
@@ -165,6 +168,8 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
                           encoding='utf-8') as f:
                     f.write(f'Файл {name_file} не обработан!!!\n')
 
+        # сохраняем
+
         check_df.to_excel(f'{path_to_end_folder_calculate_data}/Проверка вычисления {current_time}.xlsx', index=False)
 
         # Создание итоговой таблицы результатов подсчета
@@ -180,9 +185,14 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
         if mode_text == 'Yes':
             # Обрабатываем датафрейм считая текстовые данные
             count_text_df = count_text_value(finish_result)
+            # сохраняем
+
+
             count_text_df.to_excel(
                 f'{path_to_end_folder_calculate_data}/Подсчет текстовых значений {current_time}.xlsx')
         else:
+            # сохраняем
+
             finish_result.to_excel(f'{path_to_end_folder_calculate_data}/Итоговые значения {current_time}.xlsx',
                                    index=False)
 
@@ -199,17 +209,17 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    # except:
+    #     logging.exception('AN ERROR HAS OCCURRED')
+    #     messagebox.showerror('Веста Обработка таблиц и создание документов',
+    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
 
 if __name__ == '__main__':
     mode_text = 'Yes'
     name_file_params_calculate_data = 'data\Извлечение данных\Анкеты мониторинг профориентации\Параметры для подсчета анкет.xlsx'
-    # names_files_calculate_data = ['data/Извлечение данных\Анкеты мониторинг профориентации\Усть-Кяхтинская СОШ.xlsx',
-    #                               'data/Извлечение данных\Анкеты мониторинг профориентации\МБОУ Ацульская СОШ.xlsx']
-    names_files_calculate_data = ''
+    names_files_calculate_data = ['data/Извлечение данных\Анкеты мониторинг профориентации\Усть-Кяхтинская СОШ.xlsx',
+                                  'data/Извлечение данных\Анкеты мониторинг профориентации\МБОУ Ацульская СОШ.xlsx']
+    # names_files_calculate_data = ''
     path_to_end_folder_calculate_data = 'data'
 
 

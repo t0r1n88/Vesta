@@ -2,6 +2,7 @@
 Скрипт для подготовки списка
 Очистка некорректных данных, удаление лишних пробелов
 """
+from support_functions import write_df_to_excel # функция для записи в файл Excel с автоподбором ширины
 import time
 
 import pandas as pd
@@ -349,22 +350,10 @@ def prepare_list(file_data:str,path_end_folder:str):
         # сохраняем
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        wb = openpyxl.Workbook() # создаем файл
-        #записываем в файл
-        for row in dataframe_to_rows(df,index=False,header=True):
-            wb['Sheet'].append(row)
-        #сохраняем по ширине колонок
-        for column in wb['Sheet'].columns:
-            max_length = 0
-            column_name = get_column_letter(column[0].column)
-            for cell in column:
-                try:
-                    if len(str(cell.value)) > max_length:
-                        max_length = len(cell.value)
-                except:
-                    pass
-            adjusted_width = (max_length + 2)
-            wb['Sheet'].column_dimensions[column_name].width = adjusted_width
+        dct_df = {'Лист1':df}
+        write_index = False
+        wb = write_df_to_excel(dct_df,write_index)
+
         name_file = file_data.split('.xlsx')[0] # получаем путь без расширения
         name_file = name_file.split('/')[-1]
         wb.save(f'{path_end_folder}/Обработанный {name_file} {current_time}.xlsx')

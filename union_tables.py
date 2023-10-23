@@ -1,11 +1,13 @@
 """
 Функция для объединения нескольких таблиц в одну
 """
+from support_functions import write_df_to_excel # импорт функции по записи в файл с автошириной колонок
 import pandas as pd
 import os
 from tkinter import messagebox
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
 import time
 import warnings
@@ -157,6 +159,20 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
 
                 # Получаем текущую дату
                 current_time = time.strftime('%H_%M_%S %d.%m.%Y')
+                # сохраняем по ширине колонок
+                first_sheet = standard_wb.sheetnames[0]
+                for column in standard_wb[first_sheet].columns:
+                    max_length = 0
+                    column_name = get_column_letter(column[0].column)
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    standard_wb[first_sheet].column_dimensions[column_name].width = adjusted_width
+
                 standard_wb.save(
                     f'{path_to_end_folder_merger}/Слияние по варианту А Общая таблица от {current_time}.xlsx')  # сохраняем
                 err_out_wb = openpyxl.Workbook()  # создаем объект openpyxl для сохранения датафрейма
@@ -229,6 +245,19 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
 
                 # Получаем текущую дату
                 current_time = time.strftime('%H_%M_%S %d.%m.%Y')
+                # сохраняем по ширине колонок
+                first_sheet = standard_wb.sheetnames[0]
+                for column in standard_wb[first_sheet].columns:
+                    max_length = 0
+                    column_name = get_column_letter(column[0].column)
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(cell.value)
+                        except:
+                            pass
+                    adjusted_width = (max_length + 2)
+                    standard_wb[first_sheet].column_dimensions[column_name].width = adjusted_width
                 standard_wb.save(
                     f'{path_to_end_folder_merger}/Слияние по варианту Б Общая таблица от {current_time}.xlsx')  # сохраняем
 
@@ -312,6 +341,7 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
 
                 # # Получаем текущую дату
                 current_time = time.strftime('%H_%M_%S %d.%m.%Y')
+
                 standard_wb.save(
                     f'{path_to_end_folder_merger}/Слияние по варианту В Общая таблица от {current_time}.xlsx')  # сохраняем
                 err_out_wb = openpyxl.Workbook()  # создаем объект openpyxl для сохранения датафрейма
@@ -349,7 +379,7 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
                                 'Создание общей таблицы успешно завершено!!!')
 
 if __name__=='__main__':
-    checkbox_harvest_main = 0
+    checkbox_harvest_main = 1
     merger_entry_skip_rows_main = 1
     file_standard_merger_main = 'data\Слияние данных\Списки\Список 28.03.02 Наноинженерия.xlsx'
     dir_name_main = 'data\Слияние данных\Списки'

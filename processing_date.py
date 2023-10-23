@@ -5,6 +5,7 @@ import pandas as pd
 from tkinter import messagebox
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font
 import time
 import warnings
@@ -242,9 +243,22 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
         for r in dataframe_to_rows(df, index=False, header=True):
             wb['Итоговая таблица'].append(r)
 
+        # сохраняем по ширине колонок
+        for column in wb['Итоговая таблица'].columns:
+            max_length = 0
+            column_name = get_column_letter(column[0].column)
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            wb['Итоговая таблица'].column_dimensions[column_name].width = adjusted_width
+
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        # Сохраняем итоговый файл
+
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
