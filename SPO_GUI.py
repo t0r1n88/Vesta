@@ -494,14 +494,14 @@ def processing_split_table():
     """
     # названия листов в таблицах
     try:
-        name_sheet = str(entry_sheet_name_split.get()) # получаем имя листа
+        # name_sheet = str(entry_sheet_name_split.get()) # получаем имя листа
         number_column = entry_number_column_split.get() #  получаем порядковый номер колонки
         number_column = int(number_column) # конвертируем в инт
 
         checkbox_split = group_rb_type_split.get() # получаем значения переключиталея
 
         # находим разницу
-        split_table(file_data_split,name_sheet,number_column,checkbox_split,path_to_end_folder_split)
+        split_table(file_data_split,number_column,checkbox_split,path_to_end_folder_split)
     except ValueError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Введите целое числа начиная с 1 !!!')
@@ -539,8 +539,8 @@ def processing_preparation_file():
     Функция для генерации документов
     """
     try:
-        name_sheet = var_name_sheet_prep.get() # получаем название листа
-        prepare_list(glob_prep_file,glob_path_to_end_folder_prep,name_sheet)
+        # name_sheet = var_name_sheet_prep.get() # получаем название листа
+        prepare_list(glob_prep_file,glob_path_to_end_folder_prep)
 
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
@@ -601,6 +601,146 @@ if __name__ == '__main__':
 
     tab_control = ttk.Notebook(window)
 
+    """
+    Создаем вкладку для предварительной обработки списка
+    """
+    # Создаем вкладку создания документов по шаблону
+    tab_preparation= ttk.Frame(tab_control)
+    tab_control.add(tab_preparation, text='Обработка\nсписка')
+    tab_control.pack(expand=1, fill='both')
+
+    # размещаем виджеты на вкладке Подготовка файла
+    lbl_hello = Label(tab_preparation,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                           'Очистка от лишних пробелов и символов; поиск пропущенных значений\n в колонках с персональными данными,'
+                           '(ФИО,паспортные данные,\nтелефон,e-mail,дата рождения,ИНН)\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.\n'
+                           'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
+                           'Для корректной работы программы уберите из таблицы объединенные ячейки')
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка . Пришлось переименовывать переменную, иначе картинка не отображалась
+    path_to_img_prep = resource_path('logo.png')
+    img_prep = PhotoImage(file=path_to_img_prep)
+    Label(tab_preparation,
+          image=img_prep
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_prep = LabelFrame(tab_preparation, text='Подготовка')
+    frame_data_prep.grid(column=0, row=1, padx=10)
+
+    # Создаем кнопку выбора файла с данными
+    btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 20),
+                                       command=select_prep_file)
+    btn_choose_prep_file.grid(column=0, row=2, padx=10, pady=10)
+
+    # # Определяем строковую переменную для названия листа с которого будет вестись обработка
+    # var_name_sheet_prep = StringVar()
+    # # Описание поля
+    # label_name_sheet_prep = Label(frame_data_prep,
+    #                                          text='2) Введите название листа на котором находится список')
+    # label_name_sheet_prep.grid(column=0, row=3, padx=10, pady=10)
+    # # поле ввода имени листа
+    # entry_name_sheet_prep = Entry(frame_data_prep, textvariable=var_name_sheet_prep,
+    #                                          width=30)
+    # entry_name_sheet_prep.grid(column=0, row=4, padx=5, pady=5, ipadx=15, ipady=10)
+
+
+    # Создаем кнопку выбора конечной папки
+    btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+                                       command=select_end_folder_prep)
+    btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
+
+    # Создаем кнопку очистки
+    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить подготовку', font=('Arial Bold', 20),
+                                       command=processing_preparation_file)
+    btn_choose_processing_prep.grid(column=0, row=6, padx=10, pady=10)
+
+    """
+    Создание вкладки для разбиения таблицы на несколько штук по значениям в определенной колонке
+    """
+    # Создаем вкладку для подсчета данных по категориям
+    tab_split_tables = ttk.Frame(tab_control)
+    tab_control.add(tab_split_tables, text='Разделение\n таблицы')
+    tab_control.pack(expand=1, fill='both')
+
+    # Добавляем виджеты на вкладку Подсчет данных  по категориям
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_split_tables,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
+                           'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
+                           'Заголовок таблицы должен занимать ОДНУ СТРОКУ и в нем не должно быть объединенных ячеек!'
+                      )
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_to_img = resource_path('logo.png')
+    img_split = PhotoImage(file=path_to_img)
+    Label(tab_split_tables,
+          image=img_split
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Переключатель:вариант слияния файлов
+    # Создаем переключатель
+    group_rb_type_split = IntVar()
+    # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
+    frame_rb_type_split = LabelFrame(tab_split_tables, text='1) Выберите вариант разделения')
+    frame_rb_type_split.grid(column=0, row=1, padx=10)
+    #
+    Radiobutton(frame_rb_type_split, text='А) По листам в одном файле', variable=group_rb_type_split,
+                value=0).pack()
+    Radiobutton(frame_rb_type_split, text='Б) По отдельным файлам', variable=group_rb_type_split,
+                value=1).pack()
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
+    frame_data_for_split.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать файл
+
+    btn_example_split = Button(frame_data_for_split, text='2) Выберите файл с таблицей', font=('Arial Bold', 14),
+                               command=select_file_split)
+    btn_example_split.grid(column=0, row=3, padx=5, pady=5)
+
+    # # Определяем текстовую переменную для названия листа
+    # entry_sheet_name_split = StringVar()
+    # # Описание поля
+    # label_sheet_name_split = Label(frame_data_for_split,
+    #                                          text='3) Введите имя листа где находится таблица')
+    # label_sheet_name_split.grid(column=0, row=4, padx=10, pady=10)
+    # # поле ввода имени листа
+    # entry_sheet_name_split = Entry(frame_data_for_split, textvariable=entry_sheet_name_split,
+    #                                          width=30)
+    # entry_sheet_name_split.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Определяем числовую переменную для порядкового номера
+    entry_number_column_split = IntVar()
+    # Описание поля
+    label_number_column_split = Label(frame_data_for_split,
+                                             text='3) Введите порядковый номер колонки начиная с 1\nпо значениям которой нужно разделить таблицу')
+    label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
+    # поле ввода имени листа
+    entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
+                                             width=30)
+    entry_number_column_split.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
+
+
+    btn_choose_end_folder_split = Button(frame_data_for_split, text='4) Выберите конечную папку',
+                                         font=('Arial Bold', 14),
+                                         command=select_end_folder_split
+                                         )
+    btn_choose_end_folder_split.grid(column=0, row=8, padx=5, pady=5)
+
+    # Создаем кнопку слияния
+
+    btn_split_process = Button(tab_split_tables, text='5) Разделить таблицу',
+                               font=('Arial Bold', 20),
+                               command=processing_split_table)
+    btn_split_process.grid(column=0, row=11, padx=10, pady=10)
+
+
+
     # Создаем вкладку создания документов по шаблону
     tab_create_doc = ttk.Frame(tab_control)
     tab_control.add(tab_create_doc, text='Создание\nдокументов')
@@ -610,7 +750,7 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_create_doc,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
                            '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
@@ -740,7 +880,7 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_calculate_date,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
                            '\nДанные обрабатываются только с первого листа файла Excel!!!')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
@@ -842,7 +982,7 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_comparison,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки')
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -978,7 +1118,7 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_merger_tables,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние файлов Excel с одинаковой структурой'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
                       )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
@@ -1061,7 +1201,7 @@ if __name__ == '__main__':
     # Создаем метку для описания назначения программы
     lbl_hello = Label(tab_decl_by_cases,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам и создание инициалов'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
                       )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
@@ -1118,7 +1258,7 @@ if __name__ == '__main__':
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
                            'Количество строк и колонок в таблицах должно совпадать\n'
                            'Названия колонок в таблицах должны совпадать'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки')
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
     # Картинка
@@ -1181,138 +1321,7 @@ if __name__ == '__main__':
                                    )
     btn_data_do_diffrence.grid(column=0, row=11, padx=10, pady=10)
 
-    """
-    Создание вкладки для разбиения таблицы на несколько штук по значениям в определенной колонке
-    """
-    # Создаем вкладку для подсчета данных по категориям
-    tab_split_tables = ttk.Frame(tab_control)
-    tab_control.add(tab_split_tables, text='Разделение\n таблицы')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Подсчет данных  по категориям
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_split_tables,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
-                           '\nДля корректной работы программмы уберите из таблицы объединенные ячейки'
-                      )
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
-
-    # Картинка
-    path_to_img = resource_path('logo.png')
-    img_split = PhotoImage(file=path_to_img)
-    Label(tab_split_tables,
-          image=img_split
-          ).grid(column=1, row=0, padx=10, pady=25)
-
-    # Переключатель:вариант слияния файлов
-    # Создаем переключатель
-    group_rb_type_split = IntVar()
-    # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
-    frame_rb_type_split = LabelFrame(tab_split_tables, text='1) Выберите вариант разделения')
-    frame_rb_type_split.grid(column=0, row=1, padx=10)
-    #
-    Radiobutton(frame_rb_type_split, text='А) По листам в одном файле', variable=group_rb_type_split,
-                value=0).pack()
-    Radiobutton(frame_rb_type_split, text='Б) По отдельным файлам', variable=group_rb_type_split,
-                value=1).pack()
-
-    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
-    frame_data_for_split.grid(column=0, row=2, padx=10)
-
-    # Создаем кнопку Выбрать файл
-
-    btn_example_split = Button(frame_data_for_split, text='2) Выберите файл с таблицей', font=('Arial Bold', 14),
-                               command=select_file_split)
-    btn_example_split.grid(column=0, row=3, padx=5, pady=5)
-
-    # Определяем текстовую переменную для названия листа
-    entry_sheet_name_split = StringVar()
-    # Описание поля
-    label_sheet_name_split = Label(frame_data_for_split,
-                                             text='3) Введите имя листа где находится таблица')
-    label_sheet_name_split.grid(column=0, row=4, padx=10, pady=10)
-    # поле ввода имени листа
-    entry_sheet_name_split = Entry(frame_data_for_split, textvariable=entry_sheet_name_split,
-                                             width=30)
-    entry_sheet_name_split.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
-
-    # Определяем числовую переменную для порядкового номера
-    entry_number_column_split = IntVar()
-    # Описание поля
-    label_number_column_split = Label(frame_data_for_split,
-                                             text='4) Введите порядковый номер колонки начиная с 1\nпо значениям которой нужно разделить таблицу')
-    label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
-    # поле ввода имени листа
-    entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
-                                             width=30)
-    entry_number_column_split.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
-
-
-    btn_choose_end_folder_split = Button(frame_data_for_split, text='5) Выберите конечную папку',
-                                         font=('Arial Bold', 14),
-                                         command=select_end_folder_split
-                                         )
-    btn_choose_end_folder_split.grid(column=0, row=8, padx=5, pady=5)
-
-    # Создаем кнопку слияния
-
-    btn_split_process = Button(tab_split_tables, text='6) Разделить таблицу',
-                               font=('Arial Bold', 20),
-                               command=processing_split_table)
-    btn_split_process.grid(column=0, row=11, padx=10, pady=10)
-
-    """
-    Создаем вкладку для предварительной обработки списка
-    """
-    # Создаем вкладку создания документов по шаблону
-    tab_preparation= ttk.Frame(tab_control)
-    tab_control.add(tab_preparation, text='Обработка\nсписка')
-    tab_control.pack(expand=1, fill='both')
-
-    # размещаем виджеты на вкладке Подготовка файла
-    lbl_hello = Label(tab_preparation,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Очистка от некорректных данных, поиск пропущенных значений,\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
-
-    # Картинка . Пришлось переименовывать переменную, иначе картинка не отображалась
-    path_to_img_prep = resource_path('logo.png')
-    img_prep = PhotoImage(file=path_to_img_prep)
-    Label(tab_preparation,
-          image=img_prep
-          ).grid(column=1, row=0, padx=10, pady=25)
-
-    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_prep = LabelFrame(tab_preparation, text='Подготовка')
-    frame_data_prep.grid(column=0, row=1, padx=10)
-
-    # Создаем кнопку выбора файла с данными
-    btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 20),
-                                       command=select_prep_file)
-    btn_choose_prep_file.grid(column=0, row=2, padx=10, pady=10)
-
-    # Определяем строковую переменную для названия листа с которого будет вестись обработка
-    var_name_sheet_prep = StringVar()
-    # Описание поля
-    label_name_sheet_prep = Label(frame_data_prep,
-                                             text='2) Введите название листа на котором находится список')
-    label_name_sheet_prep.grid(column=0, row=3, padx=10, pady=10)
-    # поле ввода имени листа
-    entry_name_sheet_prep = Entry(frame_data_prep, textvariable=var_name_sheet_prep,
-                                             width=30)
-    entry_name_sheet_prep.grid(column=0, row=4, padx=5, pady=5, ipadx=15, ipady=10)
-
-
-    # Создаем кнопку выбора конечной папки
-    btn_choose_end_folder_prep= Button(frame_data_prep, text='3) Выберите конечную папку', font=('Arial Bold', 20),
-                                       command=select_end_folder_prep)
-    btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
-
-    # Создаем кнопку очистки
-    btn_choose_processing_prep= Button(frame_data_prep, text='4) Выполнить подготовку', font=('Arial Bold', 20),
-                                       command=processing_preparation_file)
-    btn_choose_processing_prep.grid(column=0, row=6, padx=10, pady=10)
 
 
 

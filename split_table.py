@@ -57,12 +57,11 @@ def clean_value(value):
 
 
 
-def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_split:int,path_to_end_folder):
+def split_table(file_data_split:str,number_column:int,checkbox_split:int,path_to_end_folder):
     """
     Функция для разделения таблицы по значениям в определенном листе и колонке. Разделение по файлам и листам с сохранением названий
 
     :param file_data_split: файл с таблицей
-    :param name_sheet: имя листа с таблицей
     :param number_column:порядковый номер колонки , прибавляется 1 чтобы соответстовать экселю
     :param checkbox_split: вариант разделения
     :param path_to_end_folder: путь к итоговой папке
@@ -72,7 +71,7 @@ def split_table(file_data_split:str,name_sheet:str,number_column:int,checkbox_sp
     try:
         if number_column == 0: # если кто нажал
             raise ZeroNumberColumn
-        df = pd.read_excel(file_data_split,sheet_name=name_sheet,dtype=str)
+        df = pd.read_excel(file_data_split,dtype=str)
         name_column = df.columns[number_column - 1]  # получаем название колонки
         df[name_column] = df[name_column].apply(clean_value)
 
