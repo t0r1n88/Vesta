@@ -1,10 +1,13 @@
 """
 Функции  для нахождения разницы двух таблиц
 """
+from support_functions import write_df_to_excel # импорт функции по записи в файл с автошириной колонок
 import pandas as pd
 from tkinter import filedialog
 from tkinter import messagebox
 import openpyxl
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 import time
 import warnings
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -172,11 +175,16 @@ def find_diffrence(first_sheet, second_sheet, first_df, second_df,path_to_end_fo
         # записываем
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        # делаем так чтобы записать на разные листы
-        with pd.ExcelWriter(f'{path_to_end_folder_diffrence}/Разница между 2 таблицами {current_time}.xlsx') as writer:
-            df_cols.to_excel(writer, sheet_name='По колонкам')
-            df_rows.to_excel(writer, sheet_name='По строкам')
-            df_diff_cols.to_excel(writer, sheet_name='Значение разницы')
+        # # делаем так чтобы записать на разные листы
+        # with pd.ExcelWriter(f'{path_to_end_folder_diffrence}/Разница между 2 таблицами {current_time}.xlsx') as writer:
+        #     df_cols.to_excel(writer, sheet_name='По колонкам')
+        #     df_rows.to_excel(writer, sheet_name='По строкам')
+        #     df_diff_cols.to_excel(writer, sheet_name='Значение разницы')
+        # записываем в файл Excel с сохранением ширины
+        dct_df = {'По колонкам':df_cols,'По строкам':df_rows,'Значение разницы':df_diff_cols}
+        write_index = True # нужно ли записывать индекс
+        wb = write_df_to_excel(dct_df,write_index)
+        wb.save(f'{path_to_end_folder_diffrence}/Разница между 2 таблицами {current_time}.xlsx')
     except ShapeDiffierence:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Не совпадают размеры таблиц, В первой таблице {df1.shape[0]}-стр. и {df1.shape[1]}-кол.\n'

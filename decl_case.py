@@ -1,6 +1,9 @@
 """
 Склонение ФИО по падежам
 """
+import openpyxl
+from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.utils import get_column_letter
 import pandas as pd
 from tkinter import messagebox
 
@@ -256,7 +259,25 @@ def declension_fio_by_case(fio_column,data_decl_case,path_to_end_folder_decl_cas
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
-        df.to_excel(f'{path_to_end_folder_decl_case}/ФИО по падежам от {current_time}.xlsx', index=False)
+        # записываем в файл
+        wb = openpyxl.Workbook()
+        for row in dataframe_to_rows(df,index=False,header=True):
+            wb['Sheet'].append(row)
+        #сохраняем по ширине колонок
+        for column in wb['Sheet'].columns:
+            max_length = 0
+            column_name = get_column_letter(column[0].column)
+            for cell in column:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+            adjusted_width = (max_length + 2)
+            wb['Sheet'].column_dimensions[column_name].width = adjusted_width
+
+
+        wb.save(f'{path_to_end_folder_decl_case}/ФИО по падежам от {current_time}.xlsx')
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
