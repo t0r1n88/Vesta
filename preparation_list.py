@@ -51,6 +51,8 @@ def capitalize_fio(value:str)->str:
     value: значение ячейки
     """
     value = str(value)
+    if value == 'Не заполнено':
+        return value
     temp_lst = value.split(' ') # создаем список по пробелу
     temp_lst = list(map(str.capitalize,temp_lst))  # обрабатываем
     return ' '.join(temp_lst) #соединяем в строку
@@ -145,7 +147,7 @@ def check_snils(snils):
         out_snils = f'{first_group}-{second_group}-{third_group} {four_group}'
         return out_snils
     else:
-        return f'Неправильное значение СНИЛС - {snils}'
+        return f'Неправильное значение!В СНИЛС должно быть 11 цифр - {snils} -{len(snils)} цифр'
 
 def prepare_inn_column(df:pd.DataFrame,lst_columns:list)->pd.DataFrame:
     """
@@ -177,7 +179,7 @@ def check_inn(inn):
     if len(result) == 12:
         return ''.join(result)
     else:
-        return f'Неправильное значение ИНН (ИНН физлица состоит из 12 цифр)- {inn}'
+        return f'Неправильное значение ИНН (ИНН физлица состоит из 12 цифр)- {inn} -{len(inn)} цифр'
 
 def prepare_passport_column(df:pd.DataFrame)->pd.DataFrame:
     """
@@ -293,19 +295,21 @@ def prepare_email_columns(df:pd.DataFrame,second_option:str)->pd.DataFrame:
     df: датафрейм для обработки
     second_option: значение для поиска колонкок с содержащей слово e-mail
     """
-    prepared_columns_email_lst = [] # список для колонок содержащих слова электрон почта e-mail
+    prepared_columns_email_set = set() # множество для колонок содержащих слова электрон почта e-mail
+    # это нужно для обработки случаем когда колонка называется Электронная почта(email)
     pattern_first_option = re.compile(r"(?=.*электрон)(?=.*почта)") # паттерн для слов электрон почта
     for name_column in df.columns:
         result_first_option = re.search(pattern_first_option,name_column.lower()) # ищем по паттерну электрон почта
         if result_first_option:
-            prepared_columns_email_lst.append(name_column)
+            prepared_columns_email_set.add(name_column)
         if second_option in name_column:
-            prepared_columns_email_lst.append(name_column)
+            prepared_columns_email_set.add(name_column)
+    prepared_columns_email_lst = list(prepared_columns_email_set) # превращаем в список
 
     if len(prepared_columns_email_lst) == 0:
         return df
     df[prepared_columns_email_lst] = df[prepared_columns_email_lst].fillna('Не заполнено')
-    df[prepared_columns_email_lst] = df[prepared_columns_email_lst].applymap(lambda x:re.sub(r'\s','',x))
+    df[prepared_columns_email_lst] = df[prepared_columns_email_lst].applymap(lambda x:re.sub(r'\s','',x) if x !='Не заполнено' else x)
 
     return df
 

@@ -652,7 +652,7 @@ if __name__ == '__main__':
     btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
 
     # Создаем кнопку очистки
-    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить подготовку', font=('Arial Bold', 20),
+    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить обработку', font=('Arial Bold', 20),
                                        command=processing_preparation_file)
     btn_choose_processing_prep.grid(column=0, row=6, padx=10, pady=10)
 
@@ -670,7 +670,7 @@ if __name__ == '__main__':
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
                            '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
                            'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
-                           'Заголовок таблицы должен занимать ОДНУ СТРОКУ и в нем не должно быть объединенных ячеек!'
+                           'Заголовок таблицы должен занимать ОДНУ СТРОКУ\n и в нем не должно быть объединенных ячеек!'
                       )
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
 
