@@ -41,13 +41,3 @@ def write_df_to_excel(dct_df:dict,write_index:bool)->openpyxl.Workbook:
         del wb['Sheet']
     return wb
 
-
-
-
-
-
-
-
-
-
-    return wb
