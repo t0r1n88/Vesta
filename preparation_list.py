@@ -28,6 +28,13 @@ warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
 
+class ExceedingQuantity(Exception):
+    """
+    Исключение для случаев когда числа уникальных значений больше 255
+    """
+    pass
+
+
 def create_doc_convert_date(cell):
     """
     Функция для конвертации даты при создании документов
@@ -350,17 +357,60 @@ def prepare_list(file_data:str,path_end_folder:str):
         # очищаем email от пробельных символов
         second_option = 'e-mail' # слова электрон и почта используются внутри функции
         df = prepare_email_columns(df,second_option)
-
-        # сохраняем
+        # получаем время
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
+
+        """
+        Создаем список дубликатов
+        """
+        lst_name_columns = list(df.columns) # получаем список колонок
+        used_name_sheet = set()  # множество для хранения значений которые уже были использованы
+        if len(lst_name_columns) >= 253: # проверяем количество колонок которые могут созданы
+            raise ExceedingQuantity
+
+        wb = openpyxl.Workbook()  # создаем файл
+        for idx, value in enumerate(lst_name_columns):
+            temp_df = df[df[value].duplicated(keep=False)]  # получаем дубликаты
+            if temp_df.shape[0] == 0:
+                continue
+
+            # сортируем
+            temp_df.sort_values(by=value,inplace=True)
+            short_value = value[:20]  # получаем обрезанное значение
+            short_value = re.sub(r'[\[\]\'+()<> :"?*|\\/]', '_', short_value)
+
+            if short_value in used_name_sheet:
+                short_value = f'{short_value}_{idx}'  # добавляем окончание
+            wb.create_sheet(short_value, index=idx)  # создаем лист
+            used_name_sheet.add(short_value)
+            for row in dataframe_to_rows(temp_df, index=False, header=True):
+                wb[short_value].append(row)
+
+            # Устанавливаем автоширину для каждой колонки
+            for column in wb[short_value].columns:
+                max_length = 0
+                column_name = get_column_letter(column[0].column)
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(cell.value)
+                    except:
+                        pass
+                adjusted_width = (max_length + 2)
+                wb[short_value].column_dimensions[column_name].width = adjusted_width
+        del wb['Sheet']
+        wb.save(f'{path_end_folder}\Дубликаты в каждой колонке {current_time}.xlsx')
+        wb.close()
+
+        # сохраняем
+
         dct_df = {'Лист1':df}
         write_index = False
-        wb = write_df_to_excel(dct_df,write_index)
-
+        wb_main = write_df_to_excel(dct_df,write_index)
         name_file = file_data.split('.xlsx')[0] # получаем путь без расширения
         name_file = name_file.split('/')[-1]
-        wb.save(f'{path_end_folder}/Обработанный {name_file} {current_time}.xlsx')
+        wb_main.save(f'{path_end_folder}/Обработанный {name_file} {current_time}.xlsx')
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
