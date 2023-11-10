@@ -399,7 +399,8 @@ def prepare_list(file_data:str,path_end_folder:str):
                         pass
                 adjusted_width = (max_length + 2)
                 wb[short_value].column_dimensions[column_name].width = adjusted_width
-        del wb['Sheet']
+        if len(wb.sheetnames) > 1:
+            del wb['Sheet']
         wb.save(f'{path_end_folder}\Дубликаты в каждой колонке {current_time}.xlsx')
         wb.close()
 
