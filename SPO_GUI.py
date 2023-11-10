@@ -12,6 +12,7 @@ from extract_data_from_xlsx import extract_data_from_hard_xlsx # Функция 
 from generate_docs import generate_docs_from_template # Функция для создания документов Word из шаблона
 from split_table import split_table # Функция для разделения таблицы по отдельным листам и файлам
 from preparation_list import prepare_list # Функция для очистки и обработки списка
+from create_svod import generate_svod_for_columns # Функция для создания сводных таблиц по заданным колонкам
 import pandas as pd
 import os
 # from dateutil.parser import ParserError
@@ -547,6 +548,47 @@ def processing_preparation_file():
                              f'Выберите файл с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
 
+
+"""
+Функции для сводных таблиц
+"""
+def select_file_svod():
+    """
+    Функция для файла с данными
+    :return: Путь к файлу с данными
+    """
+    global data_svod
+    # Получаем путь к файлу
+    data_svod = filedialog.askopenfilename(filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+
+def select_end_folder_svod():
+    """
+    Функия для выбора папки.Определенно вот это когда нибудь я перепишу на ООП
+    :return:
+    """
+    global path_to_end_folder_svod
+    path_to_end_folder_svod = filedialog.askdirectory()
+
+
+def processing_svod():
+    """
+    Функция для получения названий листов и путей к файлам которые нужно сравнить
+    :return:
+    """
+    # названия листов в таблицах
+    try:
+        sheet_name = entry_sheet_name_svod.get() # название листа
+        svod_columns = entry_columns_svod.get() # колонки свода
+        target_columns = entry_target_svod.get()
+        # находим разницу
+        generate_svod_for_columns(data_svod,sheet_name,path_to_end_folder_svod,svod_columns,target_columns)
+    except NameError:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Выберите файлы с данными и папку куда будет генерироваться файл')
+        logging.exception('AN ERROR HAS OCCURRED')
+
+
+
 """
 Функции для создания контекстного меню(Копировать,вставить,вырезать)
 """
@@ -591,7 +633,7 @@ def show_textmenu(event):
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.39')
+    window.title('Веста Обработка таблиц и создание документов ver 1.40')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
     # Добавляем контекстное меню в поля ввода
@@ -614,6 +656,7 @@ if __name__ == '__main__':
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
                            'Очистка от лишних пробелов и символов; поиск пропущенных значений\n в колонках с персональными данными,'
                            '(ФИО,паспортные данные,\nтелефон,e-mail,дата рождения,ИНН)\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.\n'
+                           'Создание списка дубликатов по каждой колонке\n'
                            'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
                            'Для корректной работы программы уберите из таблицы объединенные ячейки')
     lbl_hello.grid(column=0, row=0, padx=10, pady=25)
@@ -1322,7 +1365,93 @@ if __name__ == '__main__':
     btn_data_do_diffrence.grid(column=0, row=11, padx=10, pady=10)
 
 
+    """
+    Создание сводных таблиц
+    """
+    tab_svod = ttk.Frame(tab_control)
+    tab_control.add(tab_svod, text='Сводные\nтаблицы')
+    tab_control.pack(expand=1, fill='both')
 
+    # Добавляем виджеты на вкладку разница 2 двух таблиц
+    # Создаем метку для описания назначения программы
+    lbl_hello = Label(tab_svod,
+                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                           'Создание сводных таблиц: Сумма,Среднее,Медиана,Минимум\n'
+                           'Максимум,Количество,Количество уникальных,Самле частое\n'
+                           'Количество самых частых, Количество дубликатов'                           
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
+                           'Заголовок таблицы должен быть на первой строке')
+    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+
+    # Картинка
+    path_com = resource_path('logo.png')
+    img_svod = PhotoImage(file=path_com)
+    Label(tab_svod,
+          image=img
+          ).grid(column=1, row=0, padx=10, pady=25)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_svod = LabelFrame(tab_svod, text='Подготовка')
+    frame_data_for_svod.grid(column=0, row=2, padx=10)
+
+    # Создаем кнопку Выбрать  файл с данными
+    btn_data_svod = Button(frame_data_for_svod, text='1) Выберите файл с данными',
+                                 font=('Arial Bold', 10),
+                                 command=select_file_svod
+                                 )
+    btn_data_svod.grid(column=0, row=3, padx=10, pady=10)
+
+    # Определяем текстовую переменную
+    entry_sheet_name_svod = StringVar()
+    # Описание поля
+    label_sheet_name_svod = Label(frame_data_for_svod,
+                                        text='2) Введите название листа в файле где находятся данные')
+    label_sheet_name_svod.grid(column=0, row=4, padx=10, pady=10)
+    # поле ввода имени листа
+    sheet_name_entry_svod = Entry(frame_data_for_svod, textvariable=entry_sheet_name_svod,
+                                        width=30)
+    sheet_name_entry_svod.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+
+
+
+    # Определяем текстовую переменную
+    entry_columns_svod = StringVar()
+    # Описание поля
+    label_columns_svod = Label(frame_data_for_svod,
+                                        text='3) Введите порядковые номера колонок по которым \n'
+                                             'будут сводиться данные\n'
+                                             'Например: 2,4,8')
+    label_columns_svod.grid(column=0, row=6, padx=10, pady=10)
+    # поле ввода имени листа
+    entry_svod_columns = Entry(frame_data_for_svod, textvariable=entry_columns_svod,
+                                        width=30)
+    entry_svod_columns.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Определяем текстовую переменную
+    entry_target_svod = StringVar()
+    # Описание поля
+    label_target_svod = Label(frame_data_for_svod,
+                                         text='4) Введите порядковые номера колонок по которым\n'
+                                              'будет вестить подсчет\n'
+                                              'Например: 7,8')
+    label_target_svod.grid(column=0, row=8, padx=10, pady=10)
+    # поле ввода
+    entry_target_columns = Entry(frame_data_for_svod, textvariable=entry_target_svod,
+                                          width=30)
+    entry_target_columns.grid(column=0, row=9, padx=5, pady=5, ipadx=15, ipady=10)
+
+    # Создаем кнопку выбора папки куда будет генерироваьться файл
+    btn_select_end_svod = Button(frame_data_for_svod, text='5) Выберите конечную папку',
+                                 font=('Arial Bold', 10),
+                                 command=select_end_folder_svod
+                                 )
+    btn_select_end_svod.grid(column=0, row=10, padx=10, pady=10)
+
+    # Создаем кнопку Обработать данные
+    btn_data_do_svod = Button(tab_svod, text='6) Обработать данные', font=('Arial Bold', 20),
+                              command=processing_svod
+                              )
+    btn_data_do_svod.grid(column=0, row=11, padx=10, pady=10)
 
 
 

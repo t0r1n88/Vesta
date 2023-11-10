@@ -24,6 +24,12 @@ logging.basicConfig(
     datefmt='%H:%M:%S',
 )
 
+class NotSheet(Exception):
+    """
+    Исключения для случая когла листа нет в датафрейме
+    """
+    pass
+
 
 
 class NotNumberStr(Exception):
@@ -82,6 +88,10 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
     """
 
     try:
+        temp_wb = openpyxl.load_workbook(file_data,read_only=True)
+        if sheet_name not in temp_wb.sheetnames:
+            raise NotSheet
+        temp_wb.close()
         base_df = pd.read_excel(file_data, sheet_name=sheet_name)
 
         # обрабатываем список колонок по которым нужно группировать
@@ -193,6 +203,10 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Выберите файлы с данными и папку куда будет генерироваться файл')
         logging.exception('AN ERROR HAS OCCURRED')
+    except NotSheet:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'В файле нет листа с названием: {sheet_name}. Проверьте написание!')
+        logging.exception('AN ERROR HAS OCCURRED')
 
     except NotNumberStr:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
@@ -228,7 +242,7 @@ if __name__ =='__main__':
     sheet_name_main = 'Лист1'
     end_folder_main = 'data/Сводная таблица/result'
     str_column_main = '20,22'  # колонки для сводной таблицы
-    # str_column = 'fgg'
+    # str_column_main = 'fgg'
     str_target_column_main = '2,6'  # целевая колонка
 
     generate_svod_for_columns(file_data_main,sheet_name_main,end_folder_main,str_column_main,str_target_column_main)
