@@ -384,6 +384,8 @@ def prepare_list(file_data:str,path_end_folder:str):
                 short_value = f'{short_value}_{idx}'  # добавляем окончание
             wb.create_sheet(short_value, index=idx)  # создаем лист
             used_name_sheet.add(short_value)
+            # Добавляем +2 к индексу чтобы отобразить точную строку
+            temp_df.insert(0,'№ строки дубликата ',list(map(lambda x: x + 2, list(temp_df.index))))
             for row in dataframe_to_rows(temp_df, index=False, header=True):
                 wb[short_value].append(row)
 
