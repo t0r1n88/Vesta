@@ -65,6 +65,19 @@ def capitalize_fio(value:str)->str:
     return ' '.join(temp_lst) #соединяем в строку
 
 
+def find_english_letter(value):
+    """
+    Функция для поиска английских букв в ФИО
+    :param value: строка ФИО
+    :return:
+    """
+    result = re.findall(r'[a-zA-Z]',value)
+    if result:
+        english_let = ';'.join(result)
+        return f'Обнаружены символы латиницы: {english_let} в слове {value}'
+    else:
+        return value
+
 def prepare_fio_text_columns(df:pd.DataFrame,lst_columns:list)->pd.DataFrame:
     """
     Функция для очистки текстовых колонок c данными ФИО
@@ -84,6 +97,8 @@ def prepare_fio_text_columns(df:pd.DataFrame,lst_columns:list)->pd.DataFrame:
     df[prepared_columns_lst] = df[prepared_columns_lst].applymap(lambda x: x.strip() if isinstance(x, str) else x)  # применяем strip, чтобы все данные корректно вставлялись
     df[prepared_columns_lst] = df[prepared_columns_lst].applymap(lambda x:' '.join(x.split())) # убираем лишние пробелы между словами
     df[prepared_columns_lst] = df[prepared_columns_lst].applymap(capitalize_fio)  # делаем заглавными первые буквы слов а остальыне строчными
+    df[prepared_columns_lst] = df[prepared_columns_lst].applymap(find_english_letter)  # делаем заглавными первые буквы слов а остальыне строчными
+
     return df
 
 def prepare_date_column(df:pd.DataFrame,lst_columns:list)->pd.DataFrame:
