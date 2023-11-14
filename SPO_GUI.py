@@ -541,7 +541,8 @@ def processing_preparation_file():
     """
     try:
         # name_sheet = var_name_sheet_prep.get() # получаем название листа
-        prepare_list(glob_prep_file,glob_path_to_end_folder_prep)
+        checkbox_dupl = mode_dupl_value.get()
+        prepare_list(glob_prep_file,glob_path_to_end_folder_prep,checkbox_dupl)
 
     except NameError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
@@ -633,7 +634,7 @@ def show_textmenu(event):
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.40')
+    window.title('Веста Обработка таблиц и создание документов ver 1.41')
     window.geometry('774x860+700+100')
     window.resizable(False, False)
     # Добавляем контекстное меню в поля ввода
@@ -694,10 +695,25 @@ if __name__ == '__main__':
                                        command=select_end_folder_prep)
     btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
 
+    # Создаем переменную для хранения результа переключения чекбокса
+    mode_dupl_value = StringVar()
+
+    # Устанавливаем значение по умолчанию для этой переменной. По умолчанию будет вестись подсчет числовых данных
+    mode_dupl_value.set('No')
+    # Создаем чекбокс для выбора режима подсчета
+
+    chbox_mode_dupl = Checkbutton(frame_data_prep,
+                                       text='Проверить каждую колонку таблицы на дубликаты',
+                                       variable=mode_dupl_value,
+                                       offvalue='No',
+                                       onvalue='Yes')
+    chbox_mode_dupl.grid(column=0, row=6, padx=1, pady=1)
+
+
     # Создаем кнопку очистки
     btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить обработку', font=('Arial Bold', 20),
                                        command=processing_preparation_file)
-    btn_choose_processing_prep.grid(column=0, row=6, padx=10, pady=10)
+    btn_choose_processing_prep.grid(column=0, row=7, padx=10, pady=10)
 
     """
     Создание вкладки для разбиения таблицы на несколько штук по значениям в определенной колонке
@@ -1358,11 +1374,13 @@ if __name__ == '__main__':
                                       )
     btn_select_end_diffrence.grid(column=0, row=10, padx=10, pady=10)
 
+
+
     # Создаем кнопку Обработать данные
     btn_data_do_diffrence = Button(tab_diffrence, text='6) Обработать таблицы', font=('Arial Bold', 20),
                                    command=processing_diffrence
                                    )
-    btn_data_do_diffrence.grid(column=0, row=11, padx=10, pady=10)
+    btn_data_do_diffrence.grid(column=0, row=12, padx=10, pady=10)
 
 
     """

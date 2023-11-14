@@ -336,10 +336,11 @@ def prepare_email_columns(df:pd.DataFrame,second_option:str)->pd.DataFrame:
     return df
 
 
-def prepare_list(file_data:str,path_end_folder:str):
+def prepare_list(file_data:str,path_end_folder:str,checkbox_dupl:str):
     """
     file_data : путь к файлу который нужно преобразовать
     path_end_folder :  путь к конечной папке
+    checkbox_dupl: Проверять на дубликаты или нет. Yes or No
     """
     try:
         df = pd.read_excel(file_data,dtype=str) # считываем датафрейм
@@ -376,40 +377,41 @@ def prepare_list(file_data:str,path_end_folder:str):
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
 
-        """
-        Создаем список дубликатов
-        """
-        lst_name_columns = list(df.columns)  # получаем список колонок
-        used_name_sheet = []  # список для хранения значений которые уже были использованы
-        if len(lst_name_columns) >= 253:  # проверяем количество колонок которые могут созданы
-            raise ExceedingQuantity
-        #
-        wb = openpyxl.Workbook(write_only=True)  # создаем файл
-        for idx, value in enumerate(lst_name_columns):
-            temp_df = df[df[value].duplicated(keep=False)]  # получаем дубликаты
-            if temp_df.shape[0] == 0:
-                continue
+        if checkbox_dupl == 'Yes':
+            """
+            Создаем список дубликатов
+            """
+            lst_name_columns = list(df.columns)  # получаем список колонок
+            used_name_sheet = []  # список для хранения значений которые уже были использованы
+            if len(lst_name_columns) >= 253:  # проверяем количество колонок которые могут созданы
+                raise ExceedingQuantity
+            #
+            wb = openpyxl.Workbook(write_only=True)  # создаем файл
+            for idx, value in enumerate(lst_name_columns):
+                temp_df = df[df[value].duplicated(keep=False)]  # получаем дубликаты
+                if temp_df.shape[0] == 0:
+                    continue
 
-            short_value = value[:20]  # получаем обрезанное значение
-            short_value = re.sub(r'[\[\]\'+()<> :"?*|\\/]', '_', short_value)
+                short_value = value[:20]  # получаем обрезанное значение
+                short_value = re.sub(r'[\[\]\'+()<> :"?*|\\/]', '_', short_value)
 
-            if short_value in used_name_sheet:
-                short_value = f'{short_value}_{idx}'  # добавляем окончание
-            wb.create_sheet(short_value, index=idx)  # создаем лист
-            used_name_sheet.append(short_value)
+                if short_value in used_name_sheet:
+                    short_value = f'{short_value}_{idx}'  # добавляем окончание
+                wb.create_sheet(short_value, index=idx)  # создаем лист
+                used_name_sheet.append(short_value)
 
-            temp_df = temp_df.sort_values(by=value)
-            #     # Добавляем +2 к индексу чтобы отобразить точную строку
-            temp_df.insert(0, '№ строки дубликата ', list(map(lambda x: x + 2, list(temp_df.index))))
+                temp_df = temp_df.sort_values(by=value)
+                #     # Добавляем +2 к индексу чтобы отобразить точную строку
+                temp_df.insert(0, '№ строки дубликата ', list(map(lambda x: x + 2, list(temp_df.index))))
 
-            for row in dataframe_to_rows(temp_df, index=False, header=True):
-                wb[short_value].append(row)
+                for row in dataframe_to_rows(temp_df, index=False, header=True):
+                    wb[short_value].append(row)
 
-        wb.save(f'{path_end_folder}\Дубликаты в каждой колонке {current_time}.xlsx')
-        # очищаем
-        wb.close()
-        del wb
-        gc.collect()
+            wb.save(f'{path_end_folder}\Дубликаты в каждой колонке {current_time}.xlsx')
+            # очищаем
+            wb.close()
+            del wb
+            gc.collect()
 
         # сохраняем
 
@@ -438,9 +440,14 @@ def prepare_list(file_data:str,path_end_folder:str):
 
 
 if __name__ == '__main__':
-    file_data_main = 'data/Обработка списка/Список студентов военкомат.xlsx'
+    # file_data_main = 'data/Обработка списка/Список студентов военкомат.xlsx'
+    file_data_main = 'data/Обработка списка/Билет в будущее сводный отчет по ученикам.xlsx'
     path_end_main = 'data'
-    prepare_list(file_data_main,path_end_main)
-
+    checkbox_main = 'No'
+    start_time = time.time()
+    prepare_list(file_data_main,path_end_main,checkbox_main)
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print(f"Время выполнения: {execution_time} секунд")
     print('Lindy Booth')
 
