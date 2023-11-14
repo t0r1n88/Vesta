@@ -443,7 +443,7 @@ if __name__ == '__main__':
     # file_data_main = 'data/Обработка списка/Список студентов военкомат.xlsx'
     file_data_main = 'data/Обработка списка/Билет в будущее сводный отчет по ученикам.xlsx'
     path_end_main = 'data'
-    checkbox_main = 'No'
+    checkbox_main = 'Yes'
     start_time = time.time()
     prepare_list(file_data_main,path_end_main,checkbox_main)
     end_time = time.time()
