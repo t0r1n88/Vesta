@@ -66,6 +66,13 @@ def count_dupl_value(value):
     return len(lst_dupl)  # количество дубликатов
 
 
+def add_percentage(group,lst_target_name_column):
+    total_values = group[lst_target_name_column].sum(axis=1)
+    for column in lst_target_name_column:
+        group[f'{column}_Percentage'] = (group[column] / total_values) * 100
+    return group
+
+
 def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_column:str,str_target_column:str):
     """
     Функция для создания сводных таблиц по выбранных колонкам
@@ -149,13 +156,36 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
 
                 df[lst_target_name_column] = df[lst_target_name_column].applymap(
                     lambda x: x if isinstance(x, (int, float)) else 0)
+                if name_sheet == 'Количество':
+                    value = lst_target_name_column[0]
 
-                temp_df = pd.pivot_table(df,
-                                         index=lst_name_column,
-                                         values=lst_target_name_column,
-                                         aggfunc=name_func,
-                                         fill_value=0)
-                temp_df = temp_df.reset_index()
+                    temp_df = pd.pivot_table(df,
+                                             index=lst_name_column,
+                                             values=value,
+                                             aggfunc=name_func,
+                                             fill_value=0)
+                    # Получаем названия колонок по которым будет проводить группировку внутри группы
+
+                    # заменяем название колонки
+                    temp_df.columns = ['Количество']
+                    temp_df = temp_df.reset_index() # извлекаем индекс
+                    # считаем проценты внутри группы
+                    temp_df['Доля в % внутри группы'] = temp_df['Количество'] / temp_df.groupby(lst_name_column[:-1])['Количество'].transform('sum')
+                    # приводим к читаемому виду
+                    temp_df['Доля в % внутри группы'] = temp_df['Доля в % внутри группы'].apply(
+                        lambda x: (round(x, 3)) * 100)
+                    all_sum = temp_df['Количество'].sum() # получаем общее количество
+                    # добавляем колонку с процентом от общего количества
+                    temp_df['Доля в % от общего количества'] = ((temp_df['Количество'] / all_sum)).apply(
+                        lambda x: (round(x, 3)) * 100)
+
+                else:
+                    temp_df = pd.pivot_table(df,
+                                             index=lst_name_column,
+                                             values=lst_target_name_column,
+                                             aggfunc=name_func,
+                                             fill_value=0)
+                    temp_df = temp_df.reset_index()
 
                 for row in dataframe_to_rows(temp_df, index=False, header=True):
                     wb[name_sheet].append(row)
@@ -194,7 +224,8 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
                     adjusted_width = (max_length + 2)
                     wb[name_sheet].column_dimensions[column_name].width = adjusted_width
 
-        del wb['Sheet']
+        if 'Sheet' in wb.sheetnames:
+            del wb['Sheet']
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
 
@@ -238,12 +269,14 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
 
 
 if __name__ =='__main__':
-    file_data_main = 'data/Сводная таблица/data.xlsx'
-    sheet_name_main = 'Лист1'
+    # file_data_main = 'data/Сводная таблица/Содействие занятости 2023.xlsx'
+    file_data_main = 'data/Сводная таблица/Билет в будущее сводный отчет по ученикам осень 2023.xlsx'
+    # sheet_name_main = 'Заявки'
+    sheet_name_main = '1'
     end_folder_main = 'data/Сводная таблица/result'
-    str_column_main = '20,22'  # колонки для сводной таблицы
+    str_column_main = '4,7'  # колонки для сводной таблицы
     # str_column_main = 'fgg'
-    str_target_column_main = '2,6'  # целевая колонка
+    str_target_column_main = '5'  # целевая колонка
 
     generate_svod_for_columns(file_data_main,sheet_name_main,end_folder_main,str_column_main,str_target_column_main)
 
