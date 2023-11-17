@@ -100,6 +100,7 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
             raise NotSheet
         temp_wb.close()
         base_df = pd.read_excel(file_data, sheet_name=sheet_name)
+        base_df.fillna('Не заполнено',inplace=True)
 
         # обрабатываем список колонок по которым нужно группировать
         _lst_cols = re.findall(r'\d+', str_column)  # находим цифры
@@ -263,23 +264,23 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
                              f'в слишком длинном пути к обрабатываемым файлам или конечной папке.')
-    except:
-        logging.exception('AN ERROR HAS OCCURRED')
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             'Возникла ошибка!!! Подробности ошибки в файле error.log')
+    # except:
+    #     logging.exception('AN ERROR HAS OCCURRED')
+    #     messagebox.showerror('Веста Обработка таблиц и создание документов',
+    #                          'Возникла ошибка!!! Подробности ошибки в файле error.log')
     else:
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
 
 
 if __name__ =='__main__':
-    # file_data_main = 'data/Сводная таблица/Содействие занятости 2023.xlsx'
-    file_data_main = 'data/Сводная таблица/Билет в будущее сводный отчет по ученикам осень 2023.xlsx'
+    file_data_main = 'data/Сводная таблица/Содействие занятости 2023.xlsx'
+    # file_data_main = 'data/Сводная таблица/Билет в будущее сводный отчет по ученикам осень 2023.xlsx'
     # sheet_name_main = 'Заявки'
-    sheet_name_main = '1'
+    sheet_name_main = 'Заявки'
     end_folder_main = 'data/Сводная таблица/result'
-    str_column_main = '4'  # колонки для сводной таблицы
+    str_column_main = '12,7'  # колонки для сводной таблицы
     # str_column_main = 'fgg'
-    str_target_column_main = '5'  # целевая колонка
+    str_target_column_main = '3'  # целевая колонка
 
     generate_svod_for_columns(file_data_main,sheet_name_main,end_folder_main,str_column_main,str_target_column_main)
 
