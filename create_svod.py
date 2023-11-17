@@ -170,14 +170,20 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
                     temp_df.columns = ['Количество']
                     temp_df = temp_df.reset_index() # извлекаем индекс
                     # считаем проценты внутри группы
-                    temp_df['Доля в % внутри группы'] = temp_df['Количество'] / temp_df.groupby(lst_name_column[:-1])['Количество'].transform('sum')
-                    # приводим к читаемому виду
-                    temp_df['Доля в % внутри группы'] = temp_df['Доля в % внутри группы'].apply(
-                        lambda x: (round(x, 3)) * 100)
-                    all_sum = temp_df['Количество'].sum() # получаем общее количество
-                    # добавляем колонку с процентом от общего количества
-                    temp_df['Доля в % от общего количества'] = ((temp_df['Количество'] / all_sum)).apply(
-                        lambda x: (round(x, 3)) * 100)
+                    if len(lst_name_column) == 1:
+                        all_sum = temp_df['Количество'].sum()  # получаем общее количество
+                        # добавляем колонку с процентом от общего количества
+                        temp_df['Доля в % от общего количества'] = ((temp_df['Количество'] / all_sum)).apply(
+                            lambda x: (round(x, 3)) * 100)
+                    else:
+                        temp_df['Доля в % внутри группы'] = temp_df['Количество'] / temp_df.groupby(lst_name_column[:-1])['Количество'].transform('sum')
+                        # приводим к читаемому виду
+                        temp_df['Доля в % внутри группы'] = temp_df['Доля в % внутри группы'].apply(
+                            lambda x: (round(x, 3)) * 100)
+                        all_sum = temp_df['Количество'].sum() # получаем общее количество
+                        # добавляем колонку с процентом от общего количества
+                        temp_df['Доля в % от общего количества'] = ((temp_df['Количество'] / all_sum)).apply(
+                            lambda x: (round(x, 3)) * 100)
 
                 else:
                     temp_df = pd.pivot_table(df,
@@ -252,10 +258,7 @@ def generate_svod_for_columns(file_data:str,sheet_name:str,end_folder:str,str_co
     except KeyError as e:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'В таблице не найдена указанная колонка {e.args}')
-    except ValueError:
-        messagebox.showerror('Веста Обработка таблиц и создание документов',
-                             f'В таблице нет колонки с таким названием!\nПроверьте написание названия колонки')
-        logging.exception('AN ERROR HAS OCCURRED')
+
     except FileNotFoundError:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Перенесите файлы, конечную папку с которой вы работете в корень диска. Проблема может быть\n '
@@ -274,7 +277,7 @@ if __name__ =='__main__':
     # sheet_name_main = 'Заявки'
     sheet_name_main = '1'
     end_folder_main = 'data/Сводная таблица/result'
-    str_column_main = '4,7'  # колонки для сводной таблицы
+    str_column_main = '4'  # колонки для сводной таблицы
     # str_column_main = 'fgg'
     str_target_column_main = '5'  # целевая колонка
 
