@@ -1,6 +1,8 @@
 """
 Извлечение данных из файлов Excel со сложной структурой
 """
+import os
+
 from support_functions import write_df_to_excel # импорт функции по записи в файл с автошириной колонок
 import pandas as pd
 from tkinter import messagebox
@@ -126,7 +128,7 @@ def extract_data_from_hard_xlsx(mode_text,name_file_params_calculate_data,names_
         check_df = pd.DataFrame(columns=param_dict.keys())
         # Вставляем колонку для названия файла
         check_df.insert(0, 'Название файла', '')
-        for file in names_files_calculate_data:
+        for file in os.listdir(names_files_calculate_data):
             name_file = file.split('/')[-1]
             print(name_file) # обрабатываемый файл
             # Проверяем чтобы файл не был резервной копией или файлом с другим расширением.

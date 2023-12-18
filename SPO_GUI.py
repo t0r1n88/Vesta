@@ -108,8 +108,7 @@ def select_files_data_calculate_data():
     """
     global names_files_calculate_data
     # Получаем путь к файлу
-    names_files_calculate_data = filedialog.askopenfilenames(
-        filetypes=(('Excel files', '*.xlsx'), ('all files', '*.*')))
+    names_files_calculate_data = filedialog.askdirectory()
 
 
 def select_end_folder_calculate_data():
@@ -1132,7 +1131,7 @@ if __name__ == '__main__':
     btn_select_file_params.grid(column=0, row=2, padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_select_files_data = Button(tab_calculate_data, text='2) Выбрать файлы с данными', font=('Arial Bold', 20),
+    btn_select_files_data = Button(tab_calculate_data, text='2) Выбрать папку с данными', font=('Arial Bold', 20),
                                    command=select_files_data_calculate_data
                                    )
     btn_select_files_data.grid(column=0, row=3, padx=10, pady=10)
