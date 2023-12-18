@@ -6,8 +6,8 @@ from tkinter import messagebox
 import openpyxl
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.utils import get_column_letter
-from openpyxl.styles import Font
 import time
+import platform
 import warnings
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
@@ -38,7 +38,10 @@ def extract_name_month(cell):
     Функция для извлечения названия месяца
     Взято отсюда https://ru.stackoverflow.com/questions/1045154/Вывод-русских-символов-из-pd-timestamp-month-name
     """
-    return cell.month_name(locale='Russian')
+    if name_os == 'Windows':
+        return cell.month_name(locale='Russian')
+    else:
+        return cell.month_name()
 
 
 def extract_year(cell):
@@ -79,6 +82,8 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
     """
 
     try:
+        global name_os # делаем глобальной чтобы проверять месяц
+        name_os = platform.system()
 
         # Считываем файл
         df = pd.read_excel(name_file_data_date)
@@ -110,6 +115,10 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
 
         # Получаем название месяца
         df['Название месяца рождения'] = df[name_column].apply(extract_name_month)
+        dct_month = {'January':'Январь','February':'Февраль','March':'Март','April':'Апрель','May':'Май','June':'Июнь','July':'Июль',
+                     'August':'Август','September':'Сентябрь','October':'Октябрь',
+                     'November':'Ноябрь','December':'Декабрь'}
+        df['Название месяца рождения'] = df['Название месяца рождения'].replace(dct_month)
 
         # Получаем год рождения
         df['Год рождения'] = df[name_column].apply(extract_year)
@@ -287,7 +296,7 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
 if __name__ == '__main__':
     raw_selected_date_main = '01.10.2023'
     name_column_main = 'Дата рождения'
-    name_file_data_date_main = 'data\Обработка дат\Сгенерированный массив данных для дат.xlsx'
+    name_file_data_date_main = 'data/Обработка дат/Сгенерированный массив данных для дат.xlsx'
     path_to_end_folder_date_main = 'data'
 
     proccessing_date(raw_selected_date_main, name_column_main, name_file_data_date_main, path_to_end_folder_date_main)
