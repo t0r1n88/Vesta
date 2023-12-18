@@ -569,11 +569,11 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         messagebox.showinfo('Веста Обработка таблиц и создание документов', 'Данные успешно обработаны')
 
 if __name__ == '__main__':
-    file_params_main = 'data\Объединение 2 таблиц\Пример запрос на сверку\Параметры слияния для сверки.xlsx'
+    file_params_main = 'data/Объединение 2 таблиц/Пример запрос на сверку/Параметры слияния для сверки.xlsx'
     first_sheet_main = 'Worksheet'
     second_sheet_main = 'report'
-    name_first_file_comparison_main = 'data\Объединение 2 таблиц\Пример запрос на сверку\Сгенерированный массив данных для сверки.xlsx'
-    name_second_file_comparison_main = 'data\Объединение 2 таблиц\Пример запрос на сверку\Запрос на сверку.xlsx'
+    name_first_file_comparison_main = 'data/Объединение 2 таблиц/Пример запрос на сверку/Сгенерированный массив данных для сверки.xlsx'
+    name_second_file_comparison_main = 'data/Объединение 2 таблиц/Пример запрос на сверку/Запрос на сверку.xlsx'
     path_to_end_folder_comparison_main = 'data'
     merging_two_tables(file_params_main, first_sheet_main, second_sheet_main, name_first_file_comparison_main, name_second_file_comparison_main,
                        path_to_end_folder_comparison_main)
