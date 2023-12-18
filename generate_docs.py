@@ -327,7 +327,7 @@ if __name__ == '__main__':
     name_column_main = 'ФИО'
     name_type_file_main = 'Справка'
     name_value_column_main = 'Алехин Данила Прокопьевич'
-    mode_pdf_main = 'No'
+    mode_pdf_main = 'Yes'
     name_file_template_doc_main = 'data/Создание документов/Пример Шаблон согласия.docx'
     name_file_data_doc_main = 'data/Создание документов/Таблица для заполнения согласия.xlsx'
     path_to_end_folder_doc_main = 'data/result'
