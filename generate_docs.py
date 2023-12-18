@@ -10,31 +10,17 @@ from docxtpl import DocxTemplate
 from docxcompose.composer import Composer
 from docx import Document
 from docx2pdf import convert
-from tkinter import *
-from tkinter import filedialog
 from tkinter import messagebox
-from tkinter import ttk
-import openpyxl
-from openpyxl.utils.dataframe import dataframe_to_rows
-from openpyxl.styles import Font
-from openpyxl.styles import Alignment
-from openpyxl import load_workbook
-import pytrovich
-from pytrovich.detector import PetrovichGenderDetector
-from pytrovich.enums import NamePart, Gender, Case
-from pytrovich.maker import PetrovichDeclinationMaker
 from jinja2 import exceptions
 import time
 import datetime
 import warnings
-from collections import Counter
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
 warnings.simplefilter(action='ignore', category=UserWarning)
 pd.options.mode.chained_assignment = None
-import sys
-import locale
+import platform
 import logging
 import tempfile
 import re
@@ -129,7 +115,7 @@ def clean_value(value):
 
 
 
-def combine_all_docx(filename_master, files_lst,mode_pdf,path_to_end_folder_doc):
+def combine_all_docx(filename_master, files_lst,mode_pdf,path_to_end_folder_doc,name_os):
     """
     Функция для объединения файлов Word взято отсюда
     https://stackoverflow.com/questions/24872527/combine-word-document-using-python-docx
@@ -153,8 +139,11 @@ def combine_all_docx(filename_master, files_lst,mode_pdf,path_to_end_folder_doc)
     # Сохраняем файл
     composer.save(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx")
     if mode_pdf == 'Yes':
-        convert(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx",
+        if name_os == 'Windows':
+            convert(f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.docx",
                 f"{path_to_end_folder_doc}/Объединеный файл от {current_time}.pdf", keep_active=True)
+        else:
+            raise NotImplementedError
 
 
 def generate_docs_from_template(name_column,name_type_file,name_value_column,mode_pdf,name_file_template_doc,name_file_data_doc,path_to_end_folder_doc,
@@ -175,7 +164,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
     :return: Создает в зависимости от выбранного режима файлы Word из шаблона
     """
     try:
-
+        name_os = platform.system() # получаем платформу на которой запущена программа
         # Считываем данные
         # Добавил параметр dtype =str чтобы данные не преобразовались а использовались так как в таблице
         df = pd.read_excel(name_file_data_doc, dtype=str)
@@ -217,8 +206,11 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
                     used_name_file.add(name_file)
                     if mode_pdf == 'Yes':
-                        convert(f'{path_to_end_folder_doc}/{name_file}.docx',
+                        if name_os == 'Windows':
+                            convert(f'{path_to_end_folder_doc}/{name_file}.docx',
                                 f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
+                        else:
+                            raise NotImplementedError
             else:
                 # Отбираем по значению строку
 
@@ -236,8 +228,12 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                         # Сохраняенм файл
                         doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
                         if mode_pdf == 'Yes':
-                            convert(f'{path_to_end_folder_doc}/{name_file}.docx',
+                            if name_os == 'Windows':
+                                convert(f'{path_to_end_folder_doc}/{name_file}.docx',
                                     f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
+                            else:
+                                raise NotImplementedError
+
                 elif len(single_data) > 1:
                     for idx, row in enumerate(single_data):
                         doc = DocxTemplate(name_file_template_doc)
@@ -246,8 +242,11 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
 
                         doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
                         if mode_pdf == 'Yes':
-                            convert(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx',
+                            if name_os == 'Windows':
+                                convert(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx',
                                     f'{path_to_end_folder_doc}/{name_file}_{idx}.pdf', keep_active=True)
+                            else:
+                                raise NotImplementedError
                 else:
                     raise NotFoundValue
 
@@ -276,7 +275,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     # Получаем базовый файл
                     main_doc = files_lst.pop(0)
                     # Запускаем функцию
-                    combine_all_docx(main_doc, files_lst,mode_pdf,path_to_end_folder_doc)
+                    combine_all_docx(main_doc, files_lst,mode_pdf,path_to_end_folder_doc,name_os)
             else:
                 raise CheckBoxException
 
@@ -304,6 +303,10 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                              f'2) В названии колонки в таблице откуда берутся данные - есть пробелы,цифры,знаки пунктуации и т.п.\n'
                              f'в названии колонки должны быть только буквы и нижнее подчеркивание.\n'
                              f'{{{{Дата_рождения}}}}')
+
+    except NotImplementedError as e:
+        messagebox.showerror('Веста Обработка таблиц и создание документов',
+                             f'Создание pdf файлов работает ТОЛЬКО в WIndows, уберите галочку из чекбокса создания pdf ')
     except CheckBoxException:
         messagebox.showerror('Веста Обработка таблиц и создание документов',
                              f'Уберите галочку из чекбокса Поставьте галочку, если вам нужно создать один документ\nдля конкретного значения (например для определенного ФИО)'
@@ -325,9 +328,9 @@ if __name__ == '__main__':
     name_type_file_main = 'Справка'
     name_value_column_main = 'Алехин Данила Прокопьевич'
     mode_pdf_main = 'No'
-    name_file_template_doc_main = 'data\Создание документов\Пример Шаблон согласия.docx'
-    name_file_data_doc_main = 'data\Создание документов\Таблица для заполнения согласия.xlsx'
-    path_to_end_folder_doc_main = 'data\Создание документов\\temp'
+    name_file_template_doc_main = 'data/Создание документов/Пример Шаблон согласия.docx'
+    name_file_data_doc_main = 'data/Создание документов/Таблица для заполнения согласия.xlsx'
+    path_to_end_folder_doc_main = 'data/result'
     mode_combine_main = 'No'
     mode_group_main = 'No'
 
