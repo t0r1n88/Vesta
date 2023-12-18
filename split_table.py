@@ -110,7 +110,7 @@ def split_table(file_data_split:str,number_column:int,checkbox_split:int,path_to
                             pass
                     adjusted_width = (max_length + 2)
                     wb[short_value].column_dimensions[column_name].width = adjusted_width
-            wb.save(f'{path_to_end_folder}\Вариант А один файл {current_time}.xlsx')
+            wb.save(f'{path_to_end_folder}/Вариант А один файл {current_time}.xlsx')
             wb.close()
 
 
@@ -139,7 +139,7 @@ def split_table(file_data_split:str,number_column:int,checkbox_split:int,path_to
                     adjusted_width = (max_length + 2)
                     wb['Sheet'].column_dimensions[column_name].width = adjusted_width
 
-                wb.save(f'{path_to_end_folder}\{short_name}.xlsx')
+                wb.save(f'{path_to_end_folder}/{short_name}.xlsx')
                 used_name_file.add(short_name)
                 wb.close()
     except NameError as e:
@@ -175,12 +175,11 @@ def split_table(file_data_split:str,number_column:int,checkbox_split:int,path_to
 
 if __name__ == '__main__':
     file_data = 'data/Разделение таблицы/Базовая таблица 1000 человек.xlsx'
-    name_sheet_main = 'Sheet1'
-    number_column_main = 16
+    number_column_main = 1
     checkbox_split_main = 0
-    path_to_end_folder_main = 'data/Разделение таблицы/result'
+    path_to_end_folder_main = 'data/result'
 
-    split_table(file_data,name_sheet_main, number_column_main, checkbox_split_main, path_to_end_folder_main)
+    split_table(file_data, number_column_main, checkbox_split_main, path_to_end_folder_main)
     print('Lindy Booth')
 
 
