@@ -634,8 +634,9 @@ def show_textmenu(event):
 if __name__ == '__main__':
     window = Tk()
     window.title('Веста Обработка таблиц и создание документов ver 1.43')
-    window.geometry('774x860+700+100')
-    window.resizable(False, False)
+    # window.geometry('774x860+700+100')
+    window.geometry('980x910+700+100')
+    window.resizable(True, False)
     # Добавляем контекстное меню в поля ввода
     make_textmenu(window)
 
