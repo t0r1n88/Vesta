@@ -123,8 +123,8 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
                                                             dtype=str, skiprows=skip_rows,
                                                             header=None)  # загружаем датафрейм
-                                    if temp_df.shape[1] > 3:
-                                        temp_df = temp_df.dropna(axis=0, thresh=2)
+                                    # удаляем пустые строки
+                                    temp_df.dropna(axis=0,how='all',inplace=True)
 
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
                                     temp_df['Откуда взяты данные'] = name_file
@@ -228,8 +228,8 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
                                                             sheet_name=dct_name_sheet[name_sheet],
                                                             dtype=str, skiprows=skip_rows,
                                                             header=None)  # загружаем датафрейм
-                                    if temp_df.shape[1] > 3:
-                                        temp_df = temp_df.dropna(axis=0, thresh=2)
+                                    # удаляем пустые строки
+                                    temp_df.dropna(axis=0,how='all',inplace=True)
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
                                     temp_df['Откуда взяты данные'] = name_file
                                     for row in dataframe_to_rows(temp_df, index=False, header=False):
@@ -323,9 +323,8 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
                                     temp_df = pd.read_excel(f'{dirpath}/{filename}', sheet_name=name_sheet,
                                                             skiprows=skip_r,
                                                             dtype=str, header=None)  # загружаем датафрейм
-
-                                    if temp_df.shape[1] > 3:
-                                        temp_df = temp_df.dropna(axis=0, thresh=2)
+                                    # удаляем пустые строки
+                                    temp_df.dropna(axis=0,how='all',inplace=True)
                                     temp_df['Номер строки'] = range(1, temp_df.shape[0] + 1)
                                     temp_df['Откуда взяты данные'] = name_file
                                     for row in dataframe_to_rows(temp_df, index=False, header=False):
@@ -379,10 +378,10 @@ def union_tables(checkbox_harvest: int,merger_entry_skip_rows: int, file_standar
                                 'Создание общей таблицы успешно завершено!!!')
 
 if __name__=='__main__':
-    checkbox_harvest_main = 1
+    checkbox_harvest_main = 0
     merger_entry_skip_rows_main = 1
-    file_standard_merger_main = 'data\Слияние данных\Списки\Список 28.03.02 Наноинженерия.xlsx'
-    dir_name_main = 'data\Слияние данных\Списки'
+    file_standard_merger_main = 'data/Слияние данных/Списки/Список 28.03.02 Наноинженерия.xlsx'
+    dir_name_main = 'data/Слияние данных/Списки'
     path_to_end_folder_merger_main = 'data'
     file_params_main = ''
 
