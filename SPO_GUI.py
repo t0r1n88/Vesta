@@ -686,12 +686,12 @@ if __name__ == '__main__':
     frame_data_prep.pack(padx=10, pady=10)
 
     # Создаем кнопку выбора файла с данными
-    btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 20),
+    btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 14),
                                        command=select_prep_file)
     btn_choose_prep_file.pack(padx=10, pady=10)
 
     # Создаем кнопку выбора конечной папки
-    btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 14),
                                        command=select_end_folder_prep)
     btn_choose_end_folder_prep.pack(padx=10, pady=10)
 
@@ -816,12 +816,12 @@ if __name__ == '__main__':
     create_doc_frame_action.pack()
 
     # Создаем кнопку Выбрать шаблон
-    btn_template_doc = Button(create_doc_frame_action, text='1) Выберите шаблон документа', font=('Arial Bold', 15),
+    btn_template_doc = Button(create_doc_frame_action, text='1) Выберите шаблон документа', font=('Arial Bold', 14),
                               command=select_file_template_doc
                               )
     btn_template_doc.pack(padx=10, pady=10)
 
-    btn_data_doc = Button(create_doc_frame_action, text='2) Выберите файл с данными', font=('Arial Bold', 15),
+    btn_data_doc = Button(create_doc_frame_action, text='2) Выберите файл с данными', font=('Arial Bold', 14),
                           command=select_file_data_doc
                           )
     btn_data_doc.pack(padx=10, pady=10)
@@ -849,7 +849,7 @@ if __name__ == '__main__':
     type_file_column_entry.pack(ipady=5)
 
     btn_choose_end_folder_doc = Button(create_doc_frame_action, text='5) Выберите конечную папку',
-                                       font=('Arial Bold', 15),
+                                       font=('Arial Bold', 14),
                                        command=select_end_folder_doc
                                        )
     btn_choose_end_folder_doc.pack(padx=10, pady=10)
@@ -915,7 +915,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
     btn_create_files_other = Button(tab_create_doc, text='6) Создать документ(ы)',
-                                    font=('Arial Bold', 15),
+                                    font=('Arial Bold', 20),
                                     command=generate_docs_other
                                     )
     btn_create_files_other.pack(padx=10, pady=10)
@@ -959,11 +959,11 @@ if __name__ == '__main__':
     date_field.pack(ipady=5)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_data_date = Button(calculate_date_frame_action, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+    btn_data_date = Button(calculate_date_frame_action, text='1) Выберите файл с данными', font=('Arial Bold', 14),
                            command=select_file_data_date)
     btn_data_date.pack(padx=10, pady=10)
 
-    btn_choose_end_folder_date = Button(calculate_date_frame_action, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_date = Button(calculate_date_frame_action, text='2) Выберите конечную папку', font=('Arial Bold', 14),
                                         command=select_end_folder_date
                                         )
     btn_choose_end_folder_date.pack(padx=10, pady=10)
@@ -1008,13 +1008,13 @@ if __name__ == '__main__':
     frame_data_for_groupby.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_data_groupby = Button(frame_data_for_groupby, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+    btn_data_groupby = Button(frame_data_for_groupby, text='1) Выберите файл с данными', font=('Arial Bold', 14),
                               command=select_file_data_groupby
                               )
     btn_data_groupby.pack(padx=10, pady=10)
 
     btn_choose_end_folder_groupby = Button(frame_data_for_groupby, text='2) Выберите конечную папку',
-                                           font=('Arial Bold', 20),
+                                           font=('Arial Bold', 14),
                                            command=select_end_folder_groupby
                                            )
     btn_choose_end_folder_groupby.pack(padx=10, pady=10)
@@ -1058,13 +1058,13 @@ if __name__ == '__main__':
 
     # Создаем кнопку выбрать файл с параметрами
     btn_columns_params = Button(frame_data_for_comparison, text='1) Выберите файл с параметрами слияния',
-                                font=('Arial Bold', 10),
+                                font=('Arial Bold', 14),
                                 command=select_file_params_comparsion)
     btn_columns_params.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать  первый файл с данными
     btn_data_first_comparison = Button(frame_data_for_comparison, text='2) Выберите первый файл с данными',
-                                       font=('Arial Bold', 10),
+                                       font=('Arial Bold', 14),
                                        command=select_first_comparison
                                        )
     btn_data_first_comparison.pack(padx=10, pady=10)
@@ -1081,7 +1081,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку Выбрать  второй файл с данными
     btn_data_second_comparison = Button(frame_data_for_comparison, text='4) Выберите второй файл с данными',
-                                        font=('Arial Bold', 10),
+                                        font=('Arial Bold', 14),
                                         command=select_second_comparison
                                         )
     btn_data_second_comparison.pack(padx=10, pady=10)
@@ -1098,7 +1098,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
     btn_select_end_comparison = Button(frame_data_for_comparison, text='6) Выберите конечную папку',
-                                       font=('Arial Bold', 10),
+                                       font=('Arial Bold', 14),
                                        command=select_end_folder_comparison
                                        )
     btn_select_end_comparison.pack(padx=10, pady=10)
@@ -1136,20 +1136,20 @@ if __name__ == '__main__':
     frame_data_extract_data.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с параметрами
-    btn_select_file_params = Button(frame_data_extract_data, text='1) Выбрать файл с параметрами', font=('Arial Bold', 20),
+    btn_select_file_params = Button(frame_data_extract_data, text='1) Выбрать файл с параметрами', font=('Arial Bold', 14),
                                     command=select_file_params_calculate_data
                                     )
     btn_select_file_params.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_select_files_data = Button(frame_data_extract_data, text='2) Выбрать папку с данными', font=('Arial Bold', 20),
+    btn_select_files_data = Button(frame_data_extract_data, text='2) Выбрать папку с данными', font=('Arial Bold', 14),
                                    command=select_files_data_calculate_data
                                    )
     btn_select_files_data.pack(padx=10, pady=10)
 
     # Создаем кнопку для выбора папки куда будут генерироваться файлы
 
-    btn_choose_end_folder = Button(frame_data_extract_data, text='3) Выбрать конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder = Button(frame_data_extract_data, text='3) Выбрать конечную папку', font=('Arial Bold', 14),
                                    command=select_end_folder_calculate_data
                                    )
     btn_choose_end_folder.pack(padx=10, pady=10)
@@ -1421,7 +1421,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку Выбрать  файл с данными
     btn_data_svod = Button(frame_data_svod, text='1) Выберите файл с данными',
-                                 font=('Arial Bold', 10),
+                                 font=('Arial Bold', 14),
                                  command=select_file_svod
                                  )
     btn_data_svod.pack(padx=10, pady=10)
@@ -1467,7 +1467,7 @@ if __name__ == '__main__':
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
     btn_select_end_svod = Button(frame_data_svod, text='5) Выберите конечную папку',
-                                 font=('Arial Bold', 10),
+                                 font=('Arial Bold', 14),
                                  command=select_end_folder_svod
                                  )
     btn_select_end_svod.pack(padx=10, pady=10)
