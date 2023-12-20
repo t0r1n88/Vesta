@@ -1178,32 +1178,34 @@ if __name__ == '__main__':
     """
     Создание вкладки для объединения таблиц в одну большую
     """
-    # Создаем вкладку для подсчета данных по категориям
-    tab_merger_tables = ttk.Frame(tab_control)
+    tab_merger_tables = Frame(tab_control)
     tab_control.add(tab_merger_tables, text='Слияние\nфайлов')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Подсчет данных  по категориям
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_merger_tables,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние файлов Excel с одинаковой структурой'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                      )
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    merger_tables_frame_description = LabelFrame(tab_merger_tables)
+    merger_tables_frame_description.pack()
 
+    lbl_hello_merger_tables = Label(merger_tables_frame_description,
+                                    text='Центр опережающей профессиональной подготовки Республики Бурятия\nСлияние файлов Excel с одинаковой структурой'
+                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки', width=60)
+
+    lbl_hello_merger_tables.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_to_img = resource_path('logo.png')
-    img_merger = PhotoImage(file=path_to_img)
-    Label(tab_merger_tables,
-          image=img_merger
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_merger_tables = resource_path('logo.png')
+    img_merger_tables = PhotoImage(file=path_to_img_merger_tables)
+    Label(merger_tables_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_merger_tables = LabelFrame(tab_merger_tables, text='Подготовка')
+    frame_data_merger_tables.pack(padx=10, pady=10)
 
     # Переключатель:вариант слияния файлов
     # Создаем переключатель
     group_rb_type_harvest = IntVar()
     # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
-    frame_rb_type_harvest = LabelFrame(tab_merger_tables, text='1) Выберите вариант слияния')
-    frame_rb_type_harvest.grid(column=0, row=1, padx=10)
+    frame_rb_type_harvest = LabelFrame(frame_data_merger_tables, text='1) Выберите вариант слияния')
+    frame_rb_type_harvest.pack(padx=10, pady=10)
     #
     Radiobutton(frame_rb_type_harvest, text='А) Простое слияние по названию листов', variable=group_rb_type_harvest,
                 value=0).pack()
@@ -1212,177 +1214,172 @@ if __name__ == '__main__':
     Radiobutton(frame_rb_type_harvest, text='В) Сложное слияние по названию листов', variable=group_rb_type_harvest,
                 value=2).pack()
 
-    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_merger = LabelFrame(tab_merger_tables, text='Подготовка')
-    frame_data_for_merger.grid(column=0, row=2, padx=10)
-
     # Создаем кнопку Выбрать папку с данными
 
-    btn_data_merger = Button(frame_data_for_merger, text='2) Выберите папку с данными', font=('Arial Bold', 14),
+    btn_data_merger = Button(frame_data_merger_tables, text='2) Выберите папку с данными', font=('Arial Bold', 14),
                              command=select_folder_data_merger
                              )
-    btn_data_merger.grid(column=0, row=3, padx=5, pady=5)
+    btn_data_merger.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать эталонный файл
 
-    btn_example_merger = Button(frame_data_for_merger, text='3) Выберите эталонный файл', font=('Arial Bold', 14),
+    btn_example_merger = Button(frame_data_merger_tables, text='3) Выберите эталонный файл', font=('Arial Bold', 14),
                                 command=select_standard_file_merger)
-    btn_example_merger.grid(column=0, row=4, padx=5, pady=5)
+    btn_example_merger.pack(padx=10, pady=10)
 
-    btn_choose_end_folder_merger = Button(frame_data_for_merger, text='4) Выберите конечную папку',
+    btn_choose_end_folder_merger = Button(frame_data_merger_tables, text='4) Выберите конечную папку',
                                           font=('Arial Bold', 14),
                                           command=select_end_folder_merger
                                           )
-    btn_choose_end_folder_merger.grid(column=0, row=5, padx=5, pady=5)
+    btn_choose_end_folder_merger.pack(padx=10, pady=10)
 
     # Определяем переменную в которой будем хранить количество пропускаемых строк
     merger_entry_skip_rows = StringVar()
     # Описание поля
-    merger_label_skip_rows = Label(frame_data_for_merger,
+    merger_label_skip_rows = Label(frame_data_merger_tables,
                                    text='5) Введите количество строк\nв листах,чтобы пропустить\nзаголовок\n'
                                         'ТОЛЬКО для вариантов слияния А и Б ')
-    merger_label_skip_rows.grid(column=0, row=8, padx=10, pady=10)
+    merger_label_skip_rows.pack(padx=10, pady=10)
     # поле ввода
-    merger_number_skip_rows = Entry(frame_data_for_merger, textvariable=merger_entry_skip_rows, width=5)
-    merger_number_skip_rows.grid(column=0, row=9, padx=5, pady=5, ipadx=10, ipady=7)
+    merger_number_skip_rows = Entry(frame_data_merger_tables, textvariable=merger_entry_skip_rows, width=5)
+    merger_number_skip_rows.pack(ipady=5)
 
     # Создаем кнопку выбора файла с параметрами
-    btn_params_merger = Button(frame_data_for_merger, text='Выберите файл с параметрами слияния\n'
+    btn_params_merger = Button(frame_data_merger_tables, text='Выберите файл с параметрами слияния\n'
                                                            'ТОЛЬКО для варианта В', font=('Arial Bold', 14),
                                command=select_params_file_merger)
-    btn_params_merger.grid(column=0, row=10, padx=5, pady=5)
+    btn_params_merger.pack(padx=10, pady=10)
     # Создаем кнопку слияния
 
     btn_merger_process = Button(tab_merger_tables, text='6) Произвести слияние \nфайлов',
                                 font=('Arial Bold', 20),
                                 command=merge_tables)
-    btn_merger_process.grid(column=0, row=11, padx=10, pady=10)
+    btn_merger_process.pack(padx=10, pady=10)
 
     """
     Создание вкладки для склонения ФИО по падежам
     """
     # Создаем вкладку для подсчета данных по категориям
-    tab_decl_by_cases = ttk.Frame(tab_control)
+    tab_decl_by_cases = Frame(tab_control)
     tab_control.add(tab_decl_by_cases, text='Склонение ФИО\nпо падежам')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Подсчет данных  по категориям
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_decl_by_cases,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам и создание инициалов'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                      )
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    decl_by_cases_frame_description = LabelFrame(tab_decl_by_cases)
+    decl_by_cases_frame_description.pack()
 
+    lbl_hello_decl_by_cases = Label(decl_by_cases_frame_description,
+                                    text='Центр опережающей профессиональной подготовки Республики Бурятия\nСклонение ФИО по падежам и создание инициалов'
+                                         '\nДля корректной работы программы уберите из таблицы объединенные ячейки', width=60)
+
+    lbl_hello_decl_by_cases.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_to_img = resource_path('logo.png')
-    img_decl_by_cases = PhotoImage(file=path_to_img)
-    Label(tab_decl_by_cases,
-          image=img_decl_by_cases
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_decl_by_cases = resource_path('logo.png')
+    img_decl_by_cases = PhotoImage(file=path_to_img_decl_by_cases)
+    Label(decl_by_cases_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_decl_case = LabelFrame(tab_decl_by_cases, text='Подготовка')
-    frame_data_for_decl_case.grid(column=0, row=2, padx=10)
+    frame_data_decl_by_cases = LabelFrame(tab_decl_by_cases, text='Подготовка')
+    frame_data_decl_by_cases.pack(padx=10, pady=10)
 
     # выбрать файл с данными
-    btn_data_decl_case = Button(frame_data_for_decl_case, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+    btn_data_decl_case = Button(frame_data_decl_by_cases, text='1) Выберите файл с данными', font=('Arial Bold', 14),
                                 command=select_data_decl_case)
-    btn_data_decl_case.grid(column=0, row=3, padx=10, pady=10)
+    btn_data_decl_case.pack(padx=10, pady=10)
 
     # Ввести название колонки с ФИО
     # # Определяем переменную
     decl_case_fio_col = StringVar()
     # Описание поля ввода
-    decl_case_label_fio = Label(frame_data_for_decl_case,
+    decl_case_label_fio = Label(frame_data_decl_by_cases,
                                 text='2) Введите название колонки\n с ФИО в им.падеже')
-    decl_case_label_fio.grid(column=0, row=4, padx=10, pady=10)
+    decl_case_label_fio.pack(padx=10, pady=10)
     # поле ввода
-    decl_case_entry_fio = Entry(frame_data_for_decl_case, textvariable=decl_case_fio_col, width=25)
-    decl_case_entry_fio.grid(column=0, row=5, padx=5, pady=5, ipadx=10, ipady=7)
+    decl_case_entry_fio = Entry(frame_data_decl_by_cases, textvariable=decl_case_fio_col, width=25)
+    decl_case_entry_fio.pack(ipady=5)
     #
-    btn_choose_end_folder_decl_case = Button(frame_data_for_decl_case, text='3) Выберите конечную папку',
-                                             font=('Arial Bold', 20),
+    btn_choose_end_folder_decl_case = Button(frame_data_decl_by_cases, text='3) Выберите конечную папку',
+                                             font=('Arial Bold', 14),
                                              command=select_end_folder_decl_case
                                              )
-    btn_choose_end_folder_decl_case.grid(column=0, row=6, padx=10, pady=10)
+    btn_choose_end_folder_decl_case.pack(padx=10, pady=10)
 
     # Создаем кнопку склонения по падежам
 
     btn_decl_case_process = Button(tab_decl_by_cases, text='4) Произвести склонение \nпо падежам',
                                    font=('Arial Bold', 20),
                                    command=process_decl_case)
-    btn_decl_case_process.grid(column=0, row=7, padx=10, pady=10)
+    btn_decl_case_process.pack(padx=10, pady=10)
 
     """
     Разница двух таблиц
     """
-    tab_diffrence = ttk.Frame(tab_control)
+    tab_diffrence = Frame(tab_control)
     tab_control.add(tab_diffrence, text='Разница\n2 таблиц')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку разница 2 двух таблиц
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_diffrence,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Количество строк и колонок в таблицах должно совпадать\n'
-                           'Названия колонок в таблицах должны совпадать'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    diffrence_frame_description = LabelFrame(tab_diffrence)
+    diffrence_frame_description.pack()
 
+    lbl_hello_diffrence = Label(diffrence_frame_description,
+                                text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                                     'Количество строк и колонок в таблицах должно совпадать\n'
+                                     'Названия колонок в таблицах должны совпадать'
+                                     '\nДля корректной работы программы уберите из таблицы объединенные ячейки', width=60)
+
+    lbl_hello_diffrence.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_com = resource_path('logo.png')
-    img_diffrence = PhotoImage(file=path_com)
-    Label(tab_diffrence,
-          image=img
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_diffrence = resource_path('logo.png')
+    img_diffrence = PhotoImage(file=path_to_img_diffrence)
+    Label(diffrence_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_diffrence = LabelFrame(tab_diffrence, text='Подготовка')
-    frame_data_for_diffrence.grid(column=0, row=2, padx=10)
+    frame_data_diffrence = LabelFrame(tab_diffrence, text='Подготовка')
+    frame_data_diffrence.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать  первый файл с данными
-    btn_data_first_diffrence = Button(frame_data_for_diffrence, text='1) Выберите файл с первой таблицей',
-                                      font=('Arial Bold', 10),
+    btn_data_first_diffrence = Button(frame_data_diffrence, text='1) Выберите файл с первой таблицей',
+                                      font=('Arial Bold', 14),
                                       command=select_first_diffrence
                                       )
-    btn_data_first_diffrence.grid(column=0, row=3, padx=10, pady=10)
+    btn_data_first_diffrence.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_first_sheet_name_diffrence = StringVar()
     # Описание поля
-    label_first_sheet_name_diffrence = Label(frame_data_for_diffrence,
+    label_first_sheet_name_diffrence = Label(frame_data_diffrence,
                                              text='2) Введите название листа, где находится первая таблица')
-    label_first_sheet_name_diffrence.grid(column=0, row=4, padx=10, pady=10)
+    label_first_sheet_name_diffrence.pack(padx=10, pady=10)
     # поле ввода имени листа
-    first_sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_first_sheet_name_diffrence,
+    first_sheet_name_entry_diffrence = Entry(frame_data_diffrence, textvariable=entry_first_sheet_name_diffrence,
                                              width=30)
-    first_sheet_name_entry_diffrence.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+    first_sheet_name_entry_diffrence.pack(ipady=5)
 
     # Создаем кнопку Выбрать  второй файл с данными
-    btn_data_second_diffrence = Button(frame_data_for_diffrence, text='3) Выберите файл со второй таблицей',
-                                       font=('Arial Bold', 10),
+    btn_data_second_diffrence = Button(frame_data_diffrence, text='3) Выберите файл со второй таблицей',
+                                       font=('Arial Bold', 14),
                                        command=select_second_diffrence
                                        )
-    btn_data_second_diffrence.grid(column=0, row=6, padx=10, pady=10)
+    btn_data_second_diffrence.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_second_sheet_name_diffrence = StringVar()
     # Описание поля
-    label_second_sheet_name_diffrence = Label(frame_data_for_diffrence,
+    label_second_sheet_name_diffrence = Label(frame_data_diffrence,
                                               text='4) Введите название листа, где находится вторая таблица')
-    label_second_sheet_name_diffrence.grid(column=0, row=7, padx=10, pady=10)
+    label_second_sheet_name_diffrence.pack(padx=10, pady=10)
     # поле ввода
-    second__sheet_name_entry_diffrence = Entry(frame_data_for_diffrence, textvariable=entry_second_sheet_name_diffrence,
+    second__sheet_name_entry_diffrence = Entry(frame_data_diffrence, textvariable=entry_second_sheet_name_diffrence,
                                                width=30)
-    second__sheet_name_entry_diffrence.grid(column=0, row=8, padx=5, pady=5, ipadx=15, ipady=10)
+    second__sheet_name_entry_diffrence.pack(ipady=5)
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
-    btn_select_end_diffrence = Button(frame_data_for_diffrence, text='5) Выберите конечную папку',
-                                      font=('Arial Bold', 10),
+    btn_select_end_diffrence = Button(frame_data_diffrence, text='5) Выберите конечную папку',
+                                      font=('Arial Bold', 14),
                                       command=select_end_folder_diffrence
                                       )
-    btn_select_end_diffrence.grid(column=0, row=10, padx=10, pady=10)
+    btn_select_end_diffrence.pack(padx=10, pady=10)
 
 
 
@@ -1390,96 +1387,96 @@ if __name__ == '__main__':
     btn_data_do_diffrence = Button(tab_diffrence, text='6) Обработать таблицы', font=('Arial Bold', 20),
                                    command=processing_diffrence
                                    )
-    btn_data_do_diffrence.grid(column=0, row=12, padx=10, pady=10)
+    btn_data_do_diffrence.pack(padx=10, pady=10)
 
 
     """
     Создание сводных таблиц
     """
-    tab_svod = ttk.Frame(tab_control)
+    tab_svod = Frame(tab_control)
     tab_control.add(tab_svod, text='Сводные\nтаблицы')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку разница 2 двух таблиц
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_svod,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Создание сводных таблиц: Сумма,Среднее,Медиана,Минимум\n'
-                           'Максимум,Количество,Количество уникальных,Самое частое\n'
-                           'Количество самых частых, Количество дубликатов'                           
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
-                           'Заголовок таблицы должен быть на первой строке')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    svod_frame_description = LabelFrame(tab_svod)
+    svod_frame_description.pack()
 
+    lbl_hello_svod = Label(svod_frame_description,
+                           text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                                'Создание сводных таблиц: Сумма,Среднее,Медиана,Минимум\n'
+                                'Максимум,Количество,Количество уникальных,Самое частое\n'
+                                'Количество самых частых, Количество дубликатов'
+                                '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
+                                'Заголовок таблицы должен быть на первой строке', width=60)
+
+    lbl_hello_svod.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_com = resource_path('logo.png')
-    img_svod = PhotoImage(file=path_com)
-    Label(tab_svod,
-          image=img
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_svod = resource_path('logo.png')
+    img_svod = PhotoImage(file=path_to_img_svod)
+    Label(svod_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_svod = LabelFrame(tab_svod, text='Подготовка')
-    frame_data_for_svod.grid(column=0, row=2, padx=10)
+    frame_data_svod = LabelFrame(tab_svod, text='Подготовка')
+    frame_data_svod.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать  файл с данными
-    btn_data_svod = Button(frame_data_for_svod, text='1) Выберите файл с данными',
+    btn_data_svod = Button(frame_data_svod, text='1) Выберите файл с данными',
                                  font=('Arial Bold', 10),
                                  command=select_file_svod
                                  )
-    btn_data_svod.grid(column=0, row=3, padx=10, pady=10)
+    btn_data_svod.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_sheet_name_svod = StringVar()
     # Описание поля
-    label_sheet_name_svod = Label(frame_data_for_svod,
+    label_sheet_name_svod = Label(frame_data_svod,
                                         text='2) Введите название листа в файле где находятся данные')
-    label_sheet_name_svod.grid(column=0, row=4, padx=10, pady=10)
+    label_sheet_name_svod.pack(padx=10, pady=10)
     # поле ввода имени листа
-    sheet_name_entry_svod = Entry(frame_data_for_svod, textvariable=entry_sheet_name_svod,
+    sheet_name_entry_svod = Entry(frame_data_svod, textvariable=entry_sheet_name_svod,
                                         width=30)
-    sheet_name_entry_svod.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+    sheet_name_entry_svod.pack(ipady=5)
 
 
 
     # Определяем текстовую переменную
     entry_columns_svod = StringVar()
     # Описание поля
-    label_columns_svod = Label(frame_data_for_svod,
+    label_columns_svod = Label(frame_data_svod,
                                         text='3) Введите порядковые номера колонок по которым \n'
                                              'будут группироваться данные\n'
                                              'Например: 2,4,8')
-    label_columns_svod.grid(column=0, row=6, padx=10, pady=10)
+    label_columns_svod.pack(padx=10, pady=10)
     # поле ввода имени листа
-    entry_svod_columns = Entry(frame_data_for_svod, textvariable=entry_columns_svod,
+    entry_svod_columns = Entry(frame_data_svod, textvariable=entry_columns_svod,
                                         width=30)
-    entry_svod_columns.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
+    entry_svod_columns.pack(ipady=5)
 
     # Определяем текстовую переменную
     entry_target_svod = StringVar()
     # Описание поля
-    label_target_svod = Label(frame_data_for_svod,
+    label_target_svod = Label(frame_data_svod,
                                          text='4) Введите порядковые номера колонок по которым\n'
                                               'будет вестить подсчет\n'
                                               'Например: 7,8')
-    label_target_svod.grid(column=0, row=8, padx=10, pady=10)
+    label_target_svod.pack(padx=10, pady=10)
     # поле ввода
-    entry_target_columns = Entry(frame_data_for_svod, textvariable=entry_target_svod,
+    entry_target_columns = Entry(frame_data_svod, textvariable=entry_target_svod,
                                           width=30)
-    entry_target_columns.grid(column=0, row=9, padx=5, pady=5, ipadx=15, ipady=10)
+    entry_target_columns.pack(ipady=5)
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
-    btn_select_end_svod = Button(frame_data_for_svod, text='5) Выберите конечную папку',
+    btn_select_end_svod = Button(frame_data_svod, text='5) Выберите конечную папку',
                                  font=('Arial Bold', 10),
                                  command=select_end_folder_svod
                                  )
-    btn_select_end_svod.grid(column=0, row=10, padx=10, pady=10)
+    btn_select_end_svod.pack(padx=10, pady=10)
 
     # Создаем кнопку Обработать данные
     btn_data_do_svod = Button(tab_svod, text='6) Обработать данные', font=('Arial Bold', 20),
                               command=processing_svod
                               )
-    btn_data_do_svod.grid(column=0, row=11, padx=10, pady=10)
+    btn_data_do_svod.pack(padx=10, pady=10)
 
 
 
