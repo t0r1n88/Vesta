@@ -631,18 +631,30 @@ def show_textmenu(event):
     the_menu.tk.call("tk_popup", the_menu, event.x_root, event.y_root)
 
 
+def on_scroll(*args):
+    canvas.yview(*args)
+
 if __name__ == '__main__':
     window = Tk()
     window.title('Веста Обработка таблиц и создание документов ver 1.43')
-    # window.geometry('774x860+700+100')
-    window.geometry('980x910+700+100')
+    window.geometry('774x760+700+100')
+    # window.geometry('980x910+700+100')
     window.resizable(True, False)
     # Добавляем контекстное меню в поля ввода
     make_textmenu(window)
 
-    # Создаем объект вкладок
+    # Создаем вертикальный скроллбар
+    scrollbar = Scrollbar(window, orient="vertical")
 
-    tab_control = ttk.Notebook(window)
+    # Создаем холст
+    canvas = Canvas(window, yscrollcommand=scrollbar.set)
+    canvas.pack(side="left", fill="both", expand=True)
+
+    # Привязываем скроллбар к холсту
+    scrollbar.config(command=canvas.yview)
+
+    # Создаем ноутбук (вкладки)
+    tab_control = ttk.Notebook(canvas)
 
     """
     Создаем вкладку для предварительной обработки списка
@@ -650,50 +662,39 @@ if __name__ == '__main__':
     # Создаем вкладку создания документов по шаблону
     tab_preparation= ttk.Frame(tab_control)
     tab_control.add(tab_preparation, text='Обработка\nсписка')
-    tab_control.pack(expand=1, fill='both')
 
-    # размещаем виджеты на вкладке Подготовка файла
-    lbl_hello = Label(tab_preparation,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           'Очистка от лишних пробелов и символов; поиск пропущенных значений\n в колонках с персональными данными,'
-                           '(ФИО,паспортные данные,\nтелефон,e-mail,дата рождения,ИНН)\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.\n'
-                           'Создание списка дубликатов по каждой колонке\n'
-                           'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
-                           'Для корректной работы программы уберите из таблицы объединенные ячейки')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    preparation_frame_description = LabelFrame(tab_preparation)
+    preparation_frame_description.pack()
 
-    # Картинка . Пришлось переименовывать переменную, иначе картинка не отображалась
-    path_to_img_prep = resource_path('logo.png')
-    img_prep = PhotoImage(file=path_to_img_prep)
-    Label(tab_preparation,
-          image=img_prep
-          ).grid(column=1, row=0, padx=10, pady=25)
+    lbl_hello_preparation = Label(preparation_frame_description,
+                                  text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                                       'Очистка от лишних пробелов и символов; поиск пропущенных значений\n в колонках с персональными данными,'
+                                       '(ФИО,паспортные данные,\nтелефон,e-mail,дата рождения,ИНН)\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.\n'
+                                       'Создание списка дубликатов по каждой колонке\n'
+                                       'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
+                                       'Для корректной работы программы уберите из таблицы объединенные ячейки')
+    lbl_hello_preparation.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
+
+    # Картинка
+    path_to_img_preparation = resource_path('logo.png')
+    img_preparation = PhotoImage(file=path_to_img_preparation)
+    Label(preparation_frame_description,
+          image=img_preparation, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
     frame_data_prep = LabelFrame(tab_preparation, text='Подготовка')
-    frame_data_prep.grid(column=0, row=1, padx=10)
+    frame_data_prep.pack(padx=10, pady=10)
 
     # Создаем кнопку выбора файла с данными
     btn_choose_prep_file= Button(frame_data_prep, text='1) Выберите файл', font=('Arial Bold', 20),
                                        command=select_prep_file)
-    btn_choose_prep_file.grid(column=0, row=2, padx=10, pady=10)
-
-    # # Определяем строковую переменную для названия листа с которого будет вестись обработка
-    # var_name_sheet_prep = StringVar()
-    # # Описание поля
-    # label_name_sheet_prep = Label(frame_data_prep,
-    #                                          text='2) Введите название листа на котором находится список')
-    # label_name_sheet_prep.grid(column=0, row=3, padx=10, pady=10)
-    # # поле ввода имени листа
-    # entry_name_sheet_prep = Entry(frame_data_prep, textvariable=var_name_sheet_prep,
-    #                                          width=30)
-    # entry_name_sheet_prep.grid(column=0, row=4, padx=5, pady=5, ipadx=15, ipady=10)
-
+    btn_choose_prep_file.pack(padx=10, pady=10)
 
     # Создаем кнопку выбора конечной папки
     btn_choose_end_folder_prep= Button(frame_data_prep, text='2) Выберите конечную папку', font=('Arial Bold', 20),
                                        command=select_end_folder_prep)
-    btn_choose_end_folder_prep.grid(column=0, row=5, padx=10, pady=10)
+    btn_choose_end_folder_prep.pack(padx=10, pady=10)
 
     # Создаем переменную для хранения результа переключения чекбокса
     mode_dupl_value = StringVar()
@@ -707,13 +708,13 @@ if __name__ == '__main__':
                                        variable=mode_dupl_value,
                                        offvalue='No',
                                        onvalue='Yes')
-    chbox_mode_dupl.grid(column=0, row=6, padx=1, pady=1)
+    chbox_mode_dupl.pack(padx=10, pady=10)
 
 
     # Создаем кнопку очистки
     btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить обработку', font=('Arial Bold', 20),
                                        command=processing_preparation_file)
-    btn_choose_processing_prep.grid(column=0, row=7, padx=10, pady=10)
+    btn_choose_processing_prep.pack(padx=10, pady=10)
 
     """
     Создание вкладки для разбиения таблицы на несколько штук по значениям в определенной колонке
@@ -1474,6 +1475,15 @@ if __name__ == '__main__':
 
 
 
+    # Создаем виджет для управления полосой прокрутки
+    canvas.create_window((0, 0), window=tab_control, anchor="nw")
+
+    # Конфигурируем холст для обработки скроллинга
+    canvas.config(yscrollcommand=scrollbar.set, scrollregion=canvas.bbox("all"))
+    scrollbar.pack(side="right", fill="y")
+
+    # Вешаем событие скроллинга
+    canvas.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
     window.bind_class("Entry", "<Button-3><ButtonRelease-3>", show_textmenu)
     window.bind_class("Entry", "<Control-a>", callback_select_all)
