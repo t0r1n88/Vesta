@@ -722,31 +722,29 @@ if __name__ == '__main__':
     # Создаем вкладку для подсчета данных по категориям
     tab_split_tables = ttk.Frame(tab_control)
     tab_control.add(tab_split_tables, text='Разделение\n таблицы')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Подсчет данных  по категориям
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_split_tables,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
-                           'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
-                           'Заголовок таблицы должен занимать ОДНУ СТРОКУ\n и в нем не должно быть объединенных ячеек!'
-                      )
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    split_tables_frame_description = LabelFrame(tab_split_tables)
+    split_tables_frame_description.pack()
+
+    lbl_hello_split_tables = Label(split_tables_frame_description,
+                                   text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
+                                       '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
+                                       'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
+                                       'Заголовок таблицы должен занимать ОДНУ СТРОКУ\n и в нем не должно быть объединенных ячеек!')
+    lbl_hello_split_tables.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
 
     # Картинка
-    path_to_img = resource_path('logo.png')
-    img_split = PhotoImage(file=path_to_img)
-    Label(tab_split_tables,
-          image=img_split
-          ).grid(column=1, row=0, padx=10, pady=25)
-
+    path_to_img_split_tables = resource_path('logo.png')
+    img_split_tables = PhotoImage(file=path_to_img_split_tables)
+    Label(split_tables_frame_description,
+          image=img_split_tables, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
     # Переключатель:вариант слияния файлов
     # Создаем переключатель
     group_rb_type_split = IntVar()
     # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
     frame_rb_type_split = LabelFrame(tab_split_tables, text='1) Выберите вариант разделения')
-    frame_rb_type_split.grid(column=0, row=1, padx=10)
+    frame_rb_type_split.pack(padx=10, pady=10)
     #
     Radiobutton(frame_rb_type_split, text='А) По листам в одном файле', variable=group_rb_type_split,
                 value=0).pack()
@@ -755,118 +753,109 @@ if __name__ == '__main__':
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
     frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
-    frame_data_for_split.grid(column=0, row=2, padx=10)
+    frame_data_for_split.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл
 
     btn_example_split = Button(frame_data_for_split, text='2) Выберите файл с таблицей', font=('Arial Bold', 14),
                                command=select_file_split)
-    btn_example_split.grid(column=0, row=3, padx=5, pady=5)
-
-    # # Определяем текстовую переменную для названия листа
-    # entry_sheet_name_split = StringVar()
-    # # Описание поля
-    # label_sheet_name_split = Label(frame_data_for_split,
-    #                                          text='3) Введите имя листа где находится таблица')
-    # label_sheet_name_split.grid(column=0, row=4, padx=10, pady=10)
-    # # поле ввода имени листа
-    # entry_sheet_name_split = Entry(frame_data_for_split, textvariable=entry_sheet_name_split,
-    #                                          width=30)
-    # entry_sheet_name_split.grid(column=0, row=5, padx=5, pady=5, ipadx=15, ipady=10)
+    btn_example_split.pack(padx=10, pady=10)
 
     # Определяем числовую переменную для порядкового номера
     entry_number_column_split = IntVar()
     # Описание поля
     label_number_column_split = Label(frame_data_for_split,
                                              text='3) Введите порядковый номер колонки начиная с 1\nпо значениям которой нужно разделить таблицу')
-    label_number_column_split.grid(column=0, row=6, padx=10, pady=10)
+    label_number_column_split.pack(padx=10, pady=10)
     # поле ввода имени листа
     entry_number_column_split = Entry(frame_data_for_split, textvariable=entry_number_column_split,
                                              width=30)
-    entry_number_column_split.grid(column=0, row=7, padx=5, pady=5, ipadx=15, ipady=10)
+    entry_number_column_split.pack(ipady=5)
 
 
     btn_choose_end_folder_split = Button(frame_data_for_split, text='4) Выберите конечную папку',
                                          font=('Arial Bold', 14),
                                          command=select_end_folder_split
                                          )
-    btn_choose_end_folder_split.grid(column=0, row=8, padx=5, pady=5)
+    btn_choose_end_folder_split.pack(padx=10, pady=10)
 
     # Создаем кнопку слияния
 
     btn_split_process = Button(tab_split_tables, text='5) Разделить таблицу',
                                font=('Arial Bold', 20),
                                command=processing_split_table)
-    btn_split_process.grid(column=0, row=11, padx=10, pady=10)
+    btn_split_process.pack(padx=10, pady=10)
 
 
-
-    # Создаем вкладку создания документов по шаблону
-    tab_create_doc = ttk.Frame(tab_control)
+    """
+    Создаем вкладку создания документов
+    """
+    tab_create_doc = Frame(tab_control)
     tab_control.add(tab_create_doc, text='Создание\nдокументов')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Создание документов
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_create_doc,
+    create_doc_frame_description = LabelFrame(tab_create_doc)
+    create_doc_frame_description.pack()
+
+    lbl_hello = Label(create_doc_frame_description,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону'
                            '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
                            '\nДанные обрабатываются только с первого листа файла Excel!!!')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
-
+    lbl_hello.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
+    # #
+    # #
     # Картинка
     path_to_img = resource_path('logo.png')
     img = PhotoImage(file=path_to_img)
-    Label(tab_create_doc,
-          image=img
-          ).grid(column=1, row=0, padx=10, pady=25)
+    Label(create_doc_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
-    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_doc = LabelFrame(tab_create_doc, text='Подготовка')
-    frame_data_for_doc.grid(column=0, row=2, padx=10)
+    # Создаем фрейм для действий
+    create_doc_frame_action = LabelFrame(tab_create_doc)
+    create_doc_frame_action.pack()
 
     # Создаем кнопку Выбрать шаблон
-    btn_template_doc = Button(frame_data_for_doc, text='1) Выберите шаблон документа', font=('Arial Bold', 15),
+    btn_template_doc = Button(create_doc_frame_action, text='1) Выберите шаблон документа', font=('Arial Bold', 15),
                               command=select_file_template_doc
                               )
-    btn_template_doc.grid(column=0, row=3, padx=10, pady=10)
-    #
-    # Создаем кнопку Выбрать файл с данными
-    btn_data_doc = Button(frame_data_for_doc, text='2) Выберите файл с данными', font=('Arial Bold', 15),
+    btn_template_doc.pack(padx=10, pady=10)
+
+    btn_data_doc = Button(create_doc_frame_action, text='2) Выберите файл с данными', font=('Arial Bold', 15),
                           command=select_file_data_doc
                           )
-    btn_data_doc.grid(column=0, row=4, padx=10, pady=10)
+    btn_data_doc.pack(padx=10, pady=10)
     #
     # Создаем кнопку для выбора папки куда будут генерироваться файлы
 
     # Определяем текстовую переменную
     entry_name_column_data = StringVar()
     # Описание поля
-    label_name_column_data = Label(frame_data_for_doc,
+    label_name_column_data = Label(create_doc_frame_action,
                                    text='3) Введите название колонки в таблице\n по которой будут создаваться имена файлов')
-    label_name_column_data.grid(column=0, row=5, padx=10, pady=5)
+    label_name_column_data.pack(padx=10, pady=10)
     # поле ввода
-    data_column_entry = Entry(frame_data_for_doc, textvariable=entry_name_column_data, width=30)
-    data_column_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=30, ipady=4)
+    data_column_entry = Entry(create_doc_frame_action, textvariable=entry_name_column_data, width=30)
+    data_column_entry.pack(ipady=5)
 
     # Поле для ввода названия генериуемых документов
     # Определяем текстовую переменную
     entry_type_file = StringVar()
     # Описание поля
-    label_name_column_type_file = Label(frame_data_for_doc, text='4) Введите название создаваемых документов')
-    label_name_column_type_file.grid(column=0, row=7, padx=10, pady=5)
+    label_name_column_type_file = Label(create_doc_frame_action, text='4) Введите название создаваемых документов')
+    label_name_column_type_file.pack(padx=10, pady=10)
     # поле ввода
-    type_file_column_entry = Entry(frame_data_for_doc, textvariable=entry_type_file, width=30)
-    type_file_column_entry.grid(column=0, row=8, padx=5, pady=5, ipadx=30, ipady=4)
+    type_file_column_entry = Entry(create_doc_frame_action, textvariable=entry_type_file, width=30)
+    type_file_column_entry.pack(ipady=5)
 
-    btn_choose_end_folder_doc = Button(frame_data_for_doc, text='5) Выберите конечную папку', font=('Arial Bold', 15),
+    btn_choose_end_folder_doc = Button(create_doc_frame_action, text='5) Выберите конечную папку',
+                                       font=('Arial Bold', 15),
                                        command=select_end_folder_doc
                                        )
-    btn_choose_end_folder_doc.grid(column=0, row=9, padx=10, pady=10)
+    btn_choose_end_folder_doc.pack(padx=10, pady=10)
 
     # Создаем область для того чтобы поместить туда опции
     frame_data_for_options = LabelFrame(tab_create_doc, text='Дополнительные опции')
-    frame_data_for_options.grid(column=0, row=10, padx=10)
+    frame_data_for_options.pack(padx=10, pady=10)
 
     # Создаем переменную для хранения результа переключения чекбокса
     mode_combine_value = StringVar()
@@ -880,7 +869,7 @@ if __name__ == '__main__':
                                        variable=mode_combine_value,
                                        offvalue='No',
                                        onvalue='Yes')
-    chbox_mode_calculate.grid(column=0, row=11, padx=1, pady=1)
+    chbox_mode_calculate.pack()
 
     # Создаем чекбокс для режима создания pdf
     # Создаем переменную для хранения результа переключения чекбокса
@@ -896,7 +885,7 @@ if __name__ == '__main__':
                                  variable=mode_pdf_value,
                                  offvalue='No',
                                  onvalue='Yes')
-    chbox_mode_pdf.grid(column=0, row=12, padx=1, pady=1)
+    chbox_mode_pdf.pack()
 
     # создаем чекбокс для единичного документа
 
@@ -911,129 +900,136 @@ if __name__ == '__main__':
                                    variable=mode_group_doc,
                                    offvalue='No',
                                    onvalue='Yes')
-    chbox_mode_group.grid(column=0, row=13, padx=1, pady=1)
+    chbox_mode_group.pack(padx=10, pady=10)
     # Создаем поле для ввода значения по которому будет создаваться единичный документ
     # Определяем текстовую переменную
     entry_value_column = StringVar()
     # Описание поля
     label_name_column_group = Label(frame_data_for_options,
                                     text='Введите значение из колонки\nуказанной на шаге 3 для которого нужно создать один документ,\nнапример конкретное ФИО')
-    label_name_column_group.grid(column=0, row=14, padx=1, pady=1)
+    label_name_column_group.pack()
     # поле ввода
     type_file_group_entry = Entry(frame_data_for_options, textvariable=entry_value_column, width=30)
-    type_file_group_entry.grid(column=0, row=15, padx=5, pady=5, ipadx=30, ipady=4)
+    type_file_group_entry.pack(ipady=5)
 
     # Создаем кнопку для создания документов из таблиц с произвольной структурой
     btn_create_files_other = Button(tab_create_doc, text='6) Создать документ(ы)',
                                     font=('Arial Bold', 15),
                                     command=generate_docs_other
                                     )
-    btn_create_files_other.grid(column=0, row=14, padx=1, pady=1)
+    btn_create_files_other.pack(padx=10, pady=10)
 
-    # Создаем вклдаку для обработки дат рождения
+    """
+    Создаем вкладку для обработки дат рождения
+    """
 
-    tab_calculate_date = ttk.Frame(tab_control)
+    tab_calculate_date = Frame(tab_control)
     tab_control.add(tab_calculate_date, text='Обработка\nдат рождения')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Обработка дат рождения
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_calculate_date,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    calculate_date_frame_description = LabelFrame(tab_calculate_date)
+    calculate_date_frame_description.pack()
 
+    lbl_hello_calculate_date = Label(calculate_date_frame_description,
+                                     text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста'
+                                          '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
+                                          '\nДанные обрабатываются только с первого листа файла Excel!!!')
+    lbl_hello_calculate_date.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
+    # #
+    # #
     # Картинка
-    path_to_img = resource_path('logo.png')
-    img_date = PhotoImage(file=path_to_img)
-    Label(tab_calculate_date,
-          image=img_date
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_calculate_date = resource_path('logo.png')
+    img_calculate_date = PhotoImage(file=path_to_img_calculate_date)
+    Label(calculate_date_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Определяем текстовую переменную которая будет хранить дату
     entry_date = StringVar()
     # Описание поля
     label_name_date_field = Label(tab_calculate_date,
                                   text='Введите  дату в формате XX.XX.XXXX\n относительно, которой нужно подсчитать текущий возраст')
-    label_name_date_field.grid(column=0, row=2, padx=10, pady=10)
+    label_name_date_field.pack(padx=10, pady=10)
     # поле ввода
     date_field = Entry(tab_calculate_date, textvariable=entry_date, width=30)
-    date_field.grid(column=0, row=3, padx=5, pady=5, ipadx=30, ipady=15)
+    date_field.pack(ipady=5)
 
     # Создаем кнопку Выбрать файл с данными
     btn_data_date = Button(tab_calculate_date, text='1) Выберите файл с данными', font=('Arial Bold', 20),
                            command=select_file_data_date)
-    btn_data_date.grid(column=0, row=4, padx=10, pady=10)
+    btn_data_date.pack(padx=10, pady=10)
 
     btn_choose_end_folder_date = Button(tab_calculate_date, text='2) Выберите конечную папку', font=('Arial Bold', 20),
                                         command=select_end_folder_date
                                         )
-    btn_choose_end_folder_date.grid(column=0, row=5, padx=10, pady=10)
+    btn_choose_end_folder_date.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
     label_name_column = Label(tab_calculate_date,
                               text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
-    label_name_column.grid(column=0, row=6, padx=10, pady=10)
+    label_name_column.pack(padx=10, pady=10)
     # поле ввода
     column_entry = Entry(tab_calculate_date, textvariable=entry_name_column, width=30)
-    column_entry.grid(column=0, row=7, padx=7, pady=5, ipadx=30, ipady=15)
+    column_entry.pack(ipady=5)
 
     btn_calculate_date = Button(tab_calculate_date, text='4) Обработать', font=('Arial Bold', 20),
                                 command=calculate_date)
-    btn_calculate_date.grid(column=0, row=8, padx=10, pady=10)
+    btn_calculate_date.pack(padx=10, pady=10)
 
-    # Создаем вкладку для подсчета данных по категориям
-    tab_groupby_data = ttk.Frame(tab_control)
+    """
+    Создаем вкладку для подсчета данных по категориям
+    """
+    tab_groupby_data = Frame(tab_control)
     tab_control.add(tab_groupby_data, text='Подсчет\nданных')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Подсчет данных  по категориям
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_groupby_data,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных'
-                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    groupby_data_frame_description = LabelFrame(tab_groupby_data)
+    groupby_data_frame_description.pack()
 
+    lbl_hello_groupby_data = Label(groupby_data_frame_description,
+                                   text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных по каждой колонке'
+                                        '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
+                                        '\nДанные обрабатываются только с первого листа файла Excel!!!')
+    lbl_hello_groupby_data.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_to_img = resource_path('logo.png')
-    img_groupby = PhotoImage(file=path_to_img)
-    Label(tab_groupby_data,
-          image=img_groupby
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_groupby_data = resource_path('logo.png')
+    img_groupby_data = PhotoImage(file=path_to_img_groupby_data)
+    Label(groupby_data_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
     frame_data_for_groupby = LabelFrame(tab_groupby_data, text='Подготовка')
-    frame_data_for_groupby.grid(column=0, row=2, padx=10)
+    frame_data_for_groupby.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с данными
     btn_data_groupby = Button(frame_data_for_groupby, text='1) Выберите файл с данными', font=('Arial Bold', 20),
                               command=select_file_data_groupby
                               )
-    btn_data_groupby.grid(column=0, row=3, padx=10, pady=10)
+    btn_data_groupby.pack(padx=10, pady=10)
 
     btn_choose_end_folder_groupby = Button(frame_data_for_groupby, text='2) Выберите конечную папку',
                                            font=('Arial Bold', 20),
                                            command=select_end_folder_groupby
                                            )
-    btn_choose_end_folder_groupby.grid(column=0, row=4, padx=10, pady=10)
+    btn_choose_end_folder_groupby.pack(padx=10, pady=10)
 
     # Создаем кнопки подсчета
 
     btn_groupby_category = Button(tab_groupby_data, text='Подсчитать количество по категориям\nдля всех колонок',
                                   font=('Arial Bold', 20),
                                   command=groupby_category)
-    btn_groupby_category.grid(column=0, row=5, padx=10, pady=10)
+    btn_groupby_category.pack(padx=10, pady=10)
 
     btn_groupby_stat = Button(tab_groupby_data, text='Подсчитать базовую статистику\nдля всех колонок',
                               font=('Arial Bold', 20),
                               command=groupby_stat)
-    btn_groupby_stat.grid(column=0, row=6, padx=10, pady=10)
+    btn_groupby_stat.pack(padx=10, pady=10)
 
-    # Создаем вкладку для сравнения 2 столбцов
 
+    """
+    Создаем вкладку для сравнения 2 столбцов
+    """
     tab_comparison = ttk.Frame(tab_control)
     tab_control.add(tab_comparison, text='Слияние\n2 таблиц')
     tab_control.pack(expand=1, fill='both')
