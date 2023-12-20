@@ -659,7 +659,6 @@ if __name__ == '__main__':
     """
     Создаем вкладку для предварительной обработки списка
     """
-    # Создаем вкладку создания документов по шаблону
     tab_preparation= ttk.Frame(tab_control)
     tab_control.add(tab_preparation, text='Обработка\nсписка')
 
@@ -672,7 +671,7 @@ if __name__ == '__main__':
                                        '(ФИО,паспортные данные,\nтелефон,e-mail,дата рождения,ИНН)\n преобразование СНИЛС в формат ХХХ-ХХХ-ХХХ ХХ.\n'
                                        'Создание списка дубликатов по каждой колонке\n'
                                        'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
-                                       'Для корректной работы программы уберите из таблицы объединенные ячейки')
+                                       'Для корректной работы программы уберите из таблицы объединенные ячейки',width=60)
     lbl_hello_preparation.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
 
     # Картинка
@@ -712,7 +711,7 @@ if __name__ == '__main__':
 
 
     # Создаем кнопку очистки
-    btn_choose_processing_prep= Button(frame_data_prep, text='3) Выполнить обработку', font=('Arial Bold', 20),
+    btn_choose_processing_prep= Button(tab_preparation, text='3) Выполнить обработку', font=('Arial Bold', 20),
                                        command=processing_preparation_file)
     btn_choose_processing_prep.pack(padx=10, pady=10)
 
@@ -730,7 +729,7 @@ if __name__ == '__main__':
                                    text='Центр опережающей профессиональной подготовки Республики Бурятия\nРазделение таблицы Excel по листам и файлам'
                                        '\nДля корректной работы программы уберите из таблицы объединенные ячейки\n'
                                        'Данные обрабатываются С ПЕРВОГО ЛИСТА В ФАЙЛЕ !!!\n'
-                                       'Заголовок таблицы должен занимать ОДНУ СТРОКУ\n и в нем не должно быть объединенных ячеек!')
+                                       'Заголовок таблицы должен занимать ОДНУ СТРОКУ\n и в нем не должно быть объединенных ячеек!',width=60)
     lbl_hello_split_tables.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
 
     # Картинка
@@ -739,11 +738,15 @@ if __name__ == '__main__':
     Label(split_tables_frame_description,
           image=img_split_tables, padx=10, pady=10
           ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
+    frame_data_for_split.pack(padx=10, pady=10)
     # Переключатель:вариант слияния файлов
     # Создаем переключатель
     group_rb_type_split = IntVar()
     # Создаем фрейм для размещения переключателей(pack и грид не используются в одном контейнере)
-    frame_rb_type_split = LabelFrame(tab_split_tables, text='1) Выберите вариант разделения')
+    frame_rb_type_split = LabelFrame(frame_data_for_split, text='1) Выберите вариант разделения')
     frame_rb_type_split.pack(padx=10, pady=10)
     #
     Radiobutton(frame_rb_type_split, text='А) По листам в одном файле', variable=group_rb_type_split,
@@ -751,9 +754,7 @@ if __name__ == '__main__':
     Radiobutton(frame_rb_type_split, text='Б) По отдельным файлам', variable=group_rb_type_split,
                 value=1).pack()
 
-    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
-    frame_data_for_split = LabelFrame(tab_split_tables, text='Подготовка')
-    frame_data_for_split.pack(padx=10, pady=10)
+
 
     # Создаем кнопку Выбрать файл
 
@@ -799,7 +800,7 @@ if __name__ == '__main__':
     lbl_hello = Label(create_doc_frame_description,
                       text='Центр опережающей профессиональной подготовки Республики Бурятия\nГенерация документов по шаблону'
                            '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                           '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                           '\nДанные обрабатываются только с первого листа файла Excel!!!',width=60)
     lbl_hello.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # #
     # #
@@ -811,7 +812,7 @@ if __name__ == '__main__':
           ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем фрейм для действий
-    create_doc_frame_action = LabelFrame(tab_create_doc)
+    create_doc_frame_action = LabelFrame(tab_create_doc, text='Подготовка')
     create_doc_frame_action.pack()
 
     # Создаем кнопку Выбрать шаблон
@@ -932,7 +933,7 @@ if __name__ == '__main__':
     lbl_hello_calculate_date = Label(calculate_date_frame_description,
                                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет по категориям,выделение месяца,года,подсчет текущего возраста'
                                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                                          '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                                          '\nДанные обрабатываются только с первого листа файла Excel!!!',width=60)
     lbl_hello_calculate_date.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # #
     # #
@@ -943,22 +944,26 @@ if __name__ == '__main__':
           image=img, padx=10, pady=10
           ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
+    # Создаем фрейм для действий
+    calculate_date_frame_action = LabelFrame(tab_calculate_date, text='Подготовка')
+    calculate_date_frame_action.pack()
+
     # Определяем текстовую переменную которая будет хранить дату
     entry_date = StringVar()
     # Описание поля
-    label_name_date_field = Label(tab_calculate_date,
+    label_name_date_field = Label(calculate_date_frame_action,
                                   text='Введите  дату в формате XX.XX.XXXX\n относительно, которой нужно подсчитать текущий возраст')
     label_name_date_field.pack(padx=10, pady=10)
     # поле ввода
-    date_field = Entry(tab_calculate_date, textvariable=entry_date, width=30)
+    date_field = Entry(calculate_date_frame_action, textvariable=entry_date, width=30)
     date_field.pack(ipady=5)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_data_date = Button(tab_calculate_date, text='1) Выберите файл с данными', font=('Arial Bold', 20),
+    btn_data_date = Button(calculate_date_frame_action, text='1) Выберите файл с данными', font=('Arial Bold', 20),
                            command=select_file_data_date)
     btn_data_date.pack(padx=10, pady=10)
 
-    btn_choose_end_folder_date = Button(tab_calculate_date, text='2) Выберите конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder_date = Button(calculate_date_frame_action, text='2) Выберите конечную папку', font=('Arial Bold', 20),
                                         command=select_end_folder_date
                                         )
     btn_choose_end_folder_date.pack(padx=10, pady=10)
@@ -966,12 +971,12 @@ if __name__ == '__main__':
     # Определяем текстовую переменную
     entry_name_column = StringVar()
     # Описание поля
-    label_name_column = Label(tab_calculate_date,
+    label_name_column = Label(calculate_date_frame_action,
                               text='3) Введите название колонки с датами рождения,\nкоторые нужно обработать ')
     label_name_column.pack(padx=10, pady=10)
     # поле ввода
-    column_entry = Entry(tab_calculate_date, textvariable=entry_name_column, width=30)
-    column_entry.pack(ipady=5)
+    column_entry = Entry(calculate_date_frame_action, textvariable=entry_name_column, width=30)
+    column_entry.pack(ipady=5,pady=10)
 
     btn_calculate_date = Button(tab_calculate_date, text='4) Обработать', font=('Arial Bold', 20),
                                 command=calculate_date)
@@ -989,7 +994,7 @@ if __name__ == '__main__':
     lbl_hello_groupby_data = Label(groupby_data_frame_description,
                                    text='Центр опережающей профессиональной подготовки Республики Бурятия\nПодсчет данных по каждой колонке'
                                         '\nДля корректной работы программы уберите из таблицы объединенные ячейки'
-                                        '\nДанные обрабатываются только с первого листа файла Excel!!!')
+                                        '\nДанные обрабатываются только с первого листа файла Excel!!!',width=60)
     lbl_hello_groupby_data.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
     path_to_img_groupby_data = resource_path('logo.png')
@@ -1030,116 +1035,124 @@ if __name__ == '__main__':
     """
     Создаем вкладку для сравнения 2 столбцов
     """
-    tab_comparison = ttk.Frame(tab_control)
+    tab_comparison = Frame(tab_control)
     tab_control.add(tab_comparison, text='Слияние\n2 таблиц')
-    tab_control.pack(expand=1, fill='both')
 
-    # Добавляем виджеты на вкладку Создание документов
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_comparison,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
-                           '\nДля корректной работы программы уберите из таблицы объединенные ячейки')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    comparison_frame_description = LabelFrame(tab_comparison)
+    comparison_frame_description.pack()
 
+    lbl_hello_comparison = Label(comparison_frame_description,
+                                 text='Центр опережающей профессиональной подготовки Республики Бурятия\n'
+                                      '\nДля корректной работы программы уберите из таблицы объединенные ячейки',width=60)
+    lbl_hello_comparison.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_com = resource_path('logo.png')
-    img_comparison = PhotoImage(file=path_com)
-    Label(tab_comparison,
-          image=img
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_comparison = resource_path('logo.png')
+    img_comparison = PhotoImage(file=path_to_img_comparison)
+    Label(comparison_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
 
     # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
     frame_data_for_comparison = LabelFrame(tab_comparison, text='Подготовка')
-    frame_data_for_comparison.grid(column=0, row=2, padx=10)
+    frame_data_for_comparison.pack(padx=10, pady=10)
 
     # Создаем кнопку выбрать файл с параметрами
     btn_columns_params = Button(frame_data_for_comparison, text='1) Выберите файл с параметрами слияния',
                                 font=('Arial Bold', 10),
                                 command=select_file_params_comparsion)
-    btn_columns_params.grid(column=0, row=3, padx=10, pady=10)
+    btn_columns_params.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать  первый файл с данными
     btn_data_first_comparison = Button(frame_data_for_comparison, text='2) Выберите первый файл с данными',
                                        font=('Arial Bold', 10),
                                        command=select_first_comparison
                                        )
-    btn_data_first_comparison.grid(column=0, row=4, padx=10, pady=10)
+    btn_data_first_comparison.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_first_sheet_name = StringVar()
     # Описание поля
     label_first_sheet_name = Label(frame_data_for_comparison,
                                    text='3) Введите название листа в первом файле')
-    label_first_sheet_name.grid(column=0, row=5, padx=10, pady=10)
+    label_first_sheet_name.pack(padx=10, pady=10)
     # поле ввода имени листа
     first_sheet_name_entry = Entry(frame_data_for_comparison, textvariable=entry_first_sheet_name, width=30)
-    first_sheet_name_entry.grid(column=0, row=6, padx=5, pady=5, ipadx=15, ipady=10)
+    first_sheet_name_entry.pack(ipady=5)
 
     # Создаем кнопку Выбрать  второй файл с данными
     btn_data_second_comparison = Button(frame_data_for_comparison, text='4) Выберите второй файл с данными',
                                         font=('Arial Bold', 10),
                                         command=select_second_comparison
                                         )
-    btn_data_second_comparison.grid(column=0, row=7, padx=10, pady=10)
+    btn_data_second_comparison.pack(padx=10, pady=10)
 
     # Определяем текстовую переменную
     entry_second_sheet_name = StringVar()
     # Описание поля
     label_second_sheet_name = Label(frame_data_for_comparison,
                                     text='5) Введите название листа во втором файле')
-    label_second_sheet_name.grid(column=0, row=8, padx=10, pady=10)
+    label_second_sheet_name.pack(padx=10, pady=10)
     # поле ввода
     second__sheet_name_entry = Entry(frame_data_for_comparison, textvariable=entry_second_sheet_name, width=30)
-    second__sheet_name_entry.grid(column=0, row=9, padx=5, pady=5, ipadx=15, ipady=10)
+    second__sheet_name_entry.pack(ipady=5)
 
     # Создаем кнопку выбора папки куда будет генерироваьться файл
     btn_select_end_comparison = Button(frame_data_for_comparison, text='6) Выберите конечную папку',
                                        font=('Arial Bold', 10),
                                        command=select_end_folder_comparison
                                        )
-    btn_select_end_comparison.grid(column=0, row=10, padx=10, pady=10)
+    btn_select_end_comparison.pack(padx=10, pady=10)
 
     # Создаем кнопку Обработать данные
     btn_data_do_comparison = Button(tab_comparison, text='7) Произвести слияние\nтаблиц', font=('Arial Bold', 20),
                                     command=processing_comparison
                                     )
-    btn_data_do_comparison.grid(column=0, row=11, padx=10, pady=10)
+    btn_data_do_comparison.pack(padx=10, pady=10)
 
-    # Создаем вкладку для обработки таблиц excel  с одинаковой структурой
-    tab_calculate_data = ttk.Frame(tab_control)
-    tab_control.add(tab_calculate_data, text='Извлечение\nданных')
-    tab_control.pack(expand=1, fill='both')
-    # Добавляем виджеты на вклдаку Обработки данных
-    # Создаем метку для описания назначения программы
-    lbl_hello = Label(tab_calculate_data,
-                      text='Центр опережающей профессиональной подготовки Республики Бурятия\nИзвлечение данных из файлов Excel\nс одинаковой структурой')
-    lbl_hello.grid(column=0, row=0, padx=10, pady=25)
+    """
+    Извлечение данных из таблиц со сложной структурой
+    """
+    tab_extract_data = Frame(tab_control)
+    tab_control.add(tab_extract_data, text='Извлечение\nданных')
 
+    extract_data_frame_description = LabelFrame(tab_extract_data)
+    extract_data_frame_description.pack()
+
+    lbl_hello_extract_data = Label(extract_data_frame_description,
+                                   text='Центр опережающей профессиональной подготовки Республики Бурятия'
+                                      '\nИзвлечение данных из файлов Excel с сложной структурой',width=60)
+
+    lbl_hello_extract_data.pack(side=LEFT, anchor=N, ipadx=25, ipady=10)
     # Картинка
-    path_to_img_calculate = resource_path('logo.png')
-    img_calculate = PhotoImage(file=path_to_img)
-    Label(tab_calculate_data,
-          image=img_calculate
-          ).grid(column=1, row=0, padx=10, pady=25)
+    path_to_img_extract_data = resource_path('logo.png')
+    img_extract_data = PhotoImage(file=path_to_img_extract_data)
+    Label(extract_data_frame_description,
+          image=img, padx=10, pady=10
+          ).pack(side=LEFT, anchor=E, ipadx=5, ipady=5)
+
+
+    # Создаем область для того чтобы поместить туда подготовительные кнопки(выбрать файл,выбрать папку и т.п.)
+    frame_data_extract_data = LabelFrame(tab_extract_data, text='Подготовка')
+    frame_data_extract_data.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с параметрами
-    btn_select_file_params = Button(tab_calculate_data, text='1) Выбрать файл с параметрами', font=('Arial Bold', 20),
+    btn_select_file_params = Button(frame_data_extract_data, text='1) Выбрать файл с параметрами', font=('Arial Bold', 20),
                                     command=select_file_params_calculate_data
                                     )
-    btn_select_file_params.grid(column=0, row=2, padx=10, pady=10)
+    btn_select_file_params.pack(padx=10, pady=10)
 
     # Создаем кнопку Выбрать файл с данными
-    btn_select_files_data = Button(tab_calculate_data, text='2) Выбрать папку с данными', font=('Arial Bold', 20),
+    btn_select_files_data = Button(frame_data_extract_data, text='2) Выбрать папку с данными', font=('Arial Bold', 20),
                                    command=select_files_data_calculate_data
                                    )
-    btn_select_files_data.grid(column=0, row=3, padx=10, pady=10)
+    btn_select_files_data.pack(padx=10, pady=10)
 
     # Создаем кнопку для выбора папки куда будут генерироваться файлы
 
-    btn_choose_end_folder = Button(tab_calculate_data, text='3) Выбрать конечную папку', font=('Arial Bold', 20),
+    btn_choose_end_folder = Button(frame_data_extract_data, text='3) Выбрать конечную папку', font=('Arial Bold', 20),
                                    command=select_end_folder_calculate_data
                                    )
-    btn_choose_end_folder.grid(column=0, row=4, padx=10, pady=10)
+    btn_choose_end_folder.pack(padx=10, pady=10)
 
     # Создаем переменную для хранения результа переключения чекбокса
     mode_text_value = StringVar()
@@ -1148,19 +1161,19 @@ if __name__ == '__main__':
     mode_text_value.set('No')
     # Создаем чекбокс для выбора режима подсчета
 
-    chbox_mode_calculate = Checkbutton(tab_calculate_data,
+    chbox_mode_calculate = Checkbutton(frame_data_extract_data,
                                        text='Поставьте галочку, если вам нужно подсчитать текстовые данные ',
                                        variable=mode_text_value,
                                        offvalue='No',
                                        onvalue='Yes')
-    chbox_mode_calculate.grid(column=0, row=5, padx=10, pady=10)
+    chbox_mode_calculate.pack(padx=10, pady=10)
 
     # Создаем кнопку для запуска подсчета файлов
 
-    btn_calculate = Button(tab_calculate_data, text='4) Подсчитать', font=('Arial Bold', 20),
+    btn_calculate = Button(tab_extract_data, text='4) Подсчитать', font=('Arial Bold', 20),
                            command=calculate_data
                            )
-    btn_calculate.grid(column=0, row=6, padx=10, pady=10)
+    btn_calculate.pack(padx=10, pady=10)
 
     """
     Создание вкладки для объединения таблиц в одну большую
