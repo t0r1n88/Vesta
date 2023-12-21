@@ -153,6 +153,10 @@ def merging_two_tables(file_params, first_sheet_name, second_sheet_name, first_f
         name_second_df = second_file.split('/')[-1]
         name_second_df = name_second_df.split('.xlsx')[0]
 
+        # делаем названия колонок строковыми
+        first_df.columns = list(map(str,list(first_df.columns)))
+        second_df.columns = list(map(str,list(second_df.columns)))
+
         # создаем копию датафреймов для объединения с учетом пробельных символов
         precise_first_df = first_df.copy()
         precise_second_df = second_df.copy()
