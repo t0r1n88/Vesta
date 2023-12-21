@@ -634,12 +634,30 @@ def show_textmenu(event):
 def on_scroll(*args):
     canvas.yview(*args)
 
+def set_window_size(window):
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    # Устанавливаем размер окна в 80% от ширины и высоты экрана
+    width = int(screen_width * 0.45)
+    height = int(screen_height * 0.8)
+
+    # Рассчитываем координаты для центрирования окна
+    x = (screen_width - width) // 2
+    y = (screen_height - height) // 2
+
+    # Устанавливаем размер и положение окна
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 if __name__ == '__main__':
     window = Tk()
     window.title('Веста Обработка таблиц и создание документов ver 1.43')
-    window.geometry('774x760+700+100')
+    # Устанавливаем размер и положение окна
+    set_window_size(window)
+    # window.geometry('774x760')
     # window.geometry('980x910+700+100')
-    window.resizable(True, False)
+    window.resizable(True, True)
     # Добавляем контекстное меню в поля ввода
     make_textmenu(window)
 
