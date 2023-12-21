@@ -639,7 +639,25 @@ def set_window_size(window):
     screen_height = window.winfo_screenheight()
 
     # Устанавливаем размер окна в 80% от ширины и высоты экрана
-    width = int(screen_width * 0.45)
+    print(screen_width)
+
+
+
+    if screen_width >= 3840:
+        width = int(screen_width * 0.2)
+    elif screen_width >= 2560:
+        width = int(screen_width * 0.31)
+    elif screen_width >= 1920:
+        width = int(screen_width * 0.41)
+    elif screen_width >= 1600:
+        width = int(screen_width * 0.5)
+    elif screen_width >= 1280:
+        width = int(screen_width * 0.62)
+    elif screen_width >= 1024:
+        width = int(screen_width * 0.77)
+    else:
+        width = int(screen_width * 1)
+
     height = int(screen_height * 0.8)
 
     # Рассчитываем координаты для центрирования окна
