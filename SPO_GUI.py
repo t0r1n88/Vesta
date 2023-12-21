@@ -639,10 +639,6 @@ def set_window_size(window):
     screen_height = window.winfo_screenheight()
 
     # Устанавливаем размер окна в 80% от ширины и высоты экрана
-    print(screen_width)
-
-
-
     if screen_width >= 3840:
         width = int(screen_width * 0.2)
     elif screen_width >= 2560:
