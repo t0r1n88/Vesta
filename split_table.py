@@ -120,7 +120,7 @@ def split_table(file_data_split:str,number_column:int,checkbox_split:int,path_to
                 wb = openpyxl.Workbook()  # создаем файл
                 temp_df = df[df[name_column] == value] # отфильтровываем по значению
                 short_name = value[:40] # получаем обрезанное значение
-                short_name = re.sub(r'[\'+()<> :"?*|\\/]', '_', short_name)
+                short_name = re.sub(r'[\r\b\n\t\'+()<> :"?*|\\/]', '_', short_name)
                 if short_name in used_name_file:
                     short_name = f'{short_name}_{idx}' # добавляем окончание
                 for row in dataframe_to_rows(temp_df,index=False,header=True):

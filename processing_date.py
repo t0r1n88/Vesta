@@ -9,6 +9,7 @@ from openpyxl.utils import get_column_letter
 import time
 import platform
 import warnings
+import re
 
 warnings.filterwarnings('ignore', category=UserWarning, module='openpyxl')
 warnings.simplefilter(action='ignore', category=DeprecationWarning)
@@ -271,6 +272,7 @@ def proccessing_date(raw_selected_date, name_column, name_file_data_date, path_t
 
         t = time.localtime()
         current_time = time.strftime('%H_%M_%S', t)
+        name_column = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_column)
 
         wb.save(f'{path_to_end_folder_date}/Результат обработки колонки {name_column} от {current_time}.xlsx')
     except NameError:

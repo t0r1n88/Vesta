@@ -198,7 +198,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     # Сохраняенм файл
                     # получаем название файла и убираем недопустимые символы < > : " /\ | ? *
                     name_file = f'{name_type_file} {row[name_column]}'
-                    name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
+                    name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
                     # проверяем файл на наличие, если файл с таким названием уже существует то добавляем окончание
                     if name_file in used_name_file:
                         name_file = f'{name_file}_{idx}'
@@ -220,7 +220,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                 # Проверяем количество найденных совпадений
                 # очищаем от запрещенных символов
                 name_file = f'{name_type_file} {name_value_column}'
-                name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
+                name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
                 if len(single_data) == 1:
                     for row in single_data:
                         doc = DocxTemplate(name_file_template_doc)
@@ -267,7 +267,7 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                         # Сохраняем файл
                         # очищаем от запрещенных символов
                         name_file = f'{row[name_column]}'
-                        name_file = re.sub(r'[<> :"?*|\\/]', '_', name_file)
+                        name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
 
                         doc.save(f'{tmpdirname}/{name_file}_{idx}.docx')
                         # Добавляем путь к файлу в список

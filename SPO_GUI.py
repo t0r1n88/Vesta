@@ -666,7 +666,7 @@ def set_window_size(window):
 
 if __name__ == '__main__':
     window = Tk()
-    window.title('Веста Обработка таблиц и создание документов ver 1.43')
+    window.title('Веста Обработка таблиц и создание документов ver 1.50')
     # Устанавливаем размер и положение окна
     set_window_size(window)
     # window.geometry('774x760')

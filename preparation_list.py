@@ -393,7 +393,7 @@ def prepare_list(file_data:str,path_end_folder:str,checkbox_dupl:str):
                     continue
 
                 short_value = value[:20]  # получаем обрезанное значение
-                short_value = re.sub(r'[\[\]\'+()<> :"?*|\\/]', '_', short_value)
+                short_value = re.sub(r'[\r\b\n\t\[\]\'+()<> :"?*|\\/]', '_', short_value)
 
                 if short_value in used_name_sheet:
                     short_value = f'{short_value}_{idx}'  # добавляем окончание
