@@ -203,12 +203,12 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     if name_file in used_name_file:
                         name_file = f'{name_file}_{idx}'
 
-                    doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file}.docx')
+                    doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.docx')
                     used_name_file.add(name_file)
                     if mode_pdf == 'Yes':
                         if name_os == 'Windows':
-                            convert(f'{path_to_end_folder_doc}/{name_file}.docx',
-                                f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
+                            convert(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.docx',
+                                f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.pdf', keep_active=True)
                         else:
                             raise NotImplementedError
             else:
@@ -226,11 +226,11 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                         doc = DocxTemplate(name_file_template_doc)
                         doc.render(row)
                         # Сохраняенм файл
-                        doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file}.docx')
+                        doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.docx')
                         if mode_pdf == 'Yes':
                             if name_os == 'Windows':
-                                convert(f'{path_to_end_folder_doc}/{name_file}.docx',
-                                    f'{path_to_end_folder_doc}/{name_file}.pdf', keep_active=True)
+                                convert(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.docx',
+                                    f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.pdf', keep_active=True)
                             else:
                                 raise NotImplementedError
 
@@ -240,11 +240,11 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                         doc.render(row)
                         # Сохраняем файл
 
-                        doc.save(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx')
+                        doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}_{idx}.docx')
                         if mode_pdf == 'Yes':
                             if name_os == 'Windows':
-                                convert(f'{path_to_end_folder_doc}/{name_file}_{idx}.docx',
-                                    f'{path_to_end_folder_doc}/{name_file}_{idx}.pdf', keep_active=True)
+                                convert(f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}_{idx}.docx',
+                                    f'{path_to_end_folder_doc}/{name_type_file} {name_file[:80]}.pdf', keep_active=True)
                             else:
                                 raise NotImplementedError
                 else:
@@ -269,9 +269,9 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                         name_file = f'{row[name_column]}'
                         name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
 
-                        doc.save(f'{tmpdirname}/{name_file}_{idx}.docx')
+                        doc.save(f'{tmpdirname}/{name_file[:80]}_{idx}.docx')
                         # Добавляем путь к файлу в список
-                        files_lst.append(f'{tmpdirname}/{name_file}_{idx}.docx')
+                        files_lst.append(f'{tmpdirname}/{name_file[:80]}_{idx}.docx')
                     # Получаем базовый файл
                     main_doc = files_lst.pop(0)
                     # Запускаем функцию
@@ -331,7 +331,7 @@ if __name__ == '__main__':
     name_file_template_doc_main = 'data/Создание документов/Пример Шаблон согласия.docx'
     name_file_data_doc_main = 'data/Создание документов/Таблица для заполнения согласия.xlsx'
     path_to_end_folder_doc_main = 'data/result'
-    mode_combine_main = 'No'
+    mode_combine_main = 'Yes'
     mode_group_main = 'No'
 
     generate_docs_from_template(name_column_main, name_type_file_main, name_value_column_main, mode_pdf_main, name_file_template_doc_main,
