@@ -197,13 +197,13 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                     doc.render(context)
                     # Сохраняенм файл
                     # получаем название файла и убираем недопустимые символы < > : " /\ | ? *
-                    name_file = f'{name_type_file} {row[name_column]}'
-                    name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
+                    name_file = row[name_column]
+                    name_file = re.sub(r'[\r\b\n\t<>:"?*|\\/]', '_', name_file)
                     # проверяем файл на наличие, если файл с таким названием уже существует то добавляем окончание
                     if name_file in used_name_file:
                         name_file = f'{name_file}_{idx}'
 
-                    doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
+                    doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file}.docx')
                     used_name_file.add(name_file)
                     if mode_pdf == 'Yes':
                         if name_os == 'Windows':
@@ -219,14 +219,14 @@ def generate_docs_from_template(name_column,name_type_file,name_value_column,mod
                 single_data = single_df.to_dict('records')
                 # Проверяем количество найденных совпадений
                 # очищаем от запрещенных символов
-                name_file = f'{name_type_file} {name_value_column}'
-                name_file = re.sub(r'[\r\b\n\t<> :"?*|\\/]', '_', name_file)
+                name_file = name_value_column
+                name_file = re.sub(r'[\r\b\n\t<>:"?*|\\/]', '_', name_file)
                 if len(single_data) == 1:
                     for row in single_data:
                         doc = DocxTemplate(name_file_template_doc)
                         doc.render(row)
                         # Сохраняенм файл
-                        doc.save(f'{path_to_end_folder_doc}/{name_file}.docx')
+                        doc.save(f'{path_to_end_folder_doc}/{name_type_file} {name_file}.docx')
                         if mode_pdf == 'Yes':
                             if name_os == 'Windows':
                                 convert(f'{path_to_end_folder_doc}/{name_file}.docx',
@@ -327,7 +327,7 @@ if __name__ == '__main__':
     name_column_main = 'ФИО'
     name_type_file_main = 'Справка'
     name_value_column_main = 'Алехин Данила Прокопьевич'
-    mode_pdf_main = 'Yes'
+    mode_pdf_main = 'No'
     name_file_template_doc_main = 'data/Создание документов/Пример Шаблон согласия.docx'
     name_file_data_doc_main = 'data/Создание документов/Таблица для заполнения согласия.xlsx'
     path_to_end_folder_doc_main = 'data/result'
